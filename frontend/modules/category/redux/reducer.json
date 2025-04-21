@@ -1,0 +1,8 @@
+[{
+    "name":"authReducer",
+    "sliceName":"authSlice"
+},
+{
+    "name":"permissionReducer",
+    "sliceName":"permissionSlice"
+}]

@@ -1,0 +1,7 @@
+[
+    {"name": "auth"}, 
+    {"name": "role"}, 
+    {"name": "permission"},
+    {"name": "category"},
+    {"name": "userDetail"}
+]

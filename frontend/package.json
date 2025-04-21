@@ -1,0 +1,35 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "generate:map": "node scripts/generateComponentsMap.js",
+    "generate-redux:map": "node scripts/generateReducersMap.js",
+    "dev": "npm run generate:map && node scripts/generateReducersMap.js &&  next dev",
+    "build": "npm run generate:map && next build",
+    "start": "npm run generate:map && next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.3.0",
+    "axios": "^1.7.7",
+    "formik": "^2.4.6",
+    "fs": "^0.0.1-security",
+    "glob": "^11.0.0", 
+    "jwt-decode": "^4.0.0",
+    "next": "15.0.0",
+    "react": "19.0.0-rc-65a56d0e-20241020",
+    "react-dom": "19.0.0-rc-65a56d0e-20241020",
+    "react-redux": "^9.1.2",
+    "sass": "^1.81.0",
+    "yup": "^1.4.0"
+  },
+  "devDependencies": { 
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "15.0.0",
+    "typescript": "^5"
+  }
+}

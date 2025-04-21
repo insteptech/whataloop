@@ -1,0 +1,58 @@
+exports.routeParams = [
+  {
+    route: "auth/send-otp",
+    params: { mobile: "" },
+    queryParams: [],
+    authRequired: true,
+    method: "post",
+    tag: "Auth",
+  },
+  {
+    route: "auth/verify-otp",
+    params: { mobile: "", otp: "" },
+    queryParams: [],
+    authRequired: false,
+    method: "post",
+    tag: "Auth",
+  },
+  {
+    route: "auth/",
+    params: {},
+    authRequired: true,
+    queryParams: [],
+    method: "get",
+    tag: "Auth",
+  },
+  {
+    route: "auth/{id}",
+    params: {},
+    queryParams: [{ name: "id", type: "integer", required: true, in: "path" }],
+    method: "get",
+    authRequired: true,
+    tag: "Auth",
+  },
+  {
+    route: "auth/update",
+    params: { email: "", firstName: "", lastName: "" },
+    queryParams: [],
+    authRequired: true,
+    method: "put",
+    tag: "Auth",
+  },
+  {
+    route: "auth/{id}",
+    params: {},
+    queryParams: [{ name: "id", type: "integer", required: true, in: "path" }],
+    method: "delete",
+    authRequired: true,
+    tag: "Auth",
+  },
+  {
+    route: "auth/complete",
+    params: { isProfileComplete: false },
+
+    method: "put",
+    authRequired: true,
+    tag: "Auth",
+  },
+];
