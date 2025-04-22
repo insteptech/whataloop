@@ -7,6 +7,7 @@ import InputField from "@/components/common/InputField";
 import { EmailIcon, LockIcon } from "@/components/common/Icon";
 import CheckBoxField from "@/components/common/CheckBoxField";
 import SelectField from "@/components/common/SelectField";
+import TextAreaField from "@/components/common/TextareaField";
 
 const LoginWithOTP = () => {
   const dispatch = useDispatch<any>();
@@ -73,7 +74,7 @@ const LoginWithOTP = () => {
               />
               <InputField
                 label="Password"
-                EndIcon={LockIcon}
+                StartIcon={LockIcon}
                 placeholder="Enter your password"
                 id="password"
                 type="password"
@@ -89,17 +90,7 @@ const LoginWithOTP = () => {
                 onChange={handleCheckboxClick}
               />
 
-              <SelectField
-                name="status"
-                label="Status"
-                required
-                options={[
-                  { value: "active", label: "Active" },
-                  { value: "inactive", label: "Inactive" },
-                  { value: "pending", label: "Pending" },
-                ]}
-              />
-
+              <TextAreaField label="Notes" id="notes" name="notes" />
               <button type="submit" className="login-button">
                 Login
               </button>
