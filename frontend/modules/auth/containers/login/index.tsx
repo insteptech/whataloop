@@ -5,11 +5,22 @@ import { useDispatch } from "react-redux";
 import { sendOtp, verifyOtp } from "../../redux/actions/authAction";
 import InputField from "@/components/common/InputField";
 import { EmailIcon, LockIcon } from "@/components/common/Icon";
+import CheckBoxField from "@/components/common/CheckBoxField";
 
 const LoginWithOTP = () => {
   const dispatch = useDispatch<any>();
   const [isOTPSent, setIsOTPSent] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+
+  const loginValidationSchema = Yup.object({
+    email: Yup.string()
+      .email("Invalid email address")
+      .required("Email Address is required"),
+    password: Yup.string()
+      .min(6, "Password must be at least 6 characters")
+      .required("Password is required"),
+    rememberMe: Yup.boolean(),
+  });
 
   const handleMobileSubmit = async (values: { mobile: string }) => {
     dispatch(sendOtp(values)).then((res) => {
@@ -31,6 +42,9 @@ const LoginWithOTP = () => {
       //
     });
   };
+  const handleCheckboxClick = () => {
+    setRememberMe(!rememberMe);
+  };
 
   return (
     <div className="login-container">
@@ -41,10 +55,8 @@ const LoginWithOTP = () => {
         </div>
         {/* {!isOTPSent ? ( */}
         <Formik
-          initialValues={{ mobile: "" }}
-          validationSchema={Yup.object({
-            email: Yup.string().email().required("Email Address is required"),
-          })}
+          initialValues={{ mobile: "", password: "" }}
+          validationSchema={loginValidationSchema}
           onSubmit={handleMobileSubmit}
         >
           {({ isSubmitting }) => (
@@ -66,20 +78,13 @@ const LoginWithOTP = () => {
                 name="password"
               />
 
-              <div className="form-options">
-                <div className="remember-me">
-                  <input
-                    type="checkbox"
-                    id="rememberMe"
-                    checked={rememberMe}
-                    onChange={() => setRememberMe(!rememberMe)}
-                  />
-                  <label htmlFor="rememberMe">Remember me</label>
-                </div>
-                <a href="#forgot-password" className="forgot-password">
-                  Forgot password?
-                </a>
-              </div>
+              <CheckBoxField
+                label="Remember me"
+                type="checkbox"
+                id="rememberMe"
+                checked={rememberMe}
+                onChange={handleCheckboxClick}
+              />
 
               <button type="submit" className="login-button">
                 Login
