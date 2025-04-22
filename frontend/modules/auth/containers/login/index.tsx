@@ -101,7 +101,7 @@ const LoginWithOTP = () => {
               </div>
 
               <div className="signup-link">
-                Don't have an account? <a href="#signup">Sign up</a>
+                Don't have an account? <a href="/auth/register">Sign up</a>
               </div>
             </Form>
           )}

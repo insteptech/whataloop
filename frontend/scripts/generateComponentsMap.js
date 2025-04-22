@@ -52,14 +52,28 @@ function generateComponentsMap() {
   // Generate the code for the componentsMap and dynamic imports
   let componentsMapString =
     "import dynamic from 'next/dynamic'; export const componentsMap = {\n";
-
-  modulesRouter.forEach((moduleObj) => {
+ modulesRouter.forEach((moduleObj) => {
     const { module, components } = moduleObj;
     if (components && components.length > 0) {
       componentsMapString += `  "${module}": {\n`;
-
-      components.forEach((component) => {
-        componentsMapString += `    "${component.name}": dynamic(() => import("${component.path}"), { ssr: false, loading: () => <div>Loading...</div> }), \n`;
+      components.forEach((component, index) => {
+        if (
+          components[index + 1]?.name.startsWith("[") &&
+          components[index + 1]?.name.endsWith("]")
+        ) {
+          componentsMapString += `    "${component.name}/${
+            components[index + 1].name
+          }": dynamic(() => import("${
+            components[index + 1].path
+          }"), { ssr: false, loading: () => <div>Loading...</div> }), \n`;
+        } else if (
+          component.name.startsWith("[") &&
+          component.name.endsWith("]")
+        ) {
+          return;
+        } else {
+          componentsMapString += `    "${component.name}": dynamic(() => import("${component.path}"), { ssr: false, loading: () => <div>Loading...</div> }), \n`;
+        }
       });
 
       componentsMapString += `  },\n`;
