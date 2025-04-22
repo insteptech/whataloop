@@ -1,7 +1,7 @@
 import { useField, useFormikContext } from "formik";
 import Image from "next/image";
 
-const InputField = ({
+const FileInput = ({
   label,
   StartIcon,
   EndIcon,
@@ -47,4 +47,4 @@ const InputField = ({
   );
 };
 
-export default InputField;
+export default FileInput;

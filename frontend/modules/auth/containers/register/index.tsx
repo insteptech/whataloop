@@ -2,9 +2,11 @@ import React, { useRef } from "react";
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import InputField from "@/components/common/InputField";
+import FileInput from "@/components/common/FileInput";
+import { Col, Row } from "react-bootstrap";
 
 const SignUp = () => {
-  const fileInputRef = useRef(null)
+  const fileInputRef = useRef(null);
   const validationSchema = Yup.object().shape({
     firstName: Yup.string()
       .required("First name is required")
@@ -36,7 +38,6 @@ const SignUp = () => {
           ? ["image/jpeg", "image/png", "image/jpg"].includes(value.type)
           : false
       ),
-    
   });
 
   const initialValues = {
@@ -48,7 +49,7 @@ const SignUp = () => {
     photo: null,
   };
 
-  const handleSubmit = (values, {resetForm}) => {
+  const handleSubmit = (values, { resetForm }) => {
     const formData = new FormData();
 
     for (const key in values) {
@@ -60,7 +61,7 @@ const SignUp = () => {
       console.log(pair[0] + ": ", pair[1]);
     }
 
-    resetForm()
+    resetForm();
 
     if (fileInputRef.current) {
       fileInputRef.current.value = null;
@@ -68,80 +69,101 @@ const SignUp = () => {
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto", padding: "20px" }}>
-      <h2>Registration Form</h2>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ setFieldValue }) => (
-          <Form>
-            <div style={{ marginBottom: "16px" }}>
-              <InputField
-                label="First Name"
-                placeholder="Enter First name"
-                id="firstName"
-                type="text"
-                name="firstName"
-              />
-
-              <InputField
-                label="Email"
-                placeholder="Enter Email"
-                id="email"
-                type="email"
-                name="email"
-              />
-
-              <InputField
-                label="Phone number"
-                placeholder="Enter Phone number"
-                id="mobile"
-                type="text"
-                name="mobile"
-              />
-
-              <InputField
-                label="Password"
-                placeholder="Enter Password"
-                id="password"
-                type="password"
-                name="password"
-              />
-
-              <InputField
-                label="Confirm Password"
-                placeholder="Enter Confirm Password"
-                id="confirmPassword"
-                type="password"
-                name="confirmPassword"
-              />
-
-              {/* Custom File Input for Photo */}
-              <div>
-                <label htmlFor="photo">Upload Photo</label>
-                <input
-                  id="photo"
-                  name="photo"
-                  type="file"
-                  accept="image/*"
-                  ref={fileInputRef}
-                  onChange={(event) => {
-                    setFieldValue("photo", event.currentTarget.files[0]);
-                  }}
-                  className="form-input"
+    <div className="login-container">
+      <div className="login-card registration-form-card">
+        <div className="login-header">
+          <h2>Registration Form</h2>
+        </div>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ setFieldValue }) => (
+            <Form>
+              <Row>
+                <Col md={6}>
+                  <InputField
+                    label="First Name"
+                    placeholder="Enter First name"
+                    id="firstName"
+                    type="text"
+                    name="firstName"
+                  />
+                </Col>
+                <Col md={6}>
+                  <InputField
+                    label="Email"
+                    placeholder="Enter Email"
+                    id="email"
+                    type="email"
+                    name="email"
+                  />
+                </Col>
+                <InputField
+                  label="Phone number"
+                  placeholder="Enter Phone number"
+                  id="mobile"
+                  type="text"
+                  name="mobile"
                 />
-                <ErrorMessage name="photo" component="div" className="text-red-600 text-sm" />
-              </div>
+                <Col md={6}>
+                  <InputField
+                    label="Password"
+                    placeholder="Enter Password"
+                    id="password"
+                    type="password"
+                    name="password"
+                  />
+                </Col>
+                <Col md={6}>
+                  <InputField
+                    label="Confirm Password"
+                    placeholder="Enter Confirm Password"
+                    id="confirmPassword"
+                    type="password"
+                    name="confirmPassword"
+                  />
+                </Col>
 
-              <button type="submit" className="login-button mt-4">
-                Sign up
-              </button>
-            </div>
-          </Form>
-        )}
-      </Formik>
+                {/* Custom File Input for Photo */}
+                {/* <div>
+                  <label htmlFor="photo">Upload Photo</label>
+                  <input
+                    id="photo"
+                    name="photo"
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={(event) => {
+                      setFieldValue("photo", event.currentTarget.files[0]);
+                    }}
+                    className="form-input"
+                  />
+                  <ErrorMessage
+                    name="photo"
+                    component="div"
+                    className="text-red-600 text-sm"
+                  />
+                </div> */}
+                <Col md={6}>
+                  <FileInput
+                    label="Upload Photo"
+                    id="photo"
+                    name="photo"
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                  />
+                </Col>
+                <button type="submit" className="login-button mt-4">
+                  Sign up
+                </button>
+              </Row>
+            </Form>
+          )}
+        </Formik>
+      </div>
     </div>
   );
 };

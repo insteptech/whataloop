@@ -6,6 +6,7 @@ import { sendOtp, verifyOtp } from "../../redux/actions/authAction";
 import InputField from "@/components/common/InputField";
 import { EmailIcon, LockIcon } from "@/components/common/Icon";
 import CheckBoxField from "@/components/common/CheckBoxField";
+import SelectField from "@/components/common/SelectField";
 
 const LoginWithOTP = () => {
   const dispatch = useDispatch<any>();
@@ -63,11 +64,12 @@ const LoginWithOTP = () => {
             <Form className="login-form">
               <InputField
                 label="Email Address"
-                EndIcon={EmailIcon}
+                StartIcon={EmailIcon}
                 placeholder="Enter your email"
                 id="email"
                 type="email"
                 name="email"
+                required
               />
               <InputField
                 label="Password"
@@ -76,6 +78,7 @@ const LoginWithOTP = () => {
                 id="password"
                 type="password"
                 name="password"
+                required
               />
 
               <CheckBoxField
@@ -84,6 +87,17 @@ const LoginWithOTP = () => {
                 id="rememberMe"
                 checked={rememberMe}
                 onChange={handleCheckboxClick}
+              />
+
+              <SelectField
+                name="status"
+                label="Status"
+                required
+                options={[
+                  { value: "active", label: "Active" },
+                  { value: "inactive", label: "Inactive" },
+                  { value: "pending", label: "Pending" },
+                ]}
               />
 
               <button type="submit" className="login-button">

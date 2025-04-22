@@ -1,16 +1,15 @@
 import { useField, useFormikContext } from "formik";
-import Image from "next/image";
 
-const InputField = ({
+const SelectField = ({
   label,
-  StartIcon,
   EndIcon,
   disabled,
   required,
+  options = [],
   ...props
 }: any) => {
   const [field, meta] = useField(props);
-  const { submitCount } = useFormikContext(); // get form submit count
+  const { submitCount } = useFormikContext();
   const isError = (meta.touched || submitCount > 0) && Boolean(meta.error);
 
   return (
@@ -22,21 +21,24 @@ const InputField = ({
       )}
 
       <div className="form-group-inner">
-        <input
+        <select
           {...field}
           {...props}
           className={` ${disabled ? "input-disabled" : ""} ${
-            StartIcon ? "end-icon-padding" : ""
+            EndIcon ? "end-icon-padding" : ""
           }`}
           disabled={disabled}
-        />
-        {StartIcon && (
-          <span className="input-icon">
-            <StartIcon fill="#6c757d" />
-          </span>
-        )}
+        >
+          <option value="">Select {label?.toLowerCase()}</option>
+          {options.map((option: any, index: number) => (
+            <option key={index} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+
         {EndIcon && (
-          <span className="input-icon end-icon-position">
+          <span className="input-icon">
             <EndIcon fill="#6c757d" />
           </span>
         )}
@@ -47,4 +49,4 @@ const InputField = ({
   );
 };
 
-export default InputField;
+export default SelectField;

@@ -39,6 +39,10 @@ $font-family: "Roboto", sans-serif;
     padding: 40px;
     transition: $transition;
 
+    &.registration-form-card {
+        max-width: 650px;
+    }
+
     &:hover {
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
     }
@@ -76,9 +80,14 @@ $font-family: "Roboto", sans-serif;
         color: $text-color;
         font-size: 14px;
         font-weight: 500;
+
+        span {
+            color: $error-color;
+        }
     }
 
-    input {
+    input,
+    select {
         width: 100%;
         padding: 12px 15px 12px 15px;
         border: 1px solid #e0e0e0;
@@ -102,12 +111,49 @@ $font-family: "Roboto", sans-serif;
         }
     }
 
+    input[type=file]::-webkit-file-upload-button {
+        position: absolute;
+        top: 9px;
+        right: -10px
+    }
+
+    input[type=file]::file-selector-button {
+        position: absolute;
+        top: 4px;
+        right: 10px
+    }
+
+    input[type=file]::-webkit-file-upload-button:hover {
+        background-color: #3f37c9 !important;
+    }
+
+    input[type=file]::file-selector-button:hover {
+        background-color: #3f37c9 !important;
+    }
+
+    input::-webkit-file-upload-button {
+        background: #4361ee !important;
+        color: white;
+        border: none;
+        padding: 8px;
+        border-radius: 10px;
+    }
+
+    input::file-selector-button {
+        background: #4361ee !important;
+    }
+
     .input-icon {
         position: absolute;
         left: 15px;
         bottom: 12px;
         color: $gray;
         font-size: 16px;
+
+        &.end-icon-position {
+            right: 15px;
+            left: unset;
+        }
 
         svg {
             width: 16px;
