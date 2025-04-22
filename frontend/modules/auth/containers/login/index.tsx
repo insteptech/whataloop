@@ -3,87 +3,106 @@ import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useDispatch } from "react-redux";
 import { sendOtp, verifyOtp } from "../../redux/actions/authAction";
+import InputField from "@/components/common/InputField";
+import { EmailIcon, LockIcon } from "@/components/common/Icon";
 
 const LoginWithOTP = () => {
   const dispatch = useDispatch<any>();
   const [isOTPSent, setIsOTPSent] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleMobileSubmit = async (values: { mobile: string }) => {
-      dispatch(sendOtp(values)).then(res => {
-        if (res.payload.statusCode == 200) {
-          setIsOTPSent(true);
-        } else {
-          alert(res.payload.message)
-        }
-    })
+    dispatch(sendOtp(values)).then((res) => {
+      if (res.payload.statusCode == 200) {
+        setIsOTPSent(true);
+      } else {
+        alert(res.payload.message);
+      }
+    });
   };
 
   const handleOTPSubmit = async (values: { otp: string }) => {
-    dispatch(verifyOtp(values)).then(res => {
-        if (res.payload.statusCode == 200) {
-          window.location.href = "/dashboard";
-        } else {
-          alert(res.payload.message)
-        }
-        //  
-    })
+    dispatch(verifyOtp(values)).then((res) => {
+      if (res.payload.statusCode == 200) {
+        window.location.href = "/dashboard";
+      } else {
+        alert(res.payload.message);
+      }
+      //
+    });
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto", padding: "20px" }}>
-      <h2>{isOTPSent ? "Enter OTP" : "Login with Mobile"}</h2>
-      {!isOTPSent ? (
+    <div className="login-container">
+      <div className="login-card">
+        <div className="login-header">
+          <h2>Welcome</h2>
+          <p>Please enter your credentials to login</p>
+        </div>
+        {/* {!isOTPSent ? ( */}
         <Formik
           initialValues={{ mobile: "" }}
           validationSchema={Yup.object({
-            mobile: Yup.string()
-              // .matches(/^\d{10}$/, "Enter a valid 10-digit mobile number")
-              .required("Mobile number is required"),
+            email: Yup.string().email().required("Email Address is required"),
           })}
           onSubmit={handleMobileSubmit}
         >
           {({ isSubmitting }) => (
-            <Form>
-              <div style={{ marginBottom: "16px" }}>
-                <label htmlFor="mobile" style={{ display: "block", marginBottom: "4px" }}>
-                  Mobile Number
-                </label>
-                <Field
-                  type="text"
-                  id="mobile"
-                  name="mobile"
-                  placeholder="Enter your mobile number"
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    border: "1px solid #ccc",
-                    borderRadius: "4px",
-                  }}
-                />
-                  <ErrorMessage name="otp">
-                    {(msg) => <div style={{ color: "red", marginTop: "5px" }}>{msg}</div>}
-                  </ErrorMessage>
+            <Form className="login-form">
+              <InputField
+                label="Email Address"
+                EndIcon={EmailIcon}
+                placeholder="Enter your email"
+                id="email"
+                type="email"
+                name="email"
+              />
+              <InputField
+                label="Password"
+                EndIcon={LockIcon}
+                placeholder="Enter your password"
+                id="password"
+                type="password"
+                name="password"
+              />
+
+              <div className="form-options">
+                <div className="remember-me">
+                  <input
+                    type="checkbox"
+                    id="rememberMe"
+                    checked={rememberMe}
+                    onChange={() => setRememberMe(!rememberMe)}
+                  />
+                  <label htmlFor="rememberMe">Remember me</label>
+                </div>
+                <a href="#forgot-password" className="forgot-password">
+                  Forgot password?
+                </a>
               </div>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  backgroundColor: "#0070f3",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                }}
-              >
-                {isSubmitting ? "Sending OTP..." : "Send OTP"}
+
+              <button type="submit" className="login-button">
+                Login
               </button>
+
+              <div className="divider">
+                <span>or</span>
+              </div>
+
+              <div className="social-login">
+                <button type="button" className="social-button google">
+                  <i className="fab fa-google"></i> Continue with Google
+                </button>
+              </div>
+
+              <div className="signup-link">
+                Don't have an account? <a href="#signup">Sign up</a>
+              </div>
             </Form>
           )}
         </Formik>
-      ) : (
-        <Formik
+        {/* ) : ( */}
+        {/* <Formik
           initialValues={{ otp: "" }}
           validationSchema={Yup.object({
             otp: Yup.string()
@@ -95,7 +114,10 @@ const LoginWithOTP = () => {
           {({ isSubmitting }) => (
             <Form>
               <div style={{ marginBottom: "16px" }}>
-                <label htmlFor="otp" style={{ display: "block", marginBottom: "4px" }}>
+                <label
+                  htmlFor="otp"
+                  style={{ display: "block", marginBottom: "4px" }}
+                >
                   OTP
                 </label>
                 <Field
@@ -110,10 +132,12 @@ const LoginWithOTP = () => {
                     borderRadius: "4px",
                   }}
                 />
-                 
-                  <ErrorMessage name="otp">
-                    {(msg) => <div style={{ color: "red", marginTop: "5px" }}>{msg}</div>}
-                  </ErrorMessage>
+
+                <ErrorMessage name="otp">
+                  {(msg) => (
+                    <div style={{ color: "red", marginTop: "5px" }}>{msg}</div>
+                  )}
+                </ErrorMessage>
               </div>
               <button
                 type="submit"
@@ -132,8 +156,9 @@ const LoginWithOTP = () => {
               </button>
             </Form>
           )}
-        </Formik>
-      )}
+        </Formik> */}
+        {/* )} */}
+      </div>
     </div>
   );
 };

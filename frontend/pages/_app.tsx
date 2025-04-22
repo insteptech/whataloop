@@ -1,12 +1,11 @@
 import ProtectedRoute from "@/components/protectedRoute";
-import { Provider } from 'react-redux';
-import "@/styles/globals.scss";
+import { Provider } from "react-redux";
+import "@/styles/imports.scss";
 import type { AppProps } from "next/app";
-import createStore from '../store/createStore';
+import createStore from "../store/createStore";
 import { useEffect, useState } from "react";
 
 export default function App({ Component, pageProps }: AppProps) {
-
   const [store, setStore] = useState(null);
 
   useEffect(() => {
@@ -24,5 +23,5 @@ export default function App({ Component, pageProps }: AppProps) {
         <Component {...pageProps} />
       </ProtectedRoute>
     </Provider>
- )
+  );
 }

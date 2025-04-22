@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import React from "react";
-
+import "bootstrap/dist/css/bootstrap.min.css";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -10,19 +10,19 @@ const Layout = ({ children }: LayoutProps) => {
   const router = useRouter();
   return (
     <div className="layout">
-      <header>
+      {/* <header>
         <h1>My Application</h1>
         <a onClick={()=>router.push("/auth/login")}>Login</a> <br/>
         <a onClick={()=>router.push("/auth/main")}>main</a> <br/>
         <a onClick={()=>router.push("/")}>home</a> <br/>
         <a onClick={()=>router.push("/dashboard")}>dashboard</a> <br/>
-      </header>
+      </header> */}
       <main>{children}</main>
-      <footer>
+      {/* <footer>
         <p>© 2024 My Application</p>
-      </footer>
+      </footer> */}
     </div>
   );
-}
+};
 
 export default Layout;
