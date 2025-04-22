@@ -100,13 +100,15 @@ const SignUp = () => {
                     name="email"
                   />
                 </Col>
-                <InputField
-                  label="Phone number"
-                  placeholder="Enter Phone number"
-                  id="mobile"
-                  type="text"
-                  name="mobile"
-                />
+                <Col md={6}>
+                  <InputField
+                    label="Phone number"
+                    placeholder="Enter Phone number"
+                    id="mobile"
+                    type="text"
+                    name="mobile"
+                  />
+                </Col>
                 <Col md={6}>
                   <InputField
                     label="Password"
