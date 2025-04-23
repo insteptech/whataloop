@@ -30,6 +30,36 @@ $font-family: "Roboto", sans-serif;
     background-position: left;
 }
 
+.profile-icon {
+    margin-bottom: 30px;
+
+    img {
+        width: 100%;
+        height: 100%;
+        width: 140px;
+        height: 140px;
+        border-radius: 100%;
+        border: 5px solid #040025;
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}
+
+// .registration-container {
+//     background: url('../../../public/registration.jpg') !important;
+
+//     &::after {
+//         content: "";
+//         position: absolute;
+//         background: rgba(26, 24, 24, 0.8);
+//         height: 100%;
+//         width: 100%;
+
+//     }
+// }
+
 .login-card {
     background: $white;
     border-radius: $border-radius;
@@ -41,6 +71,9 @@ $font-family: "Roboto", sans-serif;
 
     &.registration-form-card {
         max-width: 650px;
+        position: relative;
+        z-index: 999;
+        padding-top: 70px;
     }
 
     &:hover {

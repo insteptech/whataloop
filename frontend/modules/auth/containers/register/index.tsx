@@ -4,6 +4,9 @@ import * as Yup from "yup";
 import InputField from "@/components/common/InputField";
 import FileInput from "@/components/common/FileInput";
 import { Col, Row } from "react-bootstrap";
+import ProfileIcon from "../../../../public/user.png";
+import Image from "next/image";
+import ImageUpload from "@/components/common/ImageUpload";
 
 const SignUp = () => {
   const fileInputRef = useRef(null);
@@ -51,6 +54,7 @@ const SignUp = () => {
 
   const handleSubmit = (values, { resetForm }) => {
     const formData = new FormData();
+    // formData.append("profileImage", values.profileImage);
 
     for (const key in values) {
       formData.append(key, values[key]);
@@ -69,18 +73,24 @@ const SignUp = () => {
   };
 
   return (
-    <div className="login-container">
+    <div className="login-container registration-container">
       <div className="login-card registration-form-card">
-        <div className="login-header">
+        {/* <div className="login-header">
           <h2>Registration Form</h2>
-        </div>
+        </div> */}
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {({ setFieldValue }) => (
+          {({ setFieldValue, values }) => (
             <Form>
+              {/* <div className="profile-icon row align-content-center justify-content-center">
+                <div className="col-md-4">
+                  <Image src={ProfileIcon} alt="" />
+                </div>
+              </div> */}
+              <ImageUpload name="photo" label="Click to upload" />
               <Row>
                 <Col md={6}>
                   <InputField
@@ -148,16 +158,6 @@ const SignUp = () => {
                     className="text-red-600 text-sm"
                   />
                 </div> */}
-                <Col md={6}>
-                  <FileInput
-                    label="Upload Photo"
-                    id="photo"
-                    name="photo"
-                    type="file"
-                    accept="image/*"
-                    ref={fileInputRef}
-                  />
-                </Col>
                 <button type="submit" className="login-button mt-4">
                   Sign up
                 </button>

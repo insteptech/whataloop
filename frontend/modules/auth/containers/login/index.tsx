@@ -90,7 +90,6 @@ const LoginWithOTP = () => {
                 onChange={handleCheckboxClick}
               />
 
-              <TextAreaField label="Notes" id="notes" name="notes" />
               <button type="submit" className="login-button">
                 Login
               </button>
