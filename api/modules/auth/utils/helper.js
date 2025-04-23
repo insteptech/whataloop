@@ -9,7 +9,7 @@ const generateAccessToken = async (user) => {
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
-    isProfileComplete: user.isProfileComplete,
+    // isProfileComplete: user.isProfileComplete,
   };
   if (user.roles && user.roles.length > 0) {
     tokenObj["roles"] = user.roles.map((a) => a.name);

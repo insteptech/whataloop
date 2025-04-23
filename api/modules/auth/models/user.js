@@ -2,11 +2,6 @@
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
       if (models.Role) {
         // User has many Roles
@@ -20,19 +15,25 @@ module.exports = (sequelize, DataTypes) => {
   }
   User.init(
     {
-      mobile: DataTypes.STRING,
-      firstName: DataTypes.STRING,
-      lastName: DataTypes.STRING,
+      phone: DataTypes.STRING,
+      fullName: DataTypes.STRING,
       email: DataTypes.STRING,
       password: DataTypes.STRING,
-      isActive: DataTypes.BOOLEAN,
-      isProfileComplete: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
       otp: DataTypes.STRING,
       otpExpires: DataTypes.DATE,
-      uuid: DataTypes.UUID,
+      timezone: DataTypes.STRING,
+      photo_url: DataTypes.STRING,
+      account_type: {
+        type: DataTypes.ENUM("free", "starter", "pro"),
+        defaultValue: "free",
+      },
+      stripe_customer_id: DataTypes.STRING,
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        allowNull: false,
+        primaryKey: true,
+      },
     },
     {
       sequelize,

@@ -1,68 +1,38 @@
+const e = require("express");
 const authService = require("../services/auth.js");
 const {
-  // sendOtp,
   sendResponse,
   generateOtp,
   generateAccessToken,
   sendOtp,
 } = require("../utils/helper.js");
-const { OTP_EXPIRATION_TIME, TEST_MOBILE_US, TEST_MOBILE_IN, TEST_OTP } =
-  process.env;
 
-exports.sendOtp = async (req, res) => {
-  const { mobile } = req.body;
-  // Check if the mobile number is a test number
-
-  const isTestMobile = mobile === TEST_MOBILE_US || mobile === TEST_MOBILE_IN;
-  const otp = isTestMobile ? TEST_OTP : await generateOtp(); // Use static OTP if test mobile, otherwise generate
-
-  const otpExpires = new Date(Date.now() + OTP_EXPIRATION_TIME * 1000);
-
-  let user = await authService.findUser({ mobile });
-  if (!user) {
-    user = await authService.createUser({
-      mobile,
-      otp,
-      otpExpires,
-    });
-    authService.updateOtp(mobile, otp, otpExpires);
+exports.sendOtp = async (email) => {
+  // const otp = generateOtp(); // e.g., 6-digit
+  const otp = process.env.TEST_OTP;
+  
+  const user = await authService.findUser(email);
+  if(user) {
+    console.log(`User already exists with email ${email}`);
   } else {
-    await authService.updateOtp(mobile, otp, otpExpires);
+    console.log(`OTP is ${process.env.TEST_OTP} for ${email.email}`);
   }
-
-  if (!isTestMobile) {
-    // Send OTP only for non-test mobile numbers
-    console.log(`OTP sent to ${mobile}: ${otp}`); // Log for debugging (remove in production)
-    // Place actual OTP sending code here (e.g., via Twilio)
-    await sendOtp(mobile, otp);
-  } else {
-    console.log(`Static OTP used for test mobile ${mobile}: ${otp}`);
-  }
-
-  return sendResponse(res, 200, true, "OTP sent successfully", {
-    otp: otp,
-  }); // Optionally return OTP for test numbers
+  return { email, otp};
 };
 
+
 exports.verifyOtp = async (req, res) => {
-  // Verify OTP and retrieve user if OTP is valid
-  const { mobile, otp } = req.body;
-  const user = await authService.findByMobileAndOtp(mobile, otp);
+  const { email, otp } = req.body;
+  const generatedOtp = process.env.TEST_OTP;
+  const user = await authService.findUser({email: email});
   if (!user) {
-    console.log(`Invalid OTP for mobile ${mobile}`); // Log invalid attempts for debugging
-    throw new Error("Invalid OTP");
+    if(otp !== generatedOtp) {
+      console.log(`Invalid OTP for email ${email}`);
+      throw new Error("Invalid OTP");
+    } else {
+      return sendResponse(res, 200, true, "OTP Verified", email);
+    }
   }
-
-  // Clear OTP after successful verification
-  await authService.clearOtp(mobile);
-
-  // Generate JWT token with role included
-
-  const token = await generateAccessToken(user);
-
-  // Return the token and essential user information
-
-  return sendResponse(res, 200, true, "User Logined", user, token);
 };
 
 exports.listUsers = async (req, res) => {
@@ -112,4 +82,52 @@ exports.profileComplete = async (req, res) => {
   // Return the token and essential user information
 
   return sendResponse(res, 200, true, "User Logined", user, token);
+};
+
+exports.login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password required" });
+    }
+    const result = await authService.login(email, password);
+
+    return res.status(200).json({
+      message: "Login successful",
+      data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.signup = async (req, res) => {
+  const { phone, email, fullName, password } = req.body;
+  
+  // Check if user already exists with the same email
+  let user = await authService.findUser({ email: email.toLowerCase() });
+  if (user) {
+    return sendResponse(res, 400, true, "Email already exists");
+  }
+
+  // Check if user already exists with the same phone number
+  user = await authService.findUser({ phone });
+  if (user) {
+    return sendResponse(res, 400, true, "Phone number already exists");
+  }
+
+  // If no existing user found, proceed with signup
+  user = await authService.signup({
+    phone,
+    email,
+    fullName,
+    password,
+  });
+
+  return sendResponse(res, 200, true, "User successfully created", {
+    id: user.id,
+    phone: user.phone,
+    email: user.email,
+    fullName: user.fullName,
+  });
 };

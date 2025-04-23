@@ -4,32 +4,18 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("Users", {
       id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER,
-      },
-      mobile: { type: Sequelize.STRING, allowNull: false, unique: true },
-      firstName: { type: Sequelize.STRING, allowNull: true },
-      lastName: { type: Sequelize.STRING, allowNull: true },
-      email: { type: Sequelize.STRING, allowNull: true, unique: true },
-      password: { type: Sequelize.STRING, allowNull: true },
-      isActive: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: true,
-      },
-      isProfileComplete: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-      },
-      otp: { type: Sequelize.STRING, allowNull: true },
-      otpExpires: { type: Sequelize.DATE, allowNull: true },
-      uuid: {
         type: Sequelize.UUID,
         allowNull: false,
-        defaultValue: Sequelize.UUID,
-        unique: true,
+        defaultValue: Sequelize.UUIDV4,
+        primaryKey: true,
+        unique: true
       },
+      phone: { type: Sequelize.STRING, allowNull: false, unique: true },
+      fullName: { type: Sequelize.STRING, allowNull: true },
+      email: { type: Sequelize.STRING, allowNull: false, unique: true },
+      password: { type: Sequelize.STRING, allowNull: false },
+      otp: { type: Sequelize.STRING, allowNull: true },
+      otpExpires: { type: Sequelize.DATE, allowNull: true },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -38,20 +24,23 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
+      photo_url: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      account_type: {
+        type: Sequelize.ENUM("free", "starter", "pro"),
+        defaultValue: "free",
+      },
+      stripe_customer_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      timezone: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      }
     });
-    // const tableDescription = await queryInterface.describeTable("Users");
-
-    // Check if the column already exists
-    // if (!tableDescription.uuid) {
-    //   await queryInterface.addColumn("Users", "uuid", {
-    //     type: Sequelize.UUID,
-    //     defaultValue: Sequelize.UUID,
-    //     allowNull: true,
-    //     unique: true,
-    //   });
-    // } else {
-    //   console.log("Column 'uuid' already exists in 'Users' table.");
-    // }
   },
 
   async down(queryInterface) {

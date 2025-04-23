@@ -14,10 +14,10 @@ const connectPostgres = async () => {
       dialect: process.env.POSTGRES_DIALECT,
       dialectOptions: {
         ssl: {
-          require: true, // This will enforce using SSL
+          require: false, // This will enforce using SSL
           rejectUnauthorized: false, // This might be needed if using self-signed certificates
         },
-        // ssl: false,
+        ssl: false,
       },
     }
   );

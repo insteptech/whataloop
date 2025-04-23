@@ -1,14 +1,14 @@
-exports.otpInput = [{ key: "mobile", type: "string", required: true }];
+exports.otpInput = [{ key: "email", type: "string", required: true }];
 exports.verifyOtpInput = [
-  { key: "mobile", type: "string", required: true },
+  { key: "email", type: "string", required: true },
   { key: "otp", type: "string", required: true },
 ];
 
 exports.userDetailInput = [{ key: "id", type: "string", required: true }];
 
-exports.createUserInput = [{ key: "mobile", type: "string", required: true }];
+exports.createUserInput = [{ key: "email", type: "string", required: true }];
 exports.updateUserInput = [
-  // { key: "mobile", type: "string", required: true },
+  // { key: "email", type: "string", required: true },
   { key: "firstName", type: "string", required: true },
   { key: "lastName", type: "string", required: true },
   { key: "email", type: "string", required: false },
@@ -20,3 +20,13 @@ exports.profileCompleteInput = [
 ];
 
 exports.userDeleteInput = [{ key: "id", type: "string", required: true }];
+exports.loginInput = [
+  { key: "email", type: "string", required: true },
+  { key: "password", type: "string", required: true },
+];
+exports.signupInput = [
+  { key: "phone", type: "string", required: true },
+  { key: "email", type: "string", required: true },
+  { key: "fullName", type: "string", required: true },
+  { key: "password", type: "string", required: true },
+];

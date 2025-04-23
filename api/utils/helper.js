@@ -26,17 +26,23 @@ const verifyToken = function (token, callback) {
   return jwt.verify(token, process.env.JWT_SECRET, {}, callback);
 };
 
-const sendOtp = async (phoneNumber, otp) => {
+const sendOtp = async (email, otp) => {
   try {
     await client.messages.create({
-      body: `Your OTP code for cura-x-ai is ${otp}.`,
+      body: `Your OTP code is ${otp}.`,
       from: process.env.TWILIO_PHONE_NUMBER,
-      to: phoneNumber,
+      to: email,
     });
-    console.log(`OTP sent to ${phoneNumber}`);
+    console.log(`OTP sent to ${email}`);
   } catch (error) {
     throw { error };
   }
 };
 
-module.exports = { sendResponse, verifyToken, sendOtp };
+const generateToken = (payload) => {
+  return jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
+};
+
+module.exports = { sendResponse, verifyToken, sendOtp, generateToken };

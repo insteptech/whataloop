@@ -21,10 +21,10 @@ const getDConfig = () => {
       obj.dialect = process.env.POSTGRES_DIALECT;
       obj.dialectOptions = {
         ssl: {
-          require: true, // This will enforce using SSL
+          require: false, // This will enforce using SSL
           rejectUnauthorized: false, // This might be needed if using self-signed certificates
         },
-        // ssl: false,
+        ssl: false,
       };
       return obj;
     case supportedDbTypes.mysql:

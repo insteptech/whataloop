@@ -1,7 +1,7 @@
 exports.routeParams = [
   {
     route: "auth/send-otp",
-    params: { mobile: "" },
+    params: { email: "" },
     queryParams: [],
     authRequired: true,
     method: "post",
@@ -9,31 +9,31 @@ exports.routeParams = [
   },
   {
     route: "auth/verify-otp",
-    params: { mobile: "", otp: "" },
+    params: { email: "", otp: "" },
     queryParams: [],
     authRequired: false,
     method: "post",
     tag: "Auth",
   },
   {
-    route: "auth/",
-    params: {},
-    authRequired: true,
+    route: "auth/login",
+    params: { email: "", password: "" },
     queryParams: [],
-    method: "get",
+    authRequired: true,
+    method: "post",
     tag: "Auth",
   },
   {
-    route: "auth/{id}",
-    params: {},
-    queryParams: [{ name: "id", type: "integer", required: true, in: "path" }],
-    method: "get",
+    route: "auth/signup",
+    params: { fullName: "", email: "", password: "", phoneNumber: "", timezone: "" },
+    queryParams: [],
     authRequired: true,
+    method: "post",
     tag: "Auth",
   },
   {
     route: "auth/update",
-    params: { email: "", firstName: "", lastName: "" },
+    params: { fullName: "", email: "", password: "", phoneNumber: "", timezone: "", photoUrl: "", stripeCustomerId: "" },
     queryParams: [],
     authRequired: true,
     method: "put",
@@ -46,13 +46,5 @@ exports.routeParams = [
     method: "delete",
     authRequired: true,
     tag: "Auth",
-  },
-  {
-    route: "auth/complete",
-    params: { isProfileComplete: false },
-
-    method: "put",
-    authRequired: true,
-    tag: "Auth",
-  },
+  }
 ];
