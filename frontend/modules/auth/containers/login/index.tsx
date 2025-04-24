@@ -24,16 +24,21 @@ const LoginWithOTP = () => {
     rememberMe: Yup.boolean(),
   });
 
-  const handleMobileSubmit = async (values: { mobile: string }) => {
-    dispatch(sendOtp(values)).then((res) => {
-      if (res.payload.statusCode == 200) {
+  const handleSubmit = async (values: { email: string; password: string }) => {
+    const payload = { email: values.email }; // Only send email for OTP
+    console.log("Sending payload:", payload);
+  
+    dispatch(sendOtp(payload)).then((res) => {
+      console.log("response status:", res.payload?.statusCode);
+  
+      if (res.payload?.statusCode === 200) {
         setIsOTPSent(true);
       } else {
-        alert(res.payload.message);
+        alert(res.payload?.message);
       }
     });
   };
-
+  
   const handleOTPSubmit = async (values: { otp: string }) => {
     dispatch(verifyOtp(values)).then((res) => {
       if (res.payload.statusCode == 200) {
@@ -57,9 +62,9 @@ const LoginWithOTP = () => {
         </div>
         {/* {!isOTPSent ? ( */}
         <Formik
-          initialValues={{ mobile: "", password: "" }}
+          initialValues={{ email: "", password: "" }}
           validationSchema={loginValidationSchema}
-          onSubmit={handleMobileSubmit}
+          onSubmit={handleSubmit}
         >
           {({ isSubmitting }) => (
             <Form className="login-form">

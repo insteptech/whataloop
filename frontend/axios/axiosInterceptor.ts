@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getToken, isAuthenticated, logout } from "@/utils/auth";
   
-const API_URL = "http://localhost:3007/api/v1/";
+const API_URL = "http://localhost:3000/api/v1/";
 
   
 const onRequest = async (config) => {
