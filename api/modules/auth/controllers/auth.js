@@ -19,7 +19,7 @@ exports.sendOtp = async (req, res, next) => {
     const schema = buildSchema(otpInput);
     const { error } = schema.validate(req.body);
     if (error) return next(new CustomError(error.details[0].message, 400));
-    const result = await authManager.sendOtp({email: req.body.email});
+    const result = await authManager.sendOtp(req, res);
     res.status(200).json({ message: "OTP sent successfully", ...result });
   } catch (error) {
     return next(new CustomError(error.message, 500));

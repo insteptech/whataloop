@@ -67,16 +67,17 @@ exports.authenticate = async (req, res, next) => {
           token = val.replace(/"/g, "");
           if (token) {
             verifyToken(token, async function (err, decoded) {
-              console.log(err, "err");
               if (err) {
                 return next(
                   new CustomError(`You are not authenticated! ${err}`, 400)
                 );
               }
+
               req.decoded = decoded;
 
               let userDetail = await findUser({ id: req.decoded.id }, next);
               if (userDetail) {
+                req.user = userDetail; // ✅ FIXED HERE
                 next();
               } else {
                 return next(new CustomError("Invalid Token", 401));

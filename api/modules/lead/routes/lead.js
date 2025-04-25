@@ -1,1 +1,17 @@
-// Content for lead.js
+const express = require("express");
+const leadController = require("../controllers/lead");
+const {
+  authenticate,
+  authorize,
+} = require("../../../middlewares/authenticate");
+const { validateCreateLead, validateUpdateLead } = require('../middlewares/validators');
+const router = express.Router();
+
+router.post("/add-lead", authenticate, leadController.addLead);
+
+router.post('/', authenticate, validateCreateLead, leadController.create);
+router.get('/', authenticate, leadController.getAll);
+router.put('/:id', authenticate, validateUpdateLead, leadController.update);
+router.delete('/:id', authenticate, leadController.remove);
+
+module.exports = router;

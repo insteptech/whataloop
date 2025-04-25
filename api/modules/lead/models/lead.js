@@ -1,75 +1,100 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Lead extends Model {
     /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
+     * Define associations here.
      */
     static associate(models) {
-      Lead.belongsTo(models.User, {
-        foreignKey: 'user_id',
-        onDelete: 'CASCADE'
-      });
-
       Lead.belongsTo(models.Constants, {
         foreignKey: 'tag',
         onDelete: 'SET NULL'
       });
+
+      Lead.belongsTo(models.Constants, {
+        foreignKey: 'status',
+        onDelete: 'SET NULL'
+      });
+
+      Lead.belongsTo(models.Constants, {
+        foreignKey: 'source',
+        onDelete: 'SET NULL'
+      });
+
+      // ✅ Associate Lead with User
+      Lead.belongsTo(models.User, {
+        foreignKey: 'user_id',
+        as: 'user',
+        onDelete: 'CASCADE'
+      });
     }
   }
+
   Lead.init({
     id: {
       type: DataTypes.UUID,
-      defaultValue: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true
     },
-    user_id: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
     name: {
-      type: DataTypes.STRING(100)
+      type: DataTypes.STRING(100),
+      allowNull: true
     },
     phone: {
-      type: DataTypes.STRING(20)
+      type: DataTypes.STRING(20),
+      allowNull: true
     },
     email: {
-      type: DataTypes.STRING(150)
+      type: DataTypes.STRING(150),
+      allowNull: true
     },
     tag: {
       type: DataTypes.UUID,
+      allowNull: true,
       references: {
-        model: "Constants",
-        key: "id",
-      },
+        model: 'Constants',
+        key: 'id',
+      }
     },
     status: {
       type: DataTypes.UUID,
+      allowNull: true,
       references: {
-        model: "Constants",
-        key: "id",
-      },
+        model: 'Constants',
+        key: 'id',
+      }
     },
     source: {
       type: DataTypes.UUID,
+      allowNull: true,
       references: {
-        model: "Constants",
-        key: "id",
-      },
+        model: 'Constants',
+        key: 'id',
+      }
     },
     notes: {
-      type: DataTypes.TEXT
+      type: DataTypes.TEXT,
+      allowNull: true
     },
     last_contacted: {
-      type: DataTypes.DATE
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    // ✅ Add user_id field
+    user_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'Users',
+        key: 'id'
+      }
     }
   }, {
     sequelize,
     modelName: 'Lead',
+    tableName: 'Leads'
   });
+
   return Lead;
 };

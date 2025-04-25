@@ -7,18 +7,25 @@ const {
   sendOtp,
 } = require("../utils/helper.js");
 
-exports.sendOtp = async (email) => {
-  // const otp = generateOtp(); // e.g., 6-digit
+exports.sendOtp = async (req, res) => {
   const otp = process.env.TEST_OTP;
-  
-  const user = await authService.findUser(email);
-  if(user) {
-    console.log(`User already exists with email ${email}`);
-  } else {
-    console.log(`OTP is ${process.env.TEST_OTP} for ${email.email}`);
+  const email = req.body.email.toLowerCase();
+
+  try {
+    const user = await authService.findUser({ email });
+
+    if (user) {
+      console.log(`User already exists with email ${email}`);
+      return sendResponse(res, 400, true, "Email already exists");
+    } else {
+      console.log(`OTP is ${otp} for ${email}`);
+      return sendResponse(res, 200, true, "OTP sent successfully", { email, otp });
+    }
+  } catch (err) {
+    return sendResponse(res, 500, false, "Something went wrong", err.message);
   }
-  return { email, otp};
 };
+
 
 
 exports.verifyOtp = async (req, res) => {

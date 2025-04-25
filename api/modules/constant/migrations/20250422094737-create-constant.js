@@ -1,24 +1,39 @@
 'use strict';
-/** @type {import('sequelize-cli').Migration} */
+
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Constants', {
       id: {
         type: Sequelize.UUID,
+        defaultValue: Sequelize.literal('gen_random_uuid()'),
+        primaryKey: true,
         allowNull: false,
-        defaultValue: Sequelize.UUID,
-        unique: true,
-      },
-      name: {
-        type: Sequelize.STRING,
-        unique: true,
       },
       type: {
+        type: Sequelize.STRING, // e.g., 'lead_status', 'lead_tag'
+        allowNull: false,
+      },
+      label: {
         type: Sequelize.STRING,
-        unique: true,
+        allowNull: false,
+      },
+      value: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.fn('NOW'),
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.fn('NOW'),
       }
     });
   },
+
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Constants');
   }
