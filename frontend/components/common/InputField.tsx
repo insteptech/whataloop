@@ -7,6 +7,8 @@ const InputField = ({
   EndIcon,
   disabled,
   required,
+  EndImage,
+  className,
   ...props
 }: any) => {
   const [field, meta] = useField(props);
@@ -21,13 +23,13 @@ const InputField = ({
         </label>
       )}
 
-      <div className="form-group-inner">
+      <div className={`form-group-inner ${className ? className : ""}`}>
         <input
           {...field}
           {...props}
           className={` ${disabled ? "input-disabled" : ""} ${
             StartIcon ? "end-icon-padding" : ""
-          }`}
+          }  `}
           disabled={disabled}
         />
         {StartIcon && (
@@ -38,6 +40,12 @@ const InputField = ({
         {EndIcon && (
           <span className="input-icon end-icon-position">
             <EndIcon fill="#6c757d" />
+            <Image src={EndImage} alt="" />
+          </span>
+        )}
+        {EndImage && (
+          <span className="input-icon end-icon-position">
+            <Image src={EndImage} alt="" width={30} height={30} />
           </span>
         )}
       </div>
