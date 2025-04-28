@@ -14,12 +14,13 @@ const InputField = ({
   const [field, meta] = useField(props);
   const { submitCount } = useFormikContext(); // get form submit count
   const isError = (meta.touched || submitCount > 0) && Boolean(meta.error);
+  const isRequiredError = required && !field.value;
 
   return (
     <div className="common-input-group">
       {label && (
         <label className="common-form-label">
-          {label} {required && <span>*</span>}
+          {label} {isRequiredError && <span>*</span>}
         </label>
       )}
 

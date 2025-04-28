@@ -44,7 +44,7 @@ const LeadsForm = () => {
   };
 
   return (
-    <div className="card-bg-container">
+    <div className="card-bg-container leads-form-container">
       <div className="card-inner-content leads-form-card">
         <div className="module-card-header">
           <h2>Leads Form</h2>

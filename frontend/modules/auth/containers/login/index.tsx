@@ -75,7 +75,7 @@ const LoginWithOTP = () => {
                 id="email"
                 type="email"
                 name="email"
-                required
+                required={true}
               />
               <InputField
                 label="Password"
