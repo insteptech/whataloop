@@ -9,6 +9,7 @@ import {
   sourceOptions,
   statusOptions,
 } from "../../utils/leadOptions";
+import { Col, Row } from "react-bootstrap";
 
 // Validation schema
 const validationSchema = Yup.object().shape({
@@ -43,74 +44,87 @@ const LeadsForm = () => {
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto", padding: "20px" }}>
-      <h2>Leads Form</h2>
-
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        {() => (
-          <Form className="grid gap-4">
-            <div style={{ marginBottom: "16px" }}>
-              <InputField
-                label="Name"
-                name="name"
-                id="name"
-                placeholder="Enter Name"
-              />
-              <InputField
-                label="Phone"
-                name="phone"
-                id="phone"
-                placeholder="Enter Phone"
-              />
-              <InputField
-                label="Email"
-                name="email"
-                id="email"
-                type="email"
-                placeholder="Enter Email"
-              />
-
-              <SelectField
-                name="tag"
-                label="Tag"
-                required
-                options={tagOptions}
-              />
-
-              <SelectField
-                name="status"
-                label="Select Status"
-                required
-                options={statusOptions}
-              />
-
-              <SelectField
-                name="source"
-                label="Select Source"
-                required
-                options={sourceOptions}
-              />
-
-              <TextAreaField label="Notes" id="notes" name="notes" />
-
-              <InputField
-                label="Last Contacted"
-                name="last_contacted"
-                id="last_contacted"
-                type="datetime-local"
-              />
-
-              <button type="submit" className="login-button mt-4">
-                Submit
-              </button>
-            </div>
-          </Form>
-        )}
-      </Formik>
+    <div className="card-bg-container">
+      <div className="card-inner-content leads-form-card">
+        <div className="module-card-header">
+          <h2>Leads Form</h2>
+        </div>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {() => (
+            <Form>
+              <Row>
+                <Col md={6}>
+                  <InputField
+                    label="Name"
+                    name="name"
+                    id="name"
+                    placeholder="Enter Name"
+                  />
+                </Col>
+                <Col md={6}>
+                  <InputField
+                    label="Phone"
+                    name="phone"
+                    id="phone"
+                    placeholder="Enter Phone"
+                  />
+                </Col>
+                <Col md={6}>
+                  <InputField
+                    label="Email"
+                    name="email"
+                    id="email"
+                    type="email"
+                    placeholder="Enter Email"
+                  />
+                </Col>
+                <Col md={6}>
+                  <SelectField
+                    name="tag"
+                    label="Tag"
+                    required
+                    options={tagOptions}
+                  />
+                </Col>
+                <Col md={6}>
+                  <SelectField
+                    name="status"
+                    label="Select Status"
+                    required
+                    options={statusOptions}
+                  />
+                </Col>
+                <Col md={6}>
+                  <SelectField
+                    name="source"
+                    label="Select Source"
+                    required
+                    options={sourceOptions}
+                  />
+                </Col>
+                <Col md={12}>
+                  <TextAreaField label="Notes" id="notes" name="notes" />
+                </Col>
+                <Col md={12}>
+                  <InputField
+                    label="Last Contacted"
+                    name="last_contacted"
+                    id="last_contacted"
+                    type="datetime-local"
+                  />
+                </Col>
+                <button type="submit" className="login-button mt-4">
+                  Submit
+                </button>
+              </Row>
+            </Form>
+          )}
+        </Formik>
+      </div>
     </div>
   );
 };

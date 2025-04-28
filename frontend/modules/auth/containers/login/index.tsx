@@ -27,10 +27,10 @@ const LoginWithOTP = () => {
   const handleSubmit = async (values: { email: string; password: string }) => {
     const payload = { email: values.email }; // Only send email for OTP
     console.log("Sending payload:", payload);
-  
+
     dispatch(sendOtp(payload)).then((res) => {
       console.log("response status:", res.payload?.statusCode);
-  
+
       if (res.payload?.statusCode === 200) {
         setIsOTPSent(true);
       } else {
@@ -38,7 +38,7 @@ const LoginWithOTP = () => {
       }
     });
   };
-  
+
   const handleOTPSubmit = async (values: { otp: string }) => {
     dispatch(verifyOtp(values)).then((res) => {
       if (res.payload.statusCode == 200) {
@@ -54,9 +54,9 @@ const LoginWithOTP = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
+    <div className="card-bg-container">
+      <div className="card-inner-content">
+        <div className="module-card-header">
           <h2>Welcome</h2>
           <p>Please enter your credentials to login</p>
         </div>

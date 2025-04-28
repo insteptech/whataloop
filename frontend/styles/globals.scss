@@ -1,3 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+
+// Variables
+$primary-color: #4361ee;
+$secondary-color: #3f37c9;
+$text-color: #333;
+$light-gray: #f8f9fa;
+$gray: #6c757d;
+$white: #ffffff;
+$error-color: #e63946;
+$border-radius: 8px;
+$box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+$transition: all 0.3s ease;
+$font-family: "Roboto", sans-serif;
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -36,4 +53,233 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+
+.card-bg-container {
+  font-family: $font-family;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  // background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: url('../public/bg.png');
+  padding: 20px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: left;
+}
+
+.card-inner-content {
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $box-shadow;
+  width: 100%;
+  max-width: 450px;
+  padding: 40px;
+  transition: $transition;
+
+  &.registration-form-card {
+    max-width: 650px;
+    position: relative;
+    z-index: 999;
+    padding-top: 70px;
+  }
+
+  &.leads-form-card {
+    max-width: 650px;
+    position: relative;
+    z-index: 999;
+  }
+
+  &:hover {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.module-card-header {
+  text-align: center;
+  margin-bottom: 30px;
+
+  h2 {
+    color: $primary-color;
+    margin-bottom: 10px;
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  p {
+    color: $gray;
+    font-size: 14px;
+  }
+}
+
+.common-input-group {
+  margin-bottom: 20px;
+  width: 100%;
+
+  .form-group-inner {
+    position: relative;
+
+    &.country-code-select-with-number {
+      display: flex;
+      align-items: center;
+
+      select {
+        width: 40%;
+        appearance: none;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+
+      input {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+      }
+    }
+  }
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    color: $text-color;
+    font-size: 14px;
+    font-weight: 500;
+
+    span {
+      color: $error-color;
+    }
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 12px 15px 12px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: $border-radius;
+    font-size: 14px;
+    transition: $transition;
+    background-color: $light-gray;
+
+    &.end-icon-padding {
+      padding: 12px 15px 12px 40px;
+    }
+
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    }
+
+    &::placeholder {
+      color: lighten($gray, 20%);
+    }
+  }
+
+
+  input[type=file]::-webkit-file-upload-button {
+    position: absolute;
+    top: 9px;
+    right: -10px
+  }
+
+  input[type=file]::file-selector-button {
+    position: absolute;
+    top: 4px;
+    right: 10px
+  }
+
+  input[type=file]::-webkit-file-upload-button:hover {
+    background-color: #3f37c9 !important;
+  }
+
+  input[type=file]::file-selector-button:hover {
+    background-color: #3f37c9 !important;
+  }
+
+  input::-webkit-file-upload-button {
+    background: #4361ee !important;
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 10px;
+  }
+
+  input::file-selector-button {
+    background: #4361ee !important;
+  }
+
+  .email-with-verified-icon {
+    .input-icon {
+      bottom: 8px;
+    }
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 15px;
+    bottom: 12px;
+    color: $gray;
+    font-size: 16px;
+
+    &.end-icon-position {
+      right: 15px;
+      left: unset;
+    }
+
+    svg {
+      width: 16px;
+    }
+  }
+
+  .common-error-msg {
+    color: $error-color;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 8px;
+  }
+}
+
+.common-checkbox {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  font-size: 14px;
+  width: 100%;
+
+  .checkbox-inner {
+    display: flex;
+    align-items: center;
+
+    input {
+      margin-right: 8px;
+      accent-color: $primary-color;
+    }
+
+    label {
+      color: $gray;
+      cursor: pointer;
+    }
+  }
+
+  .forgot-password {
+    color: $primary-color;
+    text-decoration: none;
+    transition: $transition;
+
+    &:hover {
+      color: $secondary-color;
+      text-decoration: underline;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 480px) {
+  .card-inner-content {
+    padding: 30px 20px;
+  }
 }

@@ -91,8 +91,8 @@ const SignUp = () => {
   console.log("otpVerified", otpVerified);
 
   return (
-    <div className="login-container registration-container">
-      <div className="login-card registration-form-card">
+    <div className="card-bg-container lg-card-bg-container">
+      <div className="card-inner-content registration-form-card">
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
