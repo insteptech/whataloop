@@ -46,9 +46,9 @@ exports.createLead = async (data, userId) => {
   return await leadService.create({ ...data, user_id: userId });
 };
   
-  exports.getLeads = async (userId, query) => {
-    return await leadService.getAll(userId, query);
-  };
+exports.getLeads = async (userId, query) => {
+  return await leadService.getAll(userId, query);
+};
   
   exports.updateLead = async (leadId, userId, data) => {
     return await leadService.update(leadId, data, userId);

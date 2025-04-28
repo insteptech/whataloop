@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 const otpStorage = new Map();
 const bcrypt = require("bcryptjs");
 const { generateToken } = require("../../../utils/helper");
+const { Op } = require('sequelize');
 
 const findUser = async (where) => {
   if (typeof where !== "object" || Array.isArray(where) || where === null || Object.keys(where).length === 0) {
@@ -161,28 +162,37 @@ const create = async (data) => {
 };
   
 const getAll = async (userId, query) => {
-const { search, tag, status, sort = 'created_at', order = 'DESC', page = 1, limit = 10 } = query;
-const { Lead } = await getAllModels(process.env.DB_TYPE);
-if (!Lead) {
-    throw new Error("Lead model not found");
-}
-const where = { userId };
-if (search) {
-    where[Op.or] = [
-    { name: { [Op.iLike]: `%${search}%` } },
-    { phone: { [Op.iLike]: `%${search}%` } },
-    { email: { [Op.iLike]: `%${search}%` } }
-    ];
-}
-if (tag) where.tag = tag;
-if (status) where.status = status;
+  const { search, tag, status, sort = 'created_at', order = 'DESC', page = 1, limit = 10 } = query;
+  const { Lead, User } = await getAllModels(process.env.DB_TYPE); // ✅ Also get User if you want to include
 
-return await Lead.findAndCountAll({
+  if (!Lead) {
+    throw new Error("Lead model not found");
+  }
+
+  const where = { user_id: userId }; // ✅ correct key is 'user_id'
+
+  if (search) {
+    where[Op.or] = [
+      { name: { [Op.iLike]: `%${search}%` } },
+      { phone: { [Op.iLike]: `%${search}%` } },
+      { email: { [Op.iLike]: `%${search}%` } }
+    ];
+  }
+
+  if (tag) where.tag = tag;
+  if (status) where.status = status;
+
+  return await Lead.findAndCountAll({
     where,
+    include: [{
+      model: User,
+      as: 'user',
+      attributes: ['id', 'fullName', 'email']
+    }],
     order: [[sort, order.toUpperCase()]],
     offset: (page - 1) * limit,
     limit: parseInt(limit),
-});
+  });
 };
 
 const update = async (id, data, userId) => {
