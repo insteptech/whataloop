@@ -59,7 +59,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         if (userPermissions && userPermissions.length > 0) {
           if (!isRoutePermission()) {
             if(window.location.pathname.replace(/^\/|\/$/g, "").toLowerCase()!="/403".replace(/^\/|\/$/g, "").toLowerCase())
-            router.push("/403");  
+            router.push("/403");
           }
           setLoading(false);
         }

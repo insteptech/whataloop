@@ -31,7 +31,7 @@ const authSlice = createSlice({
       })
       .addCase(sendOtp.fulfilled, (state, action) => {
        state.loading = false;
-        state.user = action.payload.data;
+        state.user = action.payload.data; 
       })
       .addCase(sendOtp.rejected, (state, action) => {
         state.loading = false;

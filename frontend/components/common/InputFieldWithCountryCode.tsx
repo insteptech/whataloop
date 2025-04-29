@@ -15,6 +15,8 @@ const InputFieldWithCountryCode = ({
   disabled,
   required,
   className,
+  value,
+  onChange,
   ...props
 }: any) => {
   const [field, meta, helpers] = useField(props);
@@ -54,6 +56,8 @@ const InputFieldWithCountryCode = ({
         <input
           {...field}
           {...props}
+          value={value}
+          onChange={onChange ? onChange : field.onChange}
           className={` ${disabled ? "input-disabled" : ""}`}
           disabled={disabled}
         />

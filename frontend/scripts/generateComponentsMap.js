@@ -50,6 +50,7 @@ function generateComponentsMap() {
   }
 
   // Generate the code for the componentsMap and dynamic imports
+  let defaultRoot ="@/modules/auth/containers/login/index";
   let componentsMapString =
     "import dynamic from 'next/dynamic'; export const componentsMap = {\n";
  modulesRouter.forEach((moduleObj) => {
@@ -75,10 +76,11 @@ function generateComponentsMap() {
           componentsMapString += `    "${component.name}": dynamic(() => import("${component.path}"), { ssr: false, loading: () => <div>Loading...</div> }), \n`;
         }
       });
-
       componentsMapString += `  },\n`;
     }
   });
+
+  componentsMapString += `    "/": dynamic(() => import("${defaultRoot}"), { ssr: false, loading: () => <div>Loading...</div> }), \n`;
 
   componentsMapString += "};\n";
 

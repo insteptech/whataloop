@@ -1,15 +1,19 @@
 import React, { useState } from "react";
-import { Formik, Field, Form, ErrorMessage } from "formik";
+import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useDispatch } from "react-redux";
-import { sendOtp, verifyOtp } from "../../redux/actions/authAction";
+import { login } from "../../redux/actions/authAction";
 import InputField from "@/components/common/InputField";
 import { EmailIcon, LockIcon } from "@/components/common/Icon";
 import CheckBoxField from "@/components/common/CheckBoxField";
-import SelectField from "@/components/common/SelectField";
-import TextAreaField from "@/components/common/TextareaField";
+import { Router } from "next/router";
+import { useRouter } from "next/router";
+// import SelectField from "@/components/common/SelectField";
+// import TextAreaField from "@/components/common/TextareaField";
 
 const LoginWithOTP = () => {
+  const router = useRouter();
+
   const dispatch = useDispatch<any>();
   const [isOTPSent, setIsOTPSent] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -25,30 +29,28 @@ const LoginWithOTP = () => {
   });
 
   const handleSubmit = async (values: { email: string; password: string }) => {
-    const payload = { email: values.email }; // Only send email for OTP
-    console.log("Sending payload:", payload);
+    const payload = {
+      email: values.email,
+      password: values.password,
+    };
 
-    dispatch(sendOtp(payload)).then((res) => {
-      console.log("response status:", res.payload?.statusCode);
-
-      if (res.payload?.statusCode === 200) {
-        setIsOTPSent(true);
-      } else {
-        alert(res.payload?.message);
-      }
-    });
+    try {
+      await dispatch(login(payload)).then((response) => {
+        if (response.payload.status === 200) {
+          window.location.href = "leads/form";
+        } else {
+          alert(
+            response.payload.data?.message ||
+              "Invalid credentials, please try again."
+          );
+        }
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("An error occurred. Please try again.");
+    }
   };
 
-  const handleOTPSubmit = async (values: { otp: string }) => {
-    dispatch(verifyOtp(values)).then((res) => {
-      if (res.payload.statusCode == 200) {
-        window.location.href = "/dashboard";
-      } else {
-        alert(res.payload.message);
-      }
-      //
-    });
-  };
   const handleCheckboxClick = () => {
     setRememberMe(!rememberMe);
   };

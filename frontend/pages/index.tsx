@@ -11,20 +11,15 @@ type PageProps = {
 
 export default function Page({ slug }: PageProps) {
   
-  const slugArray = Array.isArray(slug) ? slug : [slug];
-  let modulePath = slugArray[0];
-  let subModulesPath = slugArray.slice(1).join("/");
-
-  if (modulePath && !subModulesPath) {
-    // if (modulePath && slugArray.length === 1) {
-    modulePath = "main";
-    subModulesPath = slugArray.slice(0).join("/");
-  }
-
-  
+const slugArray = Array.isArray(slug) ? slug.filter(Boolean) : slug ? [slug] : [];
+let modulePath = slugArray[0] || "/";
+let subModulesPath = slugArray.slice(1).join("/") || "/";  
 
   function findMatchingRoute(userRoute, modulePath) {
-
+    
+    if (modulePath === "/" && userRoute === "/") {
+            return componentsMap["/"];
+          }
     // Iterate over defined routes only if componentsMap[modulePath] exists
     if (componentsMap[modulePath]) {
       for (const [route, component] of Object.entries(
@@ -41,7 +36,7 @@ export default function Page({ slug }: PageProps) {
     return null; // No match found
   }
 
-  const componentPath = findMatchingRoute(subModulesPath, modulePath);
+const componentPath = findMatchingRoute(subModulesPath, modulePath);
 
   if (!componentPath) {
     return (
@@ -58,4 +53,3 @@ export default function Page({ slug }: PageProps) {
     </Layout>
   );
 }
-

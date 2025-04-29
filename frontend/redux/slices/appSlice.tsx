@@ -1,10 +1,13 @@
 // modules/auth/redux/authSlice.ts
 import { createSlice } from '@reduxjs/toolkit';
 import { getUserDetail } from '../actions/mainAction';
+import { defaultUserDetail, defaultUserPermissions } from '@/utils/default';
 
 const initialState = {
-  userDetail: null,
-  userPermissions: []
+  // userDetail: null,
+  // userPermissions: []
+  userDetail: defaultUserDetail,
+  userPermissions: defaultUserPermissions
 };
 
 const appSlice = createSlice({

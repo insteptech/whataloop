@@ -9,6 +9,8 @@ const InputField = ({
   required,
   EndImage,
   className,
+  value,
+  onChange,
   ...props
 }: any) => {
   const [field, meta] = useField(props);
@@ -25,14 +27,41 @@ const InputField = ({
       )}
 
       <div className={`form-group-inner ${className ? className : ""}`}>
+        {/* {value && onChange ? <input
+          {...field}
+          {...props}
+          value={value}  
+          onChange={onChange} 
+          className={` ${disabled ? "input-disabled" : ""} ${
+            StartIcon ? "end-icon-padding" : ""
+          }  `}
+          disabled={disabled}
+        /> :<input
+        {...field}
+        {...props}
+        className={` ${disabled ? "input-disabled" : ""} ${
+          StartIcon ? "end-icon-padding" : ""
+        }  `}
+        disabled={disabled}
+      />} */}
         <input
+          {...field}
+          {...props}
+          value={value}
+          onChange={onChange ? onChange : field.onChange} // Use the passed onChange if available
+          className={` ${disabled ? "input-disabled" : ""} ${
+            StartIcon ? "end-icon-padding" : ""
+          }  `}
+          disabled={disabled}
+        />
+        {/* <input
           {...field}
           {...props}
           className={` ${disabled ? "input-disabled" : ""} ${
             StartIcon ? "end-icon-padding" : ""
           }  `}
           disabled={disabled}
-        />
+        /> */}
         {StartIcon && (
           <span className="input-icon">
             <StartIcon fill="#6c757d" />

@@ -6,9 +6,12 @@ import { setToken } from "@/utils/auth";
 export const sendOtp = createAsyncThunk("sendOtp", async (payload: any) => {
   try {
      const response = await api.post("auth/send-otp", payload);
-     console.log("iii", response.data);
-     
-  return response.data;
+     console.log("kk", response.data, response.status);
+          
+     return {
+      data: response.data,
+      status: response.status,
+    };
   } catch (error) {
     return error.response.data;
   }
@@ -17,23 +20,24 @@ export const sendOtp = createAsyncThunk("sendOtp", async (payload: any) => {
 
 export const login = createAsyncThunk("login", async (payload: any) => {
   try{
-    const response = await api.post("auth/login", payload);
-    console.log("login", response);
-    console.log("kk", response.data);
-    
-    
-    return response.data;
+    const response = await api.post("auth/login", payload);   
+    console.log("resp", response);
+     
+    return response;
   } catch(error){
     return error.response.data;
   }
 })
 
+
 export const verifyOtp = createAsyncThunk("verifyOtp", async (payload: any) => {
   try {
-    const response = await api.post("users/verify-otp", payload);
-    if (response.data.statusCode == 200) {
-      setToken(response.data.token);
-    }
+    const response = await api.post("auth/verify-otp", payload);
+    console.log("token", response.data.token);
+    
+    // if (response.data.statusCode == 200) {
+    //   setToken(response.data.token);
+    // }
   return response.data;
   } catch (error) {
     return error.response.data;
@@ -42,7 +46,14 @@ export const verifyOtp = createAsyncThunk("verifyOtp", async (payload: any) => {
 
 export const register = createAsyncThunk("register", async (payload: any) => {
   try{
-    const response = await api.post("auth/register", payload);
+    const response = await api.post("auth/signup", payload);
+    console.log("kk", response);
+
+    
+    // if (response.data.statusCode == 200) {
+    //   setToken(response.data.token);
+    // }
+    
     return response.data;
   } catch(error){
     return error.response.data

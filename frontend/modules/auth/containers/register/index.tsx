@@ -2,124 +2,161 @@ import React, { useRef, useState } from "react";
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import InputField from "@/components/common/InputField";
-import FileInput from "@/components/common/FileInput";
 import { Col, Row } from "react-bootstrap";
-import ProfileIcon from "../../../../public/user.png";
-import Image from "next/image";
 import ImageUpload from "@/components/common/ImageUpload";
 import verifiedIcon from "../../../../public/verified.png";
 import InputFieldWithCountryCode from "@/components/common/InputFieldWithCountryCode";
+import { register, sendOtp, verifyOtp } from "../../redux/actions/authAction";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 
 const SignUp = () => {
-  const fileInputRef = useRef(null);
+  const dispatch = useDispatch<any>();
+
   const [emailVerify, setEmailVerify] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
 
-  const validationSchema = Yup.object().shape({
-    firstName: Yup.string()
-      .required("First name is required")
-      .min(2, "Too short!")
-      .max(20, "Too long!"),
-
-    email: Yup.string().email("Invalid email").required("Email is required"),
-
-    mobile: Yup.string()
-      .required("Mobile number is required")
-      .matches(/^[0-9]+$/, "Only numbers allowed")
-      .min(10, "Enter valid phone number"),
-
-    password: Yup.string()
-      .required("Password is required")
-      .min(6, "Password must be at least 6 characters"),
-
-    confirmPassword: Yup.string()
-      .required("Confirm password is required")
-      .oneOf([Yup.ref("password"), null], "Passwords must match"),
-
-    // photo: Yup.mixed()
-    //   // .required("Photo is required")
-    //   .test("fileSize", "File too large", (value) =>
-    //     value instanceof File ? value.size <= 2 * 1024 * 1024 : false
-    //   )
-    //   .test("fileType", "Unsupported file format", (value) =>
-    //     value instanceof File
-    //       ? ["image/jpeg", "image/png", "image/jpg"].includes(value.type)
-    //       : false
-    //   ),
-  });
-
-  const initialValues = {
-    firstName: "",
+  const [formData, setFormData] = useState({
+    fullName: "",
     email: "",
-    mobile: "",
+    phone: "",
     password: "",
     confirmPassword: "",
     photo: null,
+    otp: "",
+  });
+
+  // Validation Schema
+  const validationSchema = Yup.object().shape({
+    fullName: Yup.string()
+      .required("Full name is required")
+      .min(2, "Too short!")
+      .max(20, "Too long!"),
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    phone: Yup.string()
+      .required("Mobile number is required")
+      .matches(/^[0-9]+$/, "Only numbers allowed")
+      .min(10, "Enter valid phone number"),
+    password: Yup.string()
+      .required("Password is required")
+      .min(6, "Password must be at least 6 characters"),
+    confirmPassword: Yup.string()
+      .required("Confirm password is required")
+      .oneOf([Yup.ref("password"), null], "Passwords must match"),
+  });
+
+  // Handle Form Submit
+  const handleSubmit = async () => {
+    if (!otpVerified) {
+      toast.error("Please verify your email before signing up.");
+      return;
+    }
+  
+    const { fullName, email, phone, password } = formData;
+    const payload = { fullName, email, phone, password };
+  
+    try {
+      const response = await dispatch(register(payload)).unwrap();
+      if (response.statusCode === 200) {
+        toast.success("Registration successful!");
+        window.location.href = "/";
+      }
+    } catch (error: any) {
+      console.error("Register error:", error);
+      toast.error(error?.message || "An error occurred during registration.");
+    }
+  };
+  
+
+  // Handle Send OTP
+  const handleSendOtp = async () => {
+    const payload = { email: formData.email };
+    try {
+      const response = await dispatch(
+        sendOtp(payload)
+      ).unwrap();
+      console.log("OTP response:", response);
+      
+      if (response.status === 200) {
+        setEmailVerify(true);
+        toast.success("OTP sent successfully! Please check your email.");
+      } else if (response.statusCode === 400) {
+        toast.error(response.message);
+      } else {
+        toast.error(response.message || "Failed to send OTP.");
+      }
+    } catch (error: any) {
+      console.error("OTP send error:", error);
+      toast.error(error?.message || "Failed to send OTP.");
+
+      if (error?.message?.includes("Email already exists")) {
+        toast.error("This email is already registered.");
+      } else if (error?.message?.includes("Phone already exists")) {
+        toast.error("This phone number is already registered.");
+      } else {
+        toast.error(error?.message || "Failed to send OTP.");
+      }
+    }
   };
 
-  const handleSubmit = (values, { resetForm }) => {
-    const formData = new FormData();
-    formData.append("profileImage", values.profileImage);
-
-    for (const key in values) {
-      formData.append(key, values[key]);
+  // Handle OTP Verify
+  const handleOtpVerify = async () => {
+    if (!formData.otp) {
+      toast.error("OTP cannot be empty.");
+      return;
     }
 
-    // Example log - replace this with an API call
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ": ", pair[1]);
-    }
-
-    resetForm();
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = null;
-    }
-    setOtpVerified(false);
-  };
-  const handleVerifyEmail = async (validateForm, setTouched, values) => {
-    setEmailVerify(true);
-  };
-  const handleOtpVerify = (otpValue) => {
-    if (otpValue === "1234") {
-      setOtpVerified(true);
-      setEmailVerify(false);
-    } else {
-      alert("Invalid OTP");
+    try {
+      const response = await dispatch(
+        verifyOtp({ email: formData.email, otp: formData.otp })
+      ).unwrap();
+      if (response.statusCode === 200) {
+        setOtpVerified(true);
+        setEmailVerify(false);
+        toast.success("OTP verified successfully!");
+      }
+    } catch (error: any) {
+      console.error("OTP verify error:", error);
+      toast.error(error?.message || "Invalid OTP. Please try again.");
     }
   };
-  console.log("otpVerified", otpVerified);
 
   return (
     <div className="card-bg-container lg-card-bg-container">
       <div className="card-inner-content registration-form-card">
         <Formik
-          initialValues={initialValues}
+          initialValues={formData}
+          enableReinitialize
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {({
-            setFieldValue,
-            values,
-            validateForm,
-            setTouched,
-            handleChange,
-            handleBlur,
-          }) => (
+          {({ validateForm, setTouched }) => (
             <Form>
               {!emailVerify && (
                 <>
-                  <ImageUpload name="photo" label="Click to upload" />
+                  <ImageUpload
+                    name="photo"
+                    label="Click to upload"
+                    //   onChange={(file) => setFormData({ ...formData, photo: file })
+                    // }
+                  />
+
                   <Row>
                     <Col md={6}>
                       <InputField
-                        label="First Name"
-                        placeholder="Enter First name"
-                        id="firstName"
+                        label="Full Name"
+                        placeholder="Enter Full Name"
+                        id="fullName"
                         type="text"
-                        name="firstName"
+                        name="fullName"
+                        value={formData.fullName}
+                        onChange={(e) =>
+                          setFormData({ ...formData, fullName: e.target.value })
+                        }
+                        required
                       />
                     </Col>
+
                     <Col md={6}>
                       <InputField
                         label="Email"
@@ -127,27 +164,45 @@ const SignUp = () => {
                         id="email"
                         type="email"
                         name="email"
+                        value={formData.email}
+                        onChange={(e) => {
+                          const newEmail = e.target.value;
+                          setFormData((prevFormData) => ({
+                            ...prevFormData,
+                            email: newEmail,
+                            otp: "", // Clear OTP as well
+                          }));
+
+                          // If email changes after OTP verified, reset verification
+                          if (otpVerified) {
+                            setOtpVerified(false);
+                          }
+                          if (emailVerify) {
+                            setEmailVerify(false);
+                          }
+                        }}
                         EndImage={otpVerified ? verifiedIcon : null}
                         className="email-with-verified-icon"
+                        required
                       />
                     </Col>
+
                     <Col md={6}>
-                      {/* <InputField
-                        label="Phone number"
-                        placeholder="Enter Phone number"
-                        id="mobile"
-                        type="text"
-                        name="mobile"
-                      /> */}
                       <InputFieldWithCountryCode
                         label="Phone number"
                         placeholder="Enter Phone number"
-                        id="mobile"
+                        id="phone"
                         type="text"
-                        name="mobile"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={(e) =>
+                          setFormData({ ...formData, phone: e.target.value })
+                        }
                         className="country-code-select-with-number"
+                        required
                       />
                     </Col>
+
                     <Col md={6}>
                       <InputField
                         label="Password"
@@ -155,8 +210,14 @@ const SignUp = () => {
                         id="password"
                         type="password"
                         name="password"
+                        value={formData.password}
+                        onChange={(e) =>
+                          setFormData({ ...formData, password: e.target.value })
+                        }
+                        required
                       />
                     </Col>
+
                     <Col md={6}>
                       <InputField
                         label="Confirm Password"
@@ -164,15 +225,35 @@ const SignUp = () => {
                         id="confirmPassword"
                         type="password"
                         name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            confirmPassword: e.target.value,
+                          })
+                        }
+                        required
                       />
                     </Col>
+
                     {!otpVerified ? (
                       <button
                         type="button"
                         className="login-button mt-4"
-                        onClick={() =>
-                          handleVerifyEmail(validateForm, setTouched, values)
-                        }
+                        onClick={async () => {
+                          const errors = await validateForm();
+                          if (Object.keys(errors).length === 0) {
+                            await handleSendOtp();
+                          } else {
+                            setTouched({
+                              fullName: true,
+                              email: true,
+                              phone: true,
+                              password: true,
+                              confirmPassword: true,
+                            });
+                          }
+                        }}
                       >
                         Sign up
                       </button>
@@ -185,24 +266,30 @@ const SignUp = () => {
                 </>
               )}
 
+              {/* OTP Modal */}
               {emailVerify && (
-                <div className="email-varify-modal">
+                <div className="email-verify-modal">
                   <div className="login-header">
                     <h2>Confirm your Email</h2>
                   </div>
+
                   <InputField
                     label="Enter OTP"
                     placeholder="Enter OTP"
                     id="otp"
                     type="text"
                     name="otp"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
+                    value={formData.otp}
+                    onChange={(e) => {
+                      const onlyNumbers = e.target.value.replace(/\D/g, "");
+                      setFormData({ ...formData, otp: onlyNumbers });
+                    }}
                   />
+
                   <button
                     type="button"
                     className="login-button mt-4"
-                    onClick={() => handleOtpVerify(values.otp)}
+                    onClick={handleOtpVerify}
                   >
                     Verify OTP
                   </button>
