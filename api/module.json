@@ -2,6 +2,7 @@
     {"name": "auth"}, 
     {"name": "role"}, 
     {"name": "permission"},
+    {"name": "constant"},
     {"name": "category"},
     {"name": "lead"}
 ]
