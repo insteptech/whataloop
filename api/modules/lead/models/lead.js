@@ -8,19 +8,19 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // Associate Lead with Constants (tag, status, source)
-      Lead.belongsTo(models.Constants, {
+      Lead.belongsTo(models.Constant, {
         foreignKey: 'tag',
         as: 'tagDetail',
         onDelete: 'SET NULL',
       });
 
-      Lead.belongsTo(models.Constants, {
+      Lead.belongsTo(models.Constant, {
         foreignKey: 'status',
         as: 'statusDetail',
         onDelete: 'SET NULL',
       });
 
-      Lead.belongsTo(models.Constants, {
+      Lead.belongsTo(models.Constant, {
         foreignKey: 'source',
         as: 'sourceDetail',
         onDelete: 'SET NULL',

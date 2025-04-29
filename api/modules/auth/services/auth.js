@@ -39,7 +39,7 @@ const findUser = async (where) => {
     });
   }
 
-  const user = await User?.findOne({
+  const user = await User.findOne({
     where: sanitizedWhere,
     include: includes,
   });

@@ -11,10 +11,6 @@ exports.sendOtp = async (req, res) => {
   const otp = process.env.TEST_OTP;
   const email = req.body.email.toLowerCase();
 
-  console.log(`Sending OTP to ${email}`);
-  console.log(`OTP is ${otp}`);
-  
-
   try {
     const user = await authService.findUser({ email });
 
@@ -33,17 +29,18 @@ exports.sendOtp = async (req, res) => {
 
 
 exports.verifyOtp = async (req, res) => {
-  const { email, otp } = req.body;  
+  const { email, otp } = req.body;
   const generatedOtp = process.env.TEST_OTP;
   const user = await authService.findUser({email: email});
   if (!user) {
     if(otp !== generatedOtp) {
       console.log(`Invalid OTP for email ${email}`);
-      throw new Error("Invalid OTP");
+      return sendResponse(res, 400, false, "Invalid OTP");
     } else {
       return sendResponse(res, 200, true, "OTP Verified", email);
     }
   }
+  return sendResponse(res, 400, false, "User not found");
 };
 
 exports.listUsers = async (req, res) => {
