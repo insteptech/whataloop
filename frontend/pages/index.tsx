@@ -61,7 +61,7 @@ export default function Page({ slug }: PageProps) {
           <Col md={2}>
             <LeftSidebar />
           </Col>
-          <Col md={9}> </Col>
+          <Col md={9}> <Component /> </Col>
         </Row>
       ) : (
         <Component />

@@ -1,6 +1,6 @@
 import { useField, useFormikContext } from "formik";
 
-const TextAreaField = ({ label, required, ...props }: any) => {
+const TextAreaField = ({ label, required,value,onChange, ...props }: any) => {
   const [field, meta] = useField(props);
   const { submitCount } = useFormikContext(); // get form submit count
   const isError = (meta.touched || submitCount > 0) && Boolean(meta.error);
@@ -17,6 +17,8 @@ const TextAreaField = ({ label, required, ...props }: any) => {
         <textarea
           {...field}
           {...props}
+          value={value}
+          onChange={onChange ? onChange : field.onChange} 
           className={`common-textarea ${isError ? "error" : ""}`}
         />
       </div>

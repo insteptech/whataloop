@@ -22,7 +22,9 @@ export const login = createAsyncThunk("login", async (payload: any) => {
   try{
     const response = await api.post("auth/login", payload);   
     console.log("resp", response);
-     
+    if (response.status == 200) {
+      setToken(response.data.data.token);
+    }
     return response;
   } catch(error){
     return error.response.data;

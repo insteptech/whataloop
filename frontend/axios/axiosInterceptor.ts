@@ -63,7 +63,7 @@ const onResponseError = async (error) => {
         });
         if (rs && rs.data && rs.data.data) {
           const token = rs.data.data.token;
-          const user = rs.data.data.user;
+          const user = rs.data.data.user;          
           localStorage.setItem("token", token);
           localStorage.setItem("user", JSON.stringify(user));
         }

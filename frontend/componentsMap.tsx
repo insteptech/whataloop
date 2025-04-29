@@ -6,9 +6,11 @@ import dynamic from 'next/dynamic'; export const componentsMap = {
   },
   "leads": {
     "form": dynamic(() => import("@/modules/leads/containers/form/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
+    "createLead": dynamic(() => import("@/modules/leads/containers/createLead/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
   },
   "dashboard": {
     "containers": dynamic(() => import("@/modules/dashboard/containers/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
+    "dashboard": dynamic(() => import("@/modules/dashboard/containers/dashboard/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
   },
   "main": {
     "403": dynamic(() => import("@/containers/403"), { ssr: false, loading: () => <div>Loading...</div> }), 
