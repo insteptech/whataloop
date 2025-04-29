@@ -1,6 +1,8 @@
-import {FC} from "react";
+import { FC } from "react";
 import dynamic from "next/dynamic";
-import {componentsMap} from "@/componentsMap"; // Import the generated map
+import { componentsMap } from "@/componentsMap"; // Import the generated map
+import LeftSidebar from "@/components/common/LeftSidebar";
+import { Col, Row } from "react-bootstrap";
 
 const Layout = dynamic(() => import("../layouts/main"));
 const Default = dynamic(() => import("./default"));
@@ -10,16 +12,18 @@ type PageProps = {
 };
 
 export default function Page({ slug }: PageProps) {
-  
-const slugArray = Array.isArray(slug) ? slug.filter(Boolean) : slug ? [slug] : [];
-let modulePath = slugArray[0] || "/";
-let subModulesPath = slugArray.slice(1).join("/") || "/";  
+  const slugArray = Array.isArray(slug)
+    ? slug.filter(Boolean)
+    : slug
+    ? [slug]
+    : [];
+  let modulePath = slugArray[0] || "/";
+  let subModulesPath = slugArray.slice(1).join("/") || "/";
 
   function findMatchingRoute(userRoute, modulePath) {
-    
     if (modulePath === "/" && userRoute === "/") {
-            return componentsMap["/"];
-          }
+      return componentsMap["/"];
+    }
     // Iterate over defined routes only if componentsMap[modulePath] exists
     if (componentsMap[modulePath]) {
       for (const [route, component] of Object.entries(
@@ -36,7 +40,7 @@ let subModulesPath = slugArray.slice(1).join("/") || "/";
     return null; // No match found
   }
 
-const componentPath = findMatchingRoute(subModulesPath, modulePath);
+  const componentPath = findMatchingRoute(subModulesPath, modulePath);
 
   if (!componentPath) {
     return (
@@ -45,11 +49,23 @@ const componentPath = findMatchingRoute(subModulesPath, modulePath);
       </Layout>
     );
   }
+
+  const isToken = localStorage.getItem("auth_token");
+
   const Component = (componentPath || Default) as FC;
 
   return (
     <Layout>
-      <Component />
+      {isToken ? (
+        <Row>
+          <Col md={2}>
+            <LeftSidebar />
+          </Col>
+          <Col md={9}> </Col>
+        </Row>
+      ) : (
+        <Component />
+      )}
     </Layout>
   );
 }

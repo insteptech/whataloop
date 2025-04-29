@@ -1,1 +1,1 @@
-  [{ "name": "auth" },{ "name": "category" },{ "name": "user"}, { "name": "leads"}]
+  [{ "name": "auth" },{ "name": "category" },{ "name": "user"}, { "name": "leads"}, {"name": "dashboard"}]

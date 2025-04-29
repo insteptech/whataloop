@@ -37,7 +37,7 @@ const LoginWithOTP = () => {
     try {
       await dispatch(login(payload)).then((response) => {
         if (response.payload.status === 200) {
-          window.location.href = "leads/form";
+          window.location.href = "/dashboard/containers";
         } else {
           alert(
             response.payload.data?.message ||
