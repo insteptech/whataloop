@@ -26,13 +26,19 @@ function LeftSidebar() {
               <span>Leads</span>
             </Link>
           </li>
+          <li>
+            <Link href="/subscription/containers">
+              <ProfileIcon />
+              <span>Subscription</span>
+            </Link>
+          </li>
         </ul>
       </div>
       <div className="side-bar-footer">
         <div className="user-profile">
-          <div className="avatar">UV</div>
+          <div className="avatar">TD</div>
           <div className="user-info">
-            <div className="name">Upkar Verma</div>
+            <div className="name">Tanuj Deoli</div>
             <div className="role">Admin</div>
           </div>
         </div>

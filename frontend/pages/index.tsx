@@ -2,7 +2,7 @@ import { FC } from "react";
 import dynamic from "next/dynamic";
 import { componentsMap } from "@/componentsMap"; // Import the generated map
 import LeftSidebar from "@/components/common/LeftSidebar";
-import { Col, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 
 const Layout = dynamic(() => import("../layouts/main"));
 const Default = dynamic(() => import("./default"));
@@ -56,14 +56,19 @@ export default function Page({ slug }: PageProps) {
 
   return (
     <Layout>
-      {isToken ? (
-        <Row>
-          <Col md={2}>
+      {!isToken ? (
+        // <Container fluid>
+        <Row className="w-100">
+          <Col md={2} className=" padding-right-0 left-sidebar-sticky">
             <LeftSidebar />
           </Col>
-          <Col md={9}> <Component /> </Col>
+          <Col md={10} className=" padding-left-0">
+            {" "}
+            <Component />{" "}
+          </Col>
         </Row>
       ) : (
+        // </Container>
         <Component />
       )}
     </Layout>
