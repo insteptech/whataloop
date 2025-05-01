@@ -21,13 +21,20 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (isAuthenticated() && userPermissions.length==0) {
-      const user: any = getDecodedToken()
+    // if (typeof window !== "undefined") {
+    //   const currentPath = window.location.pathname;
+
+    //   if (publicRoutes.includes(currentPath) && isAuthenticated()) {
+    //     router.push("/dashboard/containers");
+    //     return;
+    //   }
+    // }
+    if (isAuthenticated() && userPermissions.length == 0) {
+      const user: any = getDecodedToken();
       dispatch(getUserDetail(user.id));
     }
   }, []);
 
- 
   const isRoutePermission = (): boolean => {
     if (!userPermissions || userPermissions.length === 0) return false;
 
@@ -39,6 +46,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
 
     return !!permission;
+    // return true;
   };
 
   useEffect(() => {
@@ -47,19 +55,22 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         const currentPath = window.location.pathname;
 
         if (publicRoutes.includes(currentPath)) {
-          setLoading(false);  
+          setLoading(false);
           return;
         }
 
         if (!isAuthenticated()) {
-          router.push("/");  
+          router.push("/");
           return;
         }
 
         if (userPermissions && userPermissions.length > 0) {
           if (!isRoutePermission()) {
-            if(window.location.pathname.replace(/^\/|\/$/g, "").toLowerCase()!="/403".replace(/^\/|\/$/g, "").toLowerCase())
-            router.push("/403");
+            if (
+              window.location.pathname.replace(/^\/|\/$/g, "").toLowerCase() !=
+              "/403".replace(/^\/|\/$/g, "").toLowerCase()
+            )
+              router.push("/403");
           }
           setLoading(false);
         }

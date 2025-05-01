@@ -47,12 +47,12 @@ const onResponseError = async (error) => {
       error.response.data.message === "jwt expired"
     ) {
       let storedToken
-      if (localStorage.getItem("token")) {
-        storedToken = JSON.parse(localStorage.getItem("token"));
+      if (localStorage.getItem("auth_token")) {
+        storedToken = JSON.parse(localStorage.getItem("auth_token"));
       } else {
         // storedToken = document.cookie.split("=")[1]
         document.cookie.split(";").map(item => {
-          if (item.split("=")[0].trim() === "token") {
+          if (item.split("=")[0].trim() === "auth_token") {
             storedToken = item.split("=")[1]
           }
         })
@@ -64,7 +64,7 @@ const onResponseError = async (error) => {
         if (rs && rs.data && rs.data.data) {
           const token = rs.data.data.token;
           const user = rs.data.data.user;          
-          localStorage.setItem("token", token);
+          localStorage.setItem("auth_token", token);
           localStorage.setItem("user", JSON.stringify(user));
         }
         return;

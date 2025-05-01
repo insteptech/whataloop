@@ -1,18 +1,21 @@
 import React, { useState } from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../redux/actions/authAction";
 import InputField from "@/components/common/InputField";
 import { EmailIcon, LockIcon } from "@/components/common/Icon";
 import CheckBoxField from "@/components/common/CheckBoxField";
 import { Router } from "next/router";
 import { useRouter } from "next/router";
+import Loader from "@/components/common/loader";
 // import SelectField from "@/components/common/SelectField";
 // import TextAreaField from "@/components/common/TextareaField";
 
 const LoginWithOTP = () => {
   const router = useRouter();
+  const isloding = useSelector((state)=>state?.authReducer?.loading);
+  // const isloding = true
 
   const dispatch = useDispatch<any>();
   const [isOTPSent, setIsOTPSent] = useState(false);
@@ -37,7 +40,8 @@ const LoginWithOTP = () => {
     try {
       await dispatch(login(payload)).then((response) => {
         if (response.payload.status === 200) {
-          window.location.href = "/dashboard/containers";
+          // window.location.href = "/dashboard/containers";
+          router.push("/dashboard/containers");
         } else {
           alert(
             response.payload.data?.message ||
@@ -56,7 +60,9 @@ const LoginWithOTP = () => {
   };
 
   return (
+
     <div className="card-bg-container">
+      {isloding && <Loader/>}
       <div className="card-inner-content">
         <div className="module-card-header">
           <h2>Welcome</h2>

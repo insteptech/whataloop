@@ -7,13 +7,15 @@ import ImageUpload from "@/components/common/ImageUpload";
 import verifiedIcon from "../../../../public/verified.png";
 import InputFieldWithCountryCode from "@/components/common/InputFieldWithCountryCode";
 import { register, sendOtp, verifyOtp } from "../../redux/actions/authAction";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import Loader from "@/components/common/loader";
 
 const SignUp = () => {
   const dispatch = useDispatch<any>();
 
   const [emailVerify, setEmailVerify] = useState(false);
+  const isloading = useSelector((state) => state?.authReducer?.loading);
   const [otpVerified, setOtpVerified] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -123,6 +125,7 @@ const SignUp = () => {
 
   return (
     <div className="card-bg-container lg-card-bg-container">
+      {isloading && <Loader />}
       <div className="card-inner-content registration-form-card">
         <Formik
           initialValues={formData}

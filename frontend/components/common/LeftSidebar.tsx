@@ -15,7 +15,7 @@ function LeftSidebar() {
       <div className="side-bar-body">
         <ul>
           <li>
-            <Link href="/home" className="active">
+            <Link href="/dashboard/containers" className="active">
               <HomeIcon />
               <span>Home</span>
             </Link>

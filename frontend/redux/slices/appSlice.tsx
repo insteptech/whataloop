@@ -28,7 +28,7 @@ const appSlice = createSlice({
             role.permissions.map(permission => ({
               name: permission.name,
               type: permission.type,
-              route: permission.route,
+              route: permission.route,  
               action: permission.action
             }))
           )

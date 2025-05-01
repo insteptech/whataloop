@@ -417,3 +417,19 @@ a {
 .padding-right-0 {
   padding-right: 0 !important;
 }
+
+.loader-Wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: #ffffff47;
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 9;
+  flex-direction: column;
+}

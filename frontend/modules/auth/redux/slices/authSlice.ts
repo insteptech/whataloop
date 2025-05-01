@@ -1,6 +1,6 @@
 // modules/auth/redux/authSlice.ts
 import { createSlice } from '@reduxjs/toolkit';
-import { sendOtp, verifyOtp } from '../actions/authAction';
+import { login, register, sendOtp, verifyOtp } from '../actions/authAction';
 
 const initialState = {
   user: null,
@@ -46,6 +46,28 @@ const authSlice = createSlice({
         state.token = action.payload.token
       })
       .addCase(verifyOtp.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(login.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(login.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.data;
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(register.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(register.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.data;
+      })
+      .addCase(register.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });
