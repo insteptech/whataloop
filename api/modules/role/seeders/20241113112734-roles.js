@@ -23,7 +23,7 @@ const roleData = [
 module.exports = {
   async up(queryInterface) {
     const { Role, sequelize } = await getAllModels(process.env.DB_TYPE);
-    await sequelize.sync({ force: true }); // Reset the database
+    // await sequelize.sync({ force: true }); // Reset the database
     const transaction = await sequelize.transaction();
     try {
       if (process.env.DB_TYPE === supportedDbTypes.mssql)
