@@ -61,4 +61,4 @@ export const register = createAsyncThunk("register", async (payload: any) => {
     return error.response.data
   }
 })
- 
+

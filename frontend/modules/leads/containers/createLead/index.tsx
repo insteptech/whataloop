@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { Col, Row } from "react-bootstrap";
@@ -9,12 +9,7 @@ import InputField from "@/components/common/InputField";
 import SelectField from "@/components/common/SelectField";
 import TextAreaField from "@/components/common/TextareaField";
 import CustomDatePicker from "@/components/common/DatePicker";
-import { postLeads } from "../../redux/action/leadAction";
-import {
-  tagOptions,
-  sourceOptions,
-  statusOptions,
-} from "../../utils/leadOptions";
+import { getConstantType, postLeads } from "../../redux/action/leadAction";
 
 const LeadsForm = () => {
   const [formData, setFormData] = useState({
@@ -27,8 +22,44 @@ const LeadsForm = () => {
     notes: "",
     last_contacted: null,
   });
-
+  const [tagOptions, setTagOptions] = useState([]);
+  const [statusOptions, setStatusOptions] = useState([]);
+  const [sourceOptions, setSourceOptions] = useState([]);
+  
   const dispatch = useDispatch<any>();
+
+  useEffect(() => {
+    const fetchConstants = async () => {
+      try {
+        const response = await dispatch(getConstantType()).unwrap();
+        const data = response?.data || []; 
+        
+
+  
+        const tags = data.constantType
+          .filter((item) => item.type === "tag")
+          .map((item) => ({ label: item.label, value: item.id }));
+  
+        const statuses = data.constantType
+          .filter((item) => item.type === "status")
+          .map((item) => ({ label: item.label, value: item.id }));
+  
+        const sources = data.constantType
+          .filter((item) => item.type === "source")
+          .map((item) => ({ label: item.label, value: item.id }));
+  
+        setTagOptions(tags);
+        setStatusOptions(statuses);
+        setSourceOptions(sources);
+      } catch (err) {
+        console.error("Failed to load constants", err);
+        toast.error("Failed to load select field data");
+      }
+    };
+  
+    fetchConstants();
+  }, [dispatch]);
+  
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
@@ -58,8 +89,11 @@ const LeadsForm = () => {
       last_contacted: last_contacted ? last_contacted : null,
     };
 
+    console.log("object", payload);
+
     try {
       const response = await dispatch(postLeads(payload)).unwrap();
+      console.log("Response:", response);
       if (response.statusCode === 200) {
         toast.success(response.message || "Lead posted successfully");
         setFormData({
