@@ -115,3 +115,241 @@ export const Logo = () => {
     </svg>
   );
 };
+
+export const SubscriptionIcon = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M10 8l6 4-6 4V8z" />
+      <line x1="17" y1="5" x2="17" y2="8" />
+      <line x1="17" y1="5" x2="20" y2="5" />
+    </svg>
+  );
+};
+export const Notification = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
+  );
+};
+
+export const DashBoardPreviewImg = () => {
+  return (
+    <div className="hero-image">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 800 500"
+        fill="none"
+        className="dashboard-preview"
+      >
+        {/* Background Card */}
+        <rect width="800" height="500" rx="16" fill="white" />
+
+        {/* Header Bar */}
+        <rect x="24" y="24" width="752" height="60" rx="8" fill="#F8F9FA" />
+        <rect x="44" y="44" width="120" height="20" rx="4" fill="#E9ECEF" />
+        <rect
+          x="660"
+          y="44"
+          width="100"
+          height="20"
+          rx="4"
+          fill="#4361EE"
+          opacity="0.2"
+        />
+        <circle cx="710" cy="54" r="8" fill="#4361EE" />
+
+        {/* Sidebar */}
+        <rect x="24" y="100" width="200" height="376" rx="8" fill="#F8F9FA" />
+        <rect x="44" y="120" width="160" height="12" rx="4" fill="#E9ECEF" />
+        <rect x="44" y="140" width="160" height="12" rx="4" fill="#E9ECEF" />
+        <rect x="44" y="160" width="160" height="12" rx="4" fill="#E9ECEF" />
+        <rect x="44" y="200" width="160" height="12" rx="4" fill="#E9ECEF" />
+        <rect x="44" y="220" width="160" height="12" rx="4" fill="#E9ECEF" />
+        <rect x="44" y="240" width="160" height="12" rx="4" fill="#E9ECEF" />
+        <rect x="44" y="280" width="160" height="12" rx="4" fill="#E9ECEF" />
+        <rect x="44" y="300" width="160" height="12" rx="4" fill="#E9ECEF" />
+        <rect
+          x="44"
+          y="320"
+          width="160"
+          height="12"
+          rx="4"
+          fill="#4361EE"
+          opacity="0.2"
+        />
+
+        {/* Main Content */}
+        <rect x="240" y="100" width="536" height="376" rx="8" fill="white" />
+
+        {/* Stats Cards */}
+        <rect x="260" y="120" width="160" height="80" rx="8" fill="#F8F9FA" />
+        <rect
+          x="280"
+          y="140"
+          width="40"
+          height="40"
+          rx="4"
+          fill="#4361EE"
+          opacity="0.2"
+        />
+        <rect x="340" y="140" width="60" height="12" rx="4" fill="#E9ECEF" />
+        <rect x="340" y="160" width="80" height="20" rx="4" fill="#212529" />
+
+        <rect x="440" y="120" width="160" height="80" rx="8" fill="#F8F9FA" />
+        <rect
+          x="460"
+          y="140"
+          width="40"
+          height="40"
+          rx="4"
+          fill="#4CC9F0"
+          opacity="0.2"
+        />
+        <rect x="520" y="140" width="60" height="12" rx="4" fill="#E9ECEF" />
+        <rect x="520" y="160" width="80" height="20" rx="4" fill="#212529" />
+
+        <rect x="620" y="120" width="140" height="80" rx="8" fill="#F8F9FA" />
+        <rect
+          x="640"
+          y="140"
+          width="40"
+          height="40"
+          rx="4"
+          fill="#F72585"
+          opacity="0.2"
+        />
+        <rect x="700" y="140" width="40" height="12" rx="4" fill="#E9ECEF" />
+        <rect x="700" y="160" width="40" height="20" rx="4" fill="#212529" />
+
+        {/* Leads Table */}
+        <rect
+          x="260"
+          y="220"
+          width="500"
+          height="40"
+          rx="8"
+          fill="#4361EE"
+          opacity="0.05"
+        />
+        <rect
+          x="280"
+          y="230"
+          width="80"
+          height="20"
+          rx="4"
+          fill="#4361EE"
+          opacity="0.2"
+        />
+        <rect
+          x="380"
+          y="230"
+          width="80"
+          height="20"
+          rx="4"
+          fill="#4361EE"
+          opacity="0.2"
+        />
+        <rect
+          x="480"
+          y="230"
+          width="80"
+          height="20"
+          rx="4"
+          fill="#4361EE"
+          opacity="0.2"
+        />
+        <rect
+          x="580"
+          y="230"
+          width="80"
+          height="20"
+          rx="4"
+          fill="#4361EE"
+          opacity="0.2"
+        />
+        <rect
+          x="680"
+          y="230"
+          width="60"
+          height="20"
+          rx="4"
+          fill="#4361EE"
+          opacity="0.2"
+        />
+
+        {/* Table Rows */}
+        <rect x="260" y="270" width="500" height="40" rx="8" fill="white" />
+        <rect x="280" y="280" width="120" height="20" rx="4" fill="#F8F9FA" />
+        <rect x="420" y="280" width="100" height="20" rx="4" fill="#F8F9FA" />
+        <rect x="540" y="280" width="80" height="20" rx="4" fill="#F8F9FA" />
+        <rect
+          x="640"
+          y="280"
+          width="40"
+          height="20"
+          rx="4"
+          fill="#4CC9F0"
+          opacity="0.2"
+        />
+        <circle cx="700" cy="290" r="8" fill="#E9ECEF" />
+
+        <rect x="260" y="320" width="500" height="40" rx="8" fill="white" />
+        <rect x="280" y="330" width="120" height="20" rx="4" fill="#F8F9FA" />
+        <rect x="420" y="330" width="100" height="20" rx="4" fill="#F8F9FA" />
+        <rect x="540" y="330" width="80" height="20" rx="4" fill="#F8F9FA" />
+        <rect
+          x="640"
+          y="330"
+          width="40"
+          height="20"
+          rx="4"
+          fill="#F72585"
+          opacity="0.2"
+        />
+        <circle cx="700" cy="340" r="8" fill="#E9ECEF" />
+
+        <rect x="260" y="370" width="500" height="40" rx="8" fill="white" />
+        <rect x="280" y="380" width="120" height="20" rx="4" fill="#F8F9FA" />
+        <rect x="420" y="380" width="100" height="20" rx="4" fill="#F8F9FA" />
+        <rect x="540" y="380" width="80" height="20" rx="4" fill="#F8F9FA" />
+        <rect
+          x="640"
+          y="380"
+          width="40"
+          height="20"
+          rx="4"
+          fill="#4CC9F0"
+          opacity="0.2"
+        />
+        <circle cx="700" cy="390" r="8" fill="#E9ECEF" />
+
+        {/* Chart Placeholder */}
+        <rect x="260" y="430" width="240" height="40" rx="8" fill="#F8F9FA" />
+        <rect x="520" y="430" width="240" height="40" rx="8" fill="#F8F9FA" />
+      </svg>
+    </div>
+  );
+};
