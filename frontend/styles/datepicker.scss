@@ -1,0 +1,101 @@
+$primary-color: #4361ee;
+$secondary-color: #3f37c9;
+$light-gray: #f8f9fa;
+$border-color: #e0e0e0;
+$text-color: #333;
+$border-radius: 8px;
+$box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+.calendar-container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    width: 100%;
+    max-width: 400px;
+    background: white;
+    border-radius: $border-radius;
+    box-shadow: $box-shadow;
+    overflow: hidden;
+    padding: 1rem;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+
+    .month-title {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: $text-color;
+    }
+
+    .nav-button {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: $primary-color;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+
+        &:hover {
+            background: rgba($primary-color, 0.1);
+        }
+    }
+}
+
+.calendar-days-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 0.5rem;
+
+    .day-header {
+        text-align: center;
+        font-weight: 600;
+        color: #666;
+        font-size: 0.85rem;
+        padding: 0.5rem 0;
+    }
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+
+    .calendar-day {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+        background: white;
+        border: 1px solid transparent;
+
+        &:hover {
+            background: rgba($primary-color, 0.1);
+            border-color: rgba($primary-color, 0.3);
+        }
+
+        &.selected {
+            background: $primary-color;
+            color: white;
+            font-weight: 600;
+        }
+
+        &.empty {
+            visibility: hidden;
+            cursor: default;
+        }
+    }
+}
