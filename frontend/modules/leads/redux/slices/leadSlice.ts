@@ -1,9 +1,10 @@
 // modules/lead/redux/leadSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
-import { postLeads } from "../action/leadAction";
+import { getLeads, postLeads } from "../action/leadAction";
 
 const initialState = {
   leads: [],
+  total: 0, 
   loading: false,
   error: "",
   message: "",
@@ -19,13 +20,12 @@ const leadSlice = createSlice({
       .addCase(postLeads.pending, (state) => {
         state.loading = true;
         state.error = "";
-      })
+      }) 
       .addCase(postLeads.fulfilled, (state, action) => {
         state.loading = false;
-
         if (action.payload && action.payload.statusCode === 200) {
           state.message = action.payload.message || "Lead posted successfully";
-          state.leads.push(action.payload.data); // Add the lead
+          state.leads.push(action.payload.data);
         } else {
           state.error = action.payload.message || "Failed to post lead";
         }
@@ -33,6 +33,19 @@ const leadSlice = createSlice({
       .addCase(postLeads.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Something went wrong";
+      })
+      .addCase(getLeads.pending, (state) => {
+        state.loading = true;
+        state.error = "";
+      })
+      .addCase(getLeads.fulfilled, (state, action) => {
+        state.loading = false;
+        state.leads = action.payload.users; 
+        state.total = action.payload.total; 
+      })
+      .addCase(getLeads.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error?.message || "Something went wrong";
       });
   },
 });

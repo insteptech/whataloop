@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic'; export const componentsMap = {
     "login": dynamic(() => import("@/modules/auth/containers/login/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
   },
   "leads": {
-    "form": dynamic(() => import("@/modules/leads/containers/form/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
+    "leadsList": dynamic(() => import("@/modules/leads/containers/leadsList/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
     "createLead": dynamic(() => import("@/modules/leads/containers/createLead/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
   },
   "dashboard": {

@@ -56,8 +56,8 @@ export default function Page({ slug }: PageProps) {
 
   return (
     <Layout>
-      {!isToken ? (
-        // <Container fluid>
+      {isToken ? (
+       
         <Row className="w-100">
           <Col md={2} className=" padding-right-0 left-sidebar-sticky">
             <LeftSidebar />
@@ -68,7 +68,6 @@ export default function Page({ slug }: PageProps) {
           </Col>
         </Row>
       ) : (
-        // </Container>
         <Component />
       )}
     </Layout>

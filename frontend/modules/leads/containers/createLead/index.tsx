@@ -13,6 +13,7 @@ import { Col, Row } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { postLeads } from "../../redux/action/leadAction";
 import { useDispatch } from "react-redux";
+import router from "next/router";
 
 // const initialValues = {
 //   name: "",
@@ -96,7 +97,17 @@ const LeadsForm = () => {
 
   return (
     <div className="card-bg-container leads-form-container">
+     
       <div className="card-inner-content leads-form-card">
+      <div className="d-flex ">
+  <button
+    className="see-leads-list-button"
+    onClick={() => router.push("/leads/leadsList")}
+  >
+    Back
+  </button>
+</div>
+
         <div className="module-card-header">
           <h2>Leads Form</h2>
         </div>

@@ -21,7 +21,7 @@ function LeftSidebar() {
             </Link>
           </li>
           <li>
-            <Link href="/leads/form">
+            <Link href="/leads/leadsList">
               <ProfileIcon />
               <span>Leads</span>
             </Link>
