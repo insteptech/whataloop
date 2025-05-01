@@ -20,14 +20,17 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         primaryKey: true,
       },
-    name: {
-      type: DataTypes.STRING,
-      unique: true,
-    },
     type: {
       type: DataTypes.STRING,
-      unique: true,
-    }
+    },
+     label: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      value: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
   }, {
     sequelize,
     modelName: 'Constant',
