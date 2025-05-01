@@ -6,8 +6,9 @@ module.exports = {
       id: {
         type: Sequelize.UUID,
         allowNull: false,
+        defaultValue: Sequelize.UUIDV4,
+        unique:true,
         primaryKey: true,
-        defaultValue: Sequelize.literal('gen_random_uuid()'),
       },
       user_id: {
         type: Sequelize.UUID,

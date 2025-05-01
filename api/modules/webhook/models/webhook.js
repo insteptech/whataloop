@@ -3,11 +3,6 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const WebhookMessage = sequelize.define('WebhookMessage', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-    },
     leadId: {
       type: DataTypes.UUID,
       allowNull: false,
