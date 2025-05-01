@@ -1,6 +1,7 @@
 // modules/webhook/manager/webhook.js
 
 const webhookService = require('../services/webhook');
+const { WebhookMessage } = require('../models/webhook');
 
 
 exports.processIncomingMessage = async (messageData) => {
@@ -24,4 +25,25 @@ exports.processIncomingMessage = async (messageData) => {
     // 2. Save incoming message
     return await webhookService.saveIncomingMessage(lead.id, textBody);
   }
+};
+
+
+// Manager to handle business logic of webhook messages
+exports.createMessage = async ({ leadId, content, sender, messageType }) => {
+  const newMessage = await WebhookMessage.create({
+    leadId,
+    content,
+    sender,
+    messageType,
+    sentAt: new Date(),
+  });
+  return newMessage;
+};
+
+exports.getMessagesByLead = async (leadId) => {
+  const messages = await WebhookMessage.findAll({
+    where: { leadId },
+    order: [['sentAt', 'ASC']],
+  });
+  return messages;
 };
