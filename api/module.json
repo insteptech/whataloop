@@ -4,5 +4,6 @@
     {"name": "permission"},
     {"name": "constant"},
     {"name": "category"},
-    {"name": "lead"}
+    {"name": "lead"},
+    {"name": "webhook"}
 ]
