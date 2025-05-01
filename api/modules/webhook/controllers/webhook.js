@@ -1,6 +1,7 @@
 // modules/webhook/controllers/webhook.js
 
 const webhookManager = require('../manager/webhook');
+const webhookService = require('../services/webhook');
 
 exports.handleIncomingMessage = async (req, res) => {
   try {
@@ -16,5 +17,33 @@ exports.handleIncomingMessage = async (req, res) => {
   } catch (error) {
     console.error('Error in webhook controller:', error);
     res.sendStatus(500);
+  }
+};
+
+exports.createWebhookMessage = async (req, res) => {
+  try {
+    const { leadId, content, sender, messageType } = req.body;
+    
+    const newMessage = await webhookService.createWebhookMessage({ leadId, content, sender, messageType });
+    
+    res.status(201).json({
+      message: 'Webhook message created successfully',
+      data: newMessage
+    });
+  } catch (error) {
+    console.error('Error in controller:', error);
+    res.status(500).json({ message: 'Error processing webhook message.' });
+  }
+};
+
+exports.getMessagesByLead = async (req, res) => {
+  try {
+    const { leadId } = req.params;
+    const messages = await webhookService.getMessagesByLead(leadId);
+    
+    res.status(200).json(messages);
+  } catch (error) {
+    console.error('Error in controller:', error);
+    res.status(500).json({ message: 'Error retrieving webhook messages.' });
   }
 };

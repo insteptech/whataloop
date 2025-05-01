@@ -1,4 +1,5 @@
 const { getAllModels } = require("../../../middlewares/loadModels");
+const webhookManager = require('../manager/webhook');
 
 const findOrCreateLead = async (phoneNumber) => {
   if (!phoneNumber) return null;
@@ -34,8 +35,32 @@ const saveIncomingMessage = async (leadId, textContent) => {
   console.log('Incoming message saved for lead:', leadId);
 };
 
+// Service to create a webhook message
+const createWebhookMessage = async (messageData) => {
+  try {
+    const newMessage = await webhookManager.createMessage(messageData); // Call the manager to create a message
+    return newMessage;
+  } catch (error) {
+    console.error('Error in service:', error);
+    throw error;
+  }
+};
+
+// Service to get messages by lead
+const getMessagesByLead = async (leadId) => {
+  try {
+    const messages = await webhookManager.getMessagesByLead(leadId); // Call the manager to fetch messages
+    return messages;
+  } catch (error) {
+    console.error('Error in service:', error);
+    throw error;
+  }
+};
+
 module.exports = {
     findOrCreateLead,
-    saveIncomingMessage
+    saveIncomingMessage,
+    createWebhookMessage,
+    getMessagesByLead
   };
   

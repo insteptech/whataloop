@@ -1,19 +1,21 @@
+// modules/webhook/models/webhook.js
+
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const WebhookMessage = sequelize.define('WebhookMessage', {
     id: {
       type: DataTypes.UUID,
-      primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
-      allowNull: false,
+      primaryKey: true,
     },
     leadId: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'Leads',
+        model: 'Leads',  // Ensure Leads model is referenced here
         key: 'id',
       },
+      onDelete: 'CASCADE',  // If Lead is deleted, related messages will be deleted
     },
     content: {
       type: DataTypes.STRING,
@@ -24,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     messageType: {
-      type: DataTypes.STRING, // 'text', 'image', etc.
+      type: DataTypes.STRING, // Can be 'text', 'image', etc.
       allowNull: false,
     },
     status: {
