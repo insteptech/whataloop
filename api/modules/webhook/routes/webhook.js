@@ -1,5 +1,4 @@
 const express = require("express");
-const { handleIncomingMessage } = require('../controllers/webhook');
 const {
   authenticate,
   authorize,
@@ -8,10 +7,8 @@ const router = express.Router();
 const webhookController = require('../controllers/webhook');
 
 
-// router.post('/message', handleIncomingMessage);
-
-router.post('/message', webhookController.createWebhookMessage);
-router.get('/messages/:leadId', webhookController.getMessagesByLead);
+router.post('/message', authenticate, webhookController.createWebhookMessage);
+router.get('/messages', authenticate, webhookController.getMessagesByLead);
 
 
 module.exports = router;

@@ -32,9 +32,7 @@ const {
     }
   };
   
-  exports.create = async (req, res) => { 
-    console.log('req.user:--', req?.user?.dataValues?.id);
-       
+  exports.create = async (req, res) => {        
     try {
       const leadData = {
         ...req.body,

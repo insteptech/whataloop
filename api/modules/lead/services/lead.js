@@ -162,7 +162,7 @@ const create = async (data) => {
 };
   
 const getAll = async (userId, query) => {
-  const { search, tag, status, sort = 'created_at', order = 'DESC', page = 1, limit = 10 } = query;
+  const { search, tag, status, sort = 'createdAt', order = 'DESC', page = 1, limit = 10 } = query;
   const { Lead, User } = await getAllModels(process.env.DB_TYPE); // ✅ Also get User if you want to include
 
   if (!Lead) {
