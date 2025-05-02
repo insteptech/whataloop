@@ -10,7 +10,7 @@ module.exports = {
         allowNull: false,
       },
       type: {
-        type: Sequelize.STRING, // e.g., 'lead_status', 'lead_tag'
+        type: Sequelize.STRING,
         allowNull: false,
       },
       label: {

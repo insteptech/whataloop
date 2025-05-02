@@ -1,4 +1,3 @@
-// Content for constant.js
 const constantService = require("../services/constant");
 const { sendResponse } = require("../../../utils/helper");
 
@@ -17,3 +16,12 @@ exports.getConstantType = async (req, res) => {
     }
   };
   
+
+exports.createConstant = async (data) => {
+  try {
+    const createdConstant = await constantService.createConstant(data);
+    return createdConstant;
+  } catch (error) {
+    throw new Error('Manager error: ' + error.message);
+  }
+};

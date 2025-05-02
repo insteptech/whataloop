@@ -1,4 +1,3 @@
-// Content for constant.js
 const { getAllModels } = require("../../../middlewares/loadModels");
 const { Op } = require('sequelize');
 
@@ -20,8 +19,20 @@ const getConstantType = async (query) => {
     return constantType;
   };
   
+  const createConstant = async (data) => {
+    try {
+      const { Constant } = await getAllModels(process.env.DB_TYPE);
+
+      const newConstant = await Constant.create(data);
+      return newConstant;
+    } catch (error) {
+      throw new Error('Error while creating constant: ' + error.message);
+    }
+  };
+  
   
 
 module.exports = {
-    getConstantType
+    getConstantType,
+    createConstant
 }
