@@ -34,12 +34,12 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
           className="date-picker-input"
           dateFormat="MMMM d, yyyy"
           popperPlacement="bottom-start"
-          popperModifiers={{
-            offset: {
-              enabled: true,
-              offset: "0px, 8px",
-            },
-          }}
+          //   popperModifiers={{
+          //     offset: {
+          //       enabled: true,
+          //       offset: "0px, 8px",
+          //     },
+          //   }}
         />
       </div>
     </div>

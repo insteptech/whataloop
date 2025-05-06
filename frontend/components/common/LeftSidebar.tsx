@@ -5,8 +5,10 @@ import React from "react";
 import { HomeIcon, ProfileIcon, Logo, SubscriptionIcon } from "./Icon";
 import { usePathname } from "next/navigation";
 
-function LeftSidebar() {
+function LeftSidebar({ Width }: any) {
   const pathname = usePathname();
+
+  console.log("Width::", Width);
 
   const navLinks = [
     {

@@ -1,8 +1,9 @@
+import { useRouter } from "next/router";
 import React, { useState } from "react";
 
 const SubscriptionTiers = () => {
   const [selectedPlan, setSelectedPlan] = useState(null);
-
+  const router = useRouter();
   const plans = [
     {
       id: "free",
@@ -20,8 +21,8 @@ const SubscriptionTiers = () => {
       popular: false,
     },
     {
-      id: "intermediate",
-      name: "Intermediate",
+      id: "starter",
+      name: "Starter",
       price: "$9",
       period: "per month",
       features: [
@@ -37,7 +38,7 @@ const SubscriptionTiers = () => {
     {
       id: "pro",
       name: "Pro",
-      price: "$29",
+      price: "$19",
       period: "per month",
       features: [
         "All Intermediate features",
@@ -54,6 +55,15 @@ const SubscriptionTiers = () => {
 
   const handleSelectPlan = (planId) => {
     setSelectedPlan(planId);
+  };
+
+  const handleSubmitPlan = () => {
+    if (selectedPlan) {
+      router.push({
+        pathname: "/subscription/checkout",
+        query: { plan: selectedPlan },
+      });
+    }
   };
 
   return (
@@ -99,6 +109,24 @@ const SubscriptionTiers = () => {
             </div>
           ))}
         </div>
+        {selectedPlan && (
+          <div className="text-center mt-5">
+            <div className="d-inline-block">
+              <h4 className="mb-3">
+                You selected:{" "}
+                <span className="text-primary">
+                  {plans.find((p) => p.id === selectedPlan)?.name} Plan
+                </span>
+              </h4>
+              <button
+                className={`btn btn-primary submitButton`}
+                onClick={handleSubmitPlan}
+              >
+                Proceed to Checkout
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

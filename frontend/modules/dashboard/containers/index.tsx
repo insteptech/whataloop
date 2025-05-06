@@ -4,39 +4,80 @@ import React from "react";
 function DashboardPage() {
   return (
     <div className="homepage">
-      {/* Hero Section */}
-      <section className="hero">
-        <div className="container">
-          <div className="row align-items-center">
-            <div className="col-lg-6">
-              <div className="hero-content">
-                <h1>
-                  Lorem, ipsum dolor. <span>lorem</span>
-                </h1>
-                <p>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Doloremque dolore, iste, nesciunt dicta, velit numquam laborum
-                  molestiae neque iure eos itaque voluptates? Quam, placeat
-                  fugit!
+      <div className="container mt-4 mb-4">
+        <div className="row">
+          <div className="col-md-6 col-xl-3">
+            <div className="card">
+              <div className="card-body">
+                <h6 className="mb-2 f-w-400 text-muted">Total Page Views</h6>
+                <h4 className="mb-3">
+                  4,42,236{" "}
+                  <span className="badge bg-light-primary border border-primary">
+                    <i className="ti ti-trending-up"></i> 59.3%
+                  </span>
+                </h4>
+                <p className="mb-0 text-muted text-sm">
+                  You made an extra <span className="text-primary">35,000</span>{" "}
+                  this year
                 </p>
-                <div className="cta-buttons d-flex">
-                  <a href="/register" className="btn btn-primary">
-                    Get Started Free
-                  </a>
-                  <a href="/demo" className="btn btn-outline">
-                    See Demo
-                  </a>
-                </div>
               </div>
             </div>
-            <div className="col-lg-6">
-              <div className="hero-image">
-                <DashBoardPreviewImg />
+          </div>
+          <div className="col-md-6 col-xl-3">
+            <div className="card">
+              <div className="card-body">
+                <h6 className="mb-2 f-w-400 text-muted">Total Users</h6>
+                <h4 className="mb-3">
+                  78,250{" "}
+                  <span className="badge bg-light-success border border-success">
+                    <i className="ti ti-trending-up"></i> 70.5%
+                  </span>
+                </h4>
+                <p className="mb-0 text-muted text-sm">
+                  You made an extra <span className="text-success">8,900</span>{" "}
+                  this year
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-6 col-xl-3">
+            <div className="card">
+              <div className="card-body">
+                <h6 className="mb-2 f-w-400 text-muted">Total Order</h6>
+                <h4 className="mb-3">
+                  18,800{" "}
+                  <span className="badge bg-light-warning border border-warning">
+                    <i className="ti ti-trending-down"></i> 27.4%
+                  </span>
+                </h4>
+                <p className="mb-0 text-muted text-sm">
+                  You made an extra <span className="text-warning">1,943</span>{" "}
+                  this year
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-6 col-xl-3">
+            <div className="card">
+              <div className="card-body">
+                <h6 className="mb-2 f-w-400 text-muted">Total Sales</h6>
+                <h4 className="mb-3">
+                  $35,078{" "}
+                  <span className="badge bg-light-danger border border-danger">
+                    <i className="ti ti-trending-down"></i> 27.4%
+                  </span>
+                </h4>
+                <p className="mb-0 text-muted text-sm">
+                  You made an extra <span className="text-danger">$20,395</span>{" "}
+                  this year
+                </p>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+      {/* Hero Section */}
+
 
       {/* Features Section */}
       <section className="features">

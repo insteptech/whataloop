@@ -53,10 +53,10 @@ const SignUp = () => {
       toast.error("Please verify your email before signing up.");
       return;
     }
-  
+
     const { fullName, email, phone, password } = formData;
     const payload = { fullName, email, phone, password };
-  
+
     try {
       const response = await dispatch(register(payload)).unwrap();
       if (response.statusCode === 200) {
@@ -68,17 +68,14 @@ const SignUp = () => {
       toast.error(error?.message || "An error occurred during registration.");
     }
   };
-  
 
   // Handle Send OTP
   const handleSendOtp = async () => {
     const payload = { email: formData.email };
     try {
-      const response = await dispatch(
-        sendOtp(payload)
-      ).unwrap();
+      const response = await dispatch(sendOtp(payload)).unwrap();
       console.log("OTP response:", response);
-      
+
       if (response.status === 200) {
         setEmailVerify(true);
         toast.success("OTP sent successfully! Please check your email.");
