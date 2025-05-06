@@ -3,7 +3,7 @@ const { sendResponse } = require("../../../utils/helper");
 
 exports.getConstantType = async (req, res) => {
     try {
-      const constantType = await constantService.getConstantType(req.query); // pass query
+      const constantType = await constantService.getConstantType(req.query);
       return sendResponse(
         res,
         200,

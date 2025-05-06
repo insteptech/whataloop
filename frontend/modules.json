@@ -16,5 +16,11 @@
     },
     {
       "name": "subscription"
+    },
+    {
+      "name": "constants"
+    },
+    {
+      "name": "users"
     }
   ]

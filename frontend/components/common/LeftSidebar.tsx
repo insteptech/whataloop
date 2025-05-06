@@ -17,7 +17,7 @@ function LeftSidebar({ Width }: any) {
       icon: <HomeIcon />,
     },
     {
-      href: "/leads/form",
+      href: "/leads/leadsList",
       label: "Leads",
       icon: <ProfileIcon />,
     },
@@ -25,6 +25,16 @@ function LeftSidebar({ Width }: any) {
       href: "/subscription/containers",
       label: "Subscription",
       icon: <SubscriptionIcon />,
+    },
+    {
+      href: "/users/usersList",
+      label: "Users",
+      icon: '',
+    },
+    {
+      href: "constants/constantsList",
+      label: "Constants",
+      icon: '',
     },
   ];
 

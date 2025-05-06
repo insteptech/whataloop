@@ -160,7 +160,7 @@ const fetchUsersWithPagination = async ({
   page = 1,
   pageSize = 10,
   include = [],
-}) => {
+}) => { 
   const { User } = await getAllModels(process.env.DB_TYPE);
   // Ensure page and pageSize are numbers
   page = parseInt(page);

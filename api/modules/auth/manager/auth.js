@@ -13,7 +13,7 @@ exports.sendOtp = async (req, res) => {
 
   console.log(`Sending OTP to ${email}`);
   console.log(`OTP is ${otp}`);
-  
+
 
   try {
     const user = await authService.findUser({ email });
@@ -33,11 +33,11 @@ exports.sendOtp = async (req, res) => {
 
 
 exports.verifyOtp = async (req, res) => {
-  const { email, otp } = req.body;  
+  const { email, otp } = req.body;
   const generatedOtp = process.env.TEST_OTP;
-  const user = await authService.findUser({email: email});
+  const user = await authService.findUser({ email: email });
   if (!user) {
-    if(otp !== generatedOtp) {
+    if (otp !== generatedOtp) {
       console.log(`Invalid OTP for email ${email}`);
       throw new Error("Invalid OTP");
     } else {
@@ -50,7 +50,7 @@ exports.listUsers = async (req, res) => {
   const { page, pageSize } = req.query;
   const users = await authService.fetchUsersWithPagination({
     page: page ? page : 1,
-    pageSize: pageSize ? pageSize : 10,
+    pageSize: pageSize ? pageSize : 2,
   });
   return sendResponse(res, 200, true, "Fetch users successfully", users);
 };
@@ -114,7 +114,7 @@ exports.login = async (req, res, next) => {
 
 exports.signup = async (req, res) => {
   const { phone, email, fullName, password } = req.body;
-  
+
   // Check if user already exists with the same email
   let user = await authService.findUser({ email: email.toLowerCase() });
   if (user) {

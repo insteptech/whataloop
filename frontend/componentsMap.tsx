@@ -15,6 +15,13 @@ import dynamic from 'next/dynamic'; export const componentsMap = {
   "subscription": {
     "containers": dynamic(() => import("@/modules/subscription/containers/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
   },
+  "constants": {
+    "constantsList": dynamic(() => import("@/modules/constants/containers/constantsList/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
+    "addConstants": dynamic(() => import("@/modules/constants/containers/addConstants/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
+  },
+  "users": {
+    "usersList": dynamic(() => import("@/modules/users/containers/usersList/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
+  },
   "main": {
     "403": dynamic(() => import("@/containers/403"), { ssr: false, loading: () => <div>Loading...</div> }), 
     "dashboard": dynamic(() => import("@/containers/dashboard/index"), { ssr: false, loading: () => <div>Loading...</div> }), 

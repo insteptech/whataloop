@@ -40,7 +40,7 @@ const leadSlice = createSlice({
       })
       .addCase(getLeads.fulfilled, (state, action) => {
         state.loading = false;
-        state.leads = action.payload.users; 
+        state.leads = action.payload.leads;
         state.total = action.payload.total; 
       })
       .addCase(getLeads.rejected, (state, action) => {

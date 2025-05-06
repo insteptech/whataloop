@@ -34,8 +34,13 @@ function UserDetails() {
   
 
   useEffect(() => {
-    dispatch(getLeads({ page: currentPage, limit: itemsPerPage, search: debouncedSearch }) as any);
-  }, [dispatch, currentPage, debouncedSearch]);
+    dispatch(
+      getLeads({
+        page: currentPage,
+        limit: itemsPerPage,
+        search: debouncedSearch,
+      }) as any
+    );  }, [dispatch, currentPage, debouncedSearch]);
 
   const totalPages = Math.ceil(total / itemsPerPage);
 
@@ -84,33 +89,38 @@ function UserDetails() {
       </Row>
 
       {leads?.length > 0 ? (
-        leads.map((lead: any) => (
-          <Row key={lead.id} className="lead-item">
-            <Col md={2} className="lead-cell">
-              <div className="lead-name">{lead.firstName} {lead.lastName}</div>
-              <div className="lead-notes">{lead.maidenName}</div>
-            </Col>
-            <Col md={2} className="lead-cell">
-              <div className="lead-email">Age: {lead.age}</div>
-              <div className="lead-phone">Gender: {lead.gender}</div>
-            </Col>
-            <Col md={2} className="lead-cell">
-              <div className="lead-status">{lead.status || "N/A"}</div>
-            </Col>
-            <Col md={2} className="lead-cell">
-              <div className="lead-source">{lead.source || "N/A"}</div>
-            </Col>
-            <Col md={2} className="lead-cell">
-              <span className={"No Tag"}></span>
-            </Col>
-            <Col md={2} className="lead-cell">
-              <div className="lead-date">{"—"}</div>
-            </Col>
-          </Row>
-        ))
-      ) : (
-        <p>No users found.</p>
-      )}
+  leads.map((lead: any) => (
+    <Row key={lead.id} className="lead-item">
+      <Col md={2} className="lead-cell">
+        <div className="lead-name">{lead.name}</div>
+        <div className="lead-notes">{lead.notes}</div>
+      </Col>
+      <Col md={2} className="lead-cell">
+        <div className="lead-email">Email: {lead.email}</div>
+        <div className="lead-phone">Phone: {lead.phone}</div>
+      </Col>
+      <Col md={2} className="lead-cell">
+        <div className="lead-status">{lead.status || "N/A"}</div>
+      </Col>
+      <Col md={2} className="lead-cell">
+        <div className="lead-source">{lead.source || "N/A"}</div>
+      </Col>
+      <Col md={2} className="lead-cell">
+        <div className="lead-tag">{lead.tag || "No Tag"}</div>
+      </Col>
+      <Col md={2} className="lead-cell">
+        <div className="lead-date">
+          {lead.last_contacted
+            ? new Date(lead.last_contacted).toLocaleDateString()
+            : "—"}
+        </div>
+      </Col>
+    </Row>
+  ))
+) : (
+  <p>No users found.</p>
+)}
+
 
       {totalPages > 1 && (
         <div className="pagination">

@@ -1,2 +1,1 @@
-export const publicRoutes = ["/","/auth/login", "/auth/register",  "/leads/leadsList","/dashboard/containers", "/leads/createLead","/subscription/containers" ,"/subscription/checkout"]
-export const defaultRoot = "/auth/login";
+export const publicRoutes = ["/","/auth/login", "/auth/register",  "/leads/leadsList","/dashboard/containers", "/leads/createLead","/subscription/containers", "/constants/addConstants", "/constants/constantsList", '/users/usersList', "/403", "/subscription/checkout"];

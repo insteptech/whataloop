@@ -182,7 +182,7 @@ const getAll = async (userId, query) => {
   if (tag) where.tag = tag;
   if (status) where.status = status;
 
-  return await Lead.findAndCountAll({
+  const result = await Lead.findAndCountAll({
     where,
     include: [{
       model: User,
@@ -193,6 +193,11 @@ const getAll = async (userId, query) => {
     offset: (page - 1) * limit,
     limit: parseInt(limit),
   });
+
+  console.log(result, "result");
+  
+
+  return result;
 };
 
 const update = async (id, data, userId) => {

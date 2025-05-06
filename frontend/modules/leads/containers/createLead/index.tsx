@@ -32,19 +32,19 @@ const LeadsForm = () => {
     const fetchConstants = async () => {
       try {
         const response = await dispatch(getConstantType()).unwrap();
-        const data = response?.data || []; 
-        
-
+        const data = response?.data || {};
   
-        const tags = data.constantType
+        const constants = data.constantType?.rows || [];
+  
+        const tags = constants
           .filter((item) => item.type === "tag")
           .map((item) => ({ label: item.label, value: item.id }));
   
-        const statuses = data.constantType
+        const statuses = constants
           .filter((item) => item.type === "status")
           .map((item) => ({ label: item.label, value: item.id }));
   
-        const sources = data.constantType
+        const sources = constants
           .filter((item) => item.type === "source")
           .map((item) => ({ label: item.label, value: item.id }));
   
@@ -76,20 +76,27 @@ const LeadsForm = () => {
   });
 
   const handleSubmit = async () => {
-    const { name, phone, email, tag, status, source, notes, last_contacted } =
-      formData;
+    const tagLabel = tagOptions.find(option => option.value === formData.tag)?.label || '';
+    const statusLabel = statusOptions.find(option => option.value === formData.status)?.label || '';
+    const sourceLabel = sourceOptions.find(option => option.value === formData.source)?.label || '';
+  
+    const { name, phone, email, notes, last_contacted } = formData;
+  
     const payload = {
       name,
       phone,
       email,
-      tag,
-      status,
-      source,
+      tag: formData.tag,      
+      tag_label: tagLabel,          
+      status: formData.status, 
+      status_label: statusLabel,     
+      source: formData.source, 
+      source_label: sourceLabel,   
       notes,
       last_contacted: last_contacted ? last_contacted : null,
     };
 
-    console.log("object", payload);
+    console.log("PayLoad", payload);
 
     try {
       const response = await dispatch(postLeads(payload)).unwrap();
