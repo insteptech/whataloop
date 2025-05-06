@@ -4,6 +4,9 @@ import dynamic from 'next/dynamic'; export const componentsMap = {
     "main": dynamic(() => import("@/modules/auth/containers/login/main"), { ssr: false, loading: () => <div>Loading...</div> }), 
     "login": dynamic(() => import("@/modules/auth/containers/login/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
   },
+  "userprofile": {
+    "profile": dynamic(() => import("@/modules/userprofile/containers/profile/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
+  },
   "leads": {
     "leadsList": dynamic(() => import("@/modules/leads/containers/leadsList/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
     "createLead": dynamic(() => import("@/modules/leads/containers/createLead/index"), { ssr: false, loading: () => <div>Loading...</div> }), 

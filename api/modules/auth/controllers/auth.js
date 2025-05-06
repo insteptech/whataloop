@@ -13,6 +13,8 @@ const authManager = require("../manager/auth");
 const { supportedDbTypes } = require("../utils/staticData");
 const { unsupportedDBType } = require("../utils/messages");
 const CustomError = require("../../../middlewares/customError");
+const userManager = require('../manager/auth');
+
 
 exports.sendOtp = async (req, res, next) => {
   try {
@@ -66,6 +68,19 @@ exports.getUserDetails = async (req, res, next) => {
     return result;
   } catch (error) {
     return next(new CustomError(error.message, 500));
+  }
+};
+
+exports.getMe = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(400).json({ message: 'User not authenticated properly' });
+    }
+    const user = await authManager.getUserById(req.user.id);
+    res.json(user);
+  } catch (err) {
+    console.error('Error fetching user:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 

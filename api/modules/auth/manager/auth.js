@@ -1,5 +1,7 @@
 const e = require("express");
 const authService = require("../services/auth.js");
+
+
 const {
   sendResponse,
   generateOtp,
@@ -64,6 +66,10 @@ exports.listUsers = async (req, res) => {
   });
 
   return sendResponse(res, 200, true, "Fetched users successfully", users);
+};
+
+exports.getUserById = async (id) => {
+  return await authService.findById(id);
 };
 
 

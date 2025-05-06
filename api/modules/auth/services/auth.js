@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 const otpStorage = new Map();
 const bcrypt = require("bcryptjs");
 const { generateToken } = require("../../../utils/helper");
+const User = require("../models/user");
 
 const findUser = async (where) => {
   if (typeof where !== "object" || Array.isArray(where) || where === null || Object.keys(where).length === 0) {
@@ -47,7 +48,18 @@ const findUser = async (where) => {
   return user;
 };
 
+const findById = async (id) => {
+  const { User } = await getAllModels(process.env.DB_TYPE);
+  const user = await User.findByPk(id, {
+    attributes: ['id', 'fullName', 'email', 'phone', 'photo_url', 'account_type', 'timezone'],
+  });
 
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  return user;
+};
 const createUser = async (requestBody) => {
   if (
     typeof requestBody !== "object" ||
@@ -286,5 +298,6 @@ module.exports = {
   fetchUsersWithPagination,
   profileComplete,
   login,
-  signup
+  signup,
+  findById
 };

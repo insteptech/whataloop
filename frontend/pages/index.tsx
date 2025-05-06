@@ -3,6 +3,8 @@ import dynamic from "next/dynamic";
 import { componentsMap } from "@/componentsMap"; // Import the generated map
 import LeftSidebar from "@/components/common/LeftSidebar";
 import { Col, Container, Row } from "react-bootstrap";
+import HeaderTopBar from "@/components/common/HeaderTopBar";
+
 import {
   DownArrow,
   HamburgerMenuIcon,
@@ -92,98 +94,14 @@ export default function Page({ slug }: PageProps) {
             {" "}
             <Row>
               <Col md={12}>
-                <header className="header-top-bar">
-                  <div className="container-fluid">
-                    <div className="row align-items-center">
-                      <div className="col-md-6">
-                        <div className="header-top-bar-left d-flex align-items-center gap-3">
-                          <button
-                            onClick={() => setSideBarWidth(!sideBarWidth)}
-                            className="set-side-bar-button bg-transparent border-0 me-3 p-0"
-                            aria-label="Toggle sidebar"
-                          >
-                            <HamburgerMenuIcon />
-                          </button>
+  <HeaderTopBar
+    profileOpen={profile}
+    toggleProfile={OpenProfileDropDown}
+    toggleSidebar={() => setSideBarWidth(!sideBarWidth)}
+  />
+</Col>
 
-                          <div className="search-bar position-relative flex-grow-1">
-                            <input
-                              type="text"
-                              placeholder="Search..."
-                              className="form-control py-2 rounded-pill"
-                            />
-                            <SearchIcon />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="col-md-6">
-                        <div className="header-top-bar-right d-flex align-items-center justify-content-end ">
-                          <button className="msg-button bg-transparent border-0 position-relative me-3">
-                            <MessageIcon />
-                            {/* <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                              3
-                            </span> */}
-                          </button>
-
-                          <div className="user-profile dropdown">
-                            <button
-                              className="d-flex align-items-center bg-transparent border-0 "
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                              onClick={OpenProfileDropDown}
-                            >
-                              <div className="avatar me-2">
-                                <UserIcon />
-                              </div>
-                              <span className="d-none d-md-inline text-dark fw-medium">
-                                John Doe
-                              </span>
-                              <DownArrow />
-                            </button>
-
-                            <ul
-                              className={`dropdown-menu dropdown-menu-end ${
-                                profile ? "open-profile-menu" : ""
-                              }`}
-                            >
-                              <li>
-                                <a
-                                  className="dropdown-item d-flex align-items-center"
-                                  href="#"
-                                >
-                                  <ViewProfileIcon />
-                                  Profile
-                                </a>
-                              </li>
-                              <li>
-                                <a
-                                  className="dropdown-item d-flex align-items-center"
-                                  href="#"
-                                >
-                                  <SettingsIcon />
-                                  Settings
-                                </a>
-                              </li>
-                              <li>
-                                <hr className="dropdown-divider" />
-                              </li>
-                              <li>
-                                <a
-                                  className="dropdown-item d-flex align-items-center text-danger"
-                                  href="#"
-                                >
-                                  <LogOutIcon />
-                                  Logout
-                                </a>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </header>
-              </Col>
+             
               <Col md={12}>
                 {" "}
                 <Component />
