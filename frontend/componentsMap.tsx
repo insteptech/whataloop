@@ -14,6 +14,7 @@ import dynamic from 'next/dynamic'; export const componentsMap = {
   },
   "subscription": {
     "containers": dynamic(() => import("@/modules/subscription/containers/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
+    "checkout": dynamic(() => import("@/modules/subscription/containers/checkout/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
   },
   "constants": {
     "constantsList": dynamic(() => import("@/modules/constants/containers/constantsList/index"), { ssr: false, loading: () => <div>Loading...</div> }), 

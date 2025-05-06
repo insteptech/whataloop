@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { postConstant, fetchConstants } from "../action/constantAction";
+import { postConstant, fetchConstants, deleteConstant } from "../action/constantAction";
 
 interface ConstantState {
   loading: boolean;
@@ -51,6 +51,8 @@ const constantSlice = createSlice({
         state.success = false;
         state.error = action.payload as string;
       })
+      
+      
       .addCase(fetchConstants.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -62,6 +64,22 @@ const constantSlice = createSlice({
         state.totalPages = action.payload.totalPages;
       })
       .addCase(fetchConstants.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(deleteConstant.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteConstant.fulfilled, (state, action) => {
+        state.loading = false;
+        state.constantsList = state.constantsList.filter(
+          (constant) => constant.id !== action.payload.id && constant._id !== action.payload.id
+        );
+        state.total -= 1;
+      })
+      .addCase(deleteConstant.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

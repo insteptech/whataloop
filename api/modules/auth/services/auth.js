@@ -56,9 +56,9 @@ const createUser = async (requestBody) => {
     throw { message: "Invalid request body" };
   }
   const { User, UserRole, sequelize } = await getAllModels(process.env.DB_TYPE);
-  if(!User) {
+  if (!User) {
     throw { message: "User model not found" };
-  }  
+  }
   const transaction = await sequelize.transaction();
   try {
     requestBody["uuid"] = uuidv4();
@@ -159,25 +159,36 @@ const clearOtp = async (email) => {
 const fetchUsersWithPagination = async ({
   page = 1,
   pageSize = 10,
+  search = '',
+  sort = 'createdAt',
+  order = 'DESC',
   include = [],
-}) => { 
+}) => {
   const { User } = await getAllModels(process.env.DB_TYPE);
-  // Ensure page and pageSize are numbers
+  const { Op } = require("sequelize");
+
   page = parseInt(page);
   pageSize = parseInt(pageSize);
-
-  // Calculate offset for pagination
   const offset = (page - 1) * pageSize;
-  const limit = pageSize;
 
-  // Fetch data with pagination and associations
+  const where = {};
+
+  if (search) {
+    where[Op.or] = [
+      { fullName: { [Op.iLike]: `%${search}%` } },
+      { email: { [Op.iLike]: `%${search}%` } },
+      { phone: { [Op.iLike]: `%${search}%` } },
+    ];
+  }
+
   const { count, rows } = await User.findAndCountAll({
+    where,
     offset,
-    limit,
+    limit: pageSize,
     include,
+    order: [[sort, order.toUpperCase()]],
   });
 
-  // Return paginated results
   return {
     currentPage: page,
     pageSize,
@@ -186,6 +197,8 @@ const fetchUsersWithPagination = async ({
     rows,
   };
 };
+
+
 
 const profileComplete = async (requestBody, where) => {
   if (
@@ -209,7 +222,7 @@ const login = async (email, password) => {
     if (!user) {
       throw { status: 401, message: "Invalid email or password" };
     }
-    const isMatch = await bcrypt.compare(password, user.password);    
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       throw { status: 401, message: "Invalid email or password" };
     }

@@ -11,7 +11,7 @@ const UsersList = () => {
   
   const queryPage = router.query.page as string;
   const currentPage = parseInt(queryPage || "1");
-  const itemsPerPage = 2;
+  const itemsPerPage = 3;
 
   const [searchInput, setSearchInput] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -56,7 +56,7 @@ const UsersList = () => {
       <form onSubmit={(e) => e.preventDefault()} className="mb-3">
         <input
           type="search"
-          placeholder="Search by name"
+          placeholder="Search by name, emai, or phone"
           className="form-control w-25"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}

@@ -4,13 +4,27 @@ import api from "@/axios/axiosInterceptor";
 export const getUsers = createAsyncThunk(
   "auth/getUsers",
   async (
-    { page, pageSize, search }: { page: number; pageSize: number; search?: string },
+    {
+      page,
+      pageSize,
+      search,
+      sort = "createdAt",
+      order = "DESC",
+    }: {
+      page: number;
+      pageSize: number;
+      search?: string;
+      sort?: string;
+      order?: string;
+    },
     { rejectWithValue }
   ) => {
     try {
       const queryParams = new URLSearchParams({
         page: page.toString(),
-        limit: pageSize.toString(),
+        pageSize: pageSize.toString(),
+        sort,
+        order,
       });
 
       if (search) queryParams.append("search", search);
@@ -29,4 +43,5 @@ export const getUsers = createAsyncThunk(
     }
   }
 );
+
 

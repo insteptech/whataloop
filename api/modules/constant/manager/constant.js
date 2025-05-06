@@ -25,3 +25,12 @@ exports.createConstant = async (data) => {
     throw new Error('Manager error: ' + error.message);
   }
 };
+
+exports.deleteConstant = async (id) => {
+  try {
+    const deletedConstant = await constantService.deleteConstant(id);
+    return deletedConstant;
+  } catch (error) {
+    throw new Error('Manager error: ' + error.message);
+  }
+};

@@ -29,3 +29,16 @@ export const fetchConstants = createAsyncThunk(
     }
   }
 );
+export const deleteConstant = createAsyncThunk(
+  "deleteConstant",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const response = await api.delete(`/constant/constantdelete/${id}`);
+      console.log("Constant Deleted:", response.data);
+      return { id, message: response.data.message };
+    } catch (error: any) {
+      console.error("Delete Constant Error:", error.response?.data || error.message);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);

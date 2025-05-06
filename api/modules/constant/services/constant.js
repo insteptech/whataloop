@@ -44,8 +44,30 @@ const createConstant = async (data) => {
 };
 
 
+const deleteConstant = async (id) => {
+  try {
+    const { Constant, Lead } = await getAllModels(process.env.DB_TYPE);
+
+    const inUse = await Lead.count({ where: { tag: id } });
+    if (inUse > 0) {
+      throw new Error("Cannot delete constant: It is in use by one or more leads");
+    }
+
+
+    const constant = await Constant.findByPk(id);
+    if (!constant) {
+      throw new Error("Constant not found");
+    }
+
+    await constant.destroy();
+    return { message: "Constant deleted successfully" };
+  } catch (error) {
+    throw new Error('Error while deleting constant: ' + error.message);
+  }
+};
 
 module.exports = {
   getConstantType,
-  createConstant
-}
+  createConstant,
+  deleteConstant,
+};

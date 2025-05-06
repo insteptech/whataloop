@@ -47,13 +47,25 @@ exports.verifyOtp = async (req, res) => {
 };
 
 exports.listUsers = async (req, res) => {
-  const { page, pageSize } = req.query;
+  const {
+    page = 1,
+    pageSize = 10,
+    search = "",
+    sort = "createdAt",
+    order = "DESC",
+  } = req.query;
+
   const users = await authService.fetchUsersWithPagination({
-    page: page ? page : 1,
-    pageSize: pageSize ? pageSize : 2,
+    page,
+    pageSize,
+    search,
+    sort,
+    order,
   });
-  return sendResponse(res, 200, true, "Fetch users successfully", users);
+
+  return sendResponse(res, 200, true, "Fetched users successfully", users);
 };
+
 
 exports.getUserDetails = async (req, res) => {
   const { id } = req.params;

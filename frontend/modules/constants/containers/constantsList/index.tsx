@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchConstants } from "../../redux/action/constantAction";
+import { fetchConstants, deleteConstant } from "../../redux/action/constantAction";
 import router from "next/router";
 
 const ConstantsList = () => {
@@ -16,11 +16,24 @@ const ConstantsList = () => {
     dispatch(fetchConstants({ page, limit }));
   }, [dispatch, page]);
 
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this constant?")) {
+      try {
+        await dispatch(deleteConstant(id)).unwrap(); 
+        dispatch(fetchConstants({ page, limit })); 
+      } catch (err: any) {
+        console.error("Delete failed:", err);
+        const message =
+          "Cannot delete!!. This constant is already in in use in Leads table";
+        alert(message); 
+      }
+    }
+  };
+  
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>Constants List</h2>
-
         <button
           onClick={() => router.push("/constants/addConstants")}
           className="btn btn-primary"
@@ -28,15 +41,8 @@ const ConstantsList = () => {
           ADD CONSTANT
         </button>
       </div>
-      <form onSubmit={(e) => e.preventDefault()}>
-            <input
-              type="search"
-              placeholder="Search"
-            />
-          </form>
-
       {loading && <p>Loading...</p>}
-      {error && <p className="text-danger">Error: {error}</p>}
+
       {!loading && Array.isArray(constantsList) && constantsList.length === 0 && (
         <p>No constants found.</p>
       )}
@@ -48,13 +54,22 @@ const ConstantsList = () => {
               <tr>
                 <th>Type</th>
                 <th>Label</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {constantsList.map((constant: any) => (
-                <tr key={constant.id || constant._id}>
+                <tr key={constant.id}>
                   <td>{constant.type}</td>
                   <td>{constant.label}</td>
+                  <td>
+                    <button
+                      onClick={() => handleDelete(constant.id)}
+                      className="btn btn-danger"
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -72,10 +87,7 @@ const ConstantsList = () => {
 
               {page > 2 && (
                 <>
-                  <button
-                    onClick={() => setPage(1)}
-                    className="pagination-button"
-                  >
+                  <button onClick={() => setPage(1)} className="pagination-button">
                     1
                   </button>
                   <span className="pagination-ellipsis">...</span>
@@ -87,23 +99,15 @@ const ConstantsList = () => {
               </button>
 
               {page < totalPages - 1 && (
-                <button
-                  onClick={() => setPage(page + 1)}
-                  className="pagination-button"
-                >
+                <button onClick={() => setPage(page + 1)} className="pagination-button">
                   {page + 1}
                 </button>
               )}
 
-              {page < totalPages - 2 && (
-                <span className="pagination-ellipsis">...</span>
-              )}
+              {page < totalPages - 2 && <span className="pagination-ellipsis">...</span>}
 
               {page !== totalPages && (
-                <button
-                  onClick={() => setPage(totalPages)}
-                  className="pagination-button"
-                >
+                <button onClick={() => setPage(totalPages)} className="pagination-button">
                   {totalPages}
                 </button>
               )}
