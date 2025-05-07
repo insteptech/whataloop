@@ -3,6 +3,7 @@
 import { FC } from "react";
 import {
   DownArrow,
+  HamburgerMenuIcon,
   LogOutIcon,
   MessageIcon,
   SearchIcon,
@@ -20,7 +21,11 @@ type Props = {
   toggleSidebar: () => void;
 };
 
-const HeaderTopBar: FC<Props> = ({ profileOpen, toggleProfile, toggleSidebar }) => {
+const HeaderTopBar: FC<Props> = ({
+  profileOpen,
+  toggleProfile,
+  toggleSidebar,
+}) => {
   const dispatch: any = useDispatch();
 
   const router = useRouter();
@@ -52,7 +57,7 @@ const HeaderTopBar: FC<Props> = ({ profileOpen, toggleProfile, toggleSidebar }) 
                 className="set-side-bar-button bg-transparent border-0 me-3 p-0"
                 aria-label="Toggle sidebar"
               >
-                <SearchIcon />
+                <HamburgerMenuIcon />
               </button>
 
               <div className="search-bar position-relative flex-grow-1">
@@ -103,7 +108,10 @@ const HeaderTopBar: FC<Props> = ({ profileOpen, toggleProfile, toggleSidebar }) 
                     </button>
                   </li>
                   <li>
-                    <a className="dropdown-item d-flex align-items-center" href="#">
+                    <a
+                      className="dropdown-item d-flex align-items-center"
+                      href="#"
+                    >
                       <SettingsIcon />
                       Settings
                     </a>
@@ -112,7 +120,10 @@ const HeaderTopBar: FC<Props> = ({ profileOpen, toggleProfile, toggleSidebar }) 
                     <hr className="dropdown-divider" />
                   </li>
                   <li>
-                    <a className="dropdown-item d-flex align-items-center text-danger" href="#">
+                    <a
+                      className="dropdown-item d-flex align-items-center text-danger"
+                      href="#"
+                    >
                       <LogOutIcon />
                       Logout
                     </a>

@@ -506,65 +506,65 @@ export const ViewProfileIcon = () => {
   );
 };
 
-export const SettingsIcon = ()=>{
+export const SettingsIcon = () => {
   return (
     <svg
-    className="me-2"
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z"
-      stroke="#6c757d"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M19.4 15C19.2669 15.3016 19.227 15.6363 19.2863 15.9606C19.3455 16.2849 19.5007 16.5816 19.73 16.81L19.79 16.87C19.9069 16.9869 20.0002 17.1255 20.0647 17.2785C20.1291 17.4315 20.1634 17.5959 20.1657 17.7625C20.168 17.9291 20.1383 18.0946 20.0783 18.2496C20.0183 18.4046 19.9292 18.5461 19.8163 18.6663C19.7033 18.7865 19.5687 18.8831 19.42 18.9506C19.2713 19.0181 19.1115 19.0551 18.95 19.0594C18.7885 19.0637 18.6284 19.0352 18.4795 18.9756C18.3306 18.9161 18.196 18.8268 18.084 18.713L18.02 18.65C17.8857 18.5157 17.7226 18.413 17.5428 18.3496C17.3631 18.2862 17.1713 18.2638 16.982 18.284C16.6582 18.3199 16.3513 18.466 16.11 18.7C15.8687 18.934 15.7067 19.2429 15.65 19.58"
-      stroke="#6c757d"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-  )
-}
+      className="me-2"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z"
+        stroke="#6c757d"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M19.4 15C19.2669 15.3016 19.227 15.6363 19.2863 15.9606C19.3455 16.2849 19.5007 16.5816 19.73 16.81L19.79 16.87C19.9069 16.9869 20.0002 17.1255 20.0647 17.2785C20.1291 17.4315 20.1634 17.5959 20.1657 17.7625C20.168 17.9291 20.1383 18.0946 20.0783 18.2496C20.0183 18.4046 19.9292 18.5461 19.8163 18.6663C19.7033 18.7865 19.5687 18.8831 19.42 18.9506C19.2713 19.0181 19.1115 19.0551 18.95 19.0594C18.7885 19.0637 18.6284 19.0352 18.4795 18.9756C18.3306 18.9161 18.196 18.8268 18.084 18.713L18.02 18.65C17.8857 18.5157 17.7226 18.413 17.5428 18.3496C17.3631 18.2862 17.1713 18.2638 16.982 18.284C16.6582 18.3199 16.3513 18.466 16.11 18.7C15.8687 18.934 15.7067 19.2429 15.65 19.58"
+        stroke="#6c757d"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
 
-export const LogOutIcon =()=>{
+export const LogOutIcon = () => {
   return (
     <svg
-    className="me-2"
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M16 17L21 12L16 7"
-      stroke="#dc3545"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M21 12H9"
-      stroke="#dc3545"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9"
-      stroke="#dc3545"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-  )
-}
+      className="me-2"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M16 17L21 12L16 7"
+        stroke="#dc3545"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M21 12H9"
+        stroke="#dc3545"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9"
+        stroke="#dc3545"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};

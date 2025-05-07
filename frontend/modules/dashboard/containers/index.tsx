@@ -1,7 +1,94 @@
 import { DashBoardPreviewImg } from "@/components/common/Icon";
 import React from "react";
+import Chart from "react-apexcharts";
+import { FaCircle } from "react-icons/fa";
+import IncomeOverview from "./IncomeOverview";
+import AnalyticsReport from "./AnalyticsReport";
+import UniqueVisitorChart from "./UniqueVisitorChart";
 
 function DashboardPage() {
+  const orders = [
+    {
+      trackingNo: "84564564",
+      product: "Camera Lens",
+      total: 40,
+      status: "Rejected",
+      amount: "$40,570",
+      statusColor: "text-danger",
+    },
+    {
+      trackingNo: "84564564",
+      product: "Laptop",
+      total: 300,
+      status: "Pending",
+      amount: "$180,139",
+      statusColor: "text-warning",
+    },
+    {
+      trackingNo: "84564564",
+      product: "Mobile",
+      total: 355,
+      status: "Approved",
+      amount: "$180,139",
+      statusColor: "text-success",
+    },
+    {
+      trackingNo: "84564564",
+      product: "Camera Lens",
+      total: 40,
+      status: "Rejected",
+      amount: "$40,570",
+      statusColor: "text-danger",
+    },
+    {
+      trackingNo: "84564564",
+      product: "Laptop",
+      total: 300,
+      status: "Pending",
+      amount: "$180,139",
+      statusColor: "text-warning",
+    },
+    {
+      trackingNo: "84564564",
+      product: "Mobile",
+      total: 355,
+      status: "Approved",
+      amount: "$180,139",
+      statusColor: "text-success",
+    },
+    {
+      trackingNo: "84564564",
+      product: "Camera Lens",
+      total: 40,
+      status: "Rejected",
+      amount: "$40,570",
+      statusColor: "text-danger",
+    },
+    {
+      trackingNo: "84564564",
+      product: "Laptop",
+      total: 300,
+      status: "Pending",
+      amount: "$180,139",
+      statusColor: "text-warning",
+    },
+    {
+      trackingNo: "84564564",
+      product: "Mobile",
+      total: 355,
+      status: "Approved",
+      amount: "$180,139",
+      statusColor: "text-success",
+    },
+    {
+      trackingNo: "84564564",
+      product: "Mobile",
+      total: 355,
+      status: "Approved",
+      amount: "$180,139",
+      statusColor: "text-success",
+    },
+  ];
   return (
     <div className="homepage">
       <div className="container mt-4 mb-4">
@@ -76,8 +163,65 @@ function DashboardPage() {
           </div>
         </div>
       </div>
-      {/* Hero Section */}
 
+      <div className="visitor-graph-container">
+        <div className="container">
+          <div className="row">
+            <UniqueVisitorChart />
+            <IncomeOverview />
+          </div>
+        </div>
+      </div>
+
+      <div className="table-container">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12 col-xl-8">
+              <h5 className="mb-3">Recent Orders</h5>
+              <div className="card tbl-card">
+                <div className="card-body">
+                  <div className="table-responsive">
+                    <table className="table table-hover table-borderless mb-0">
+                      <thead>
+                        <tr>
+                          <th>TRACKING NO.</th>
+                          <th>PRODUCT NAME</th>
+                          <th>TOTAL ORDER</th>
+                          <th>STATUS</th>
+                          <th className="text-end">TOTAL AMOUNT</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {orders.map((order, index) => (
+                          <tr key={index}>
+                            <td>
+                              <a href="#" className="text-muted">
+                                {order.trackingNo}
+                              </a>
+                            </td>
+                            <td>{order.product}</td>
+                            <td>{order.total}</td>
+                            <td>
+                              <span className="d-flex align-items-center gap-2">
+                                <FaCircle
+                                  className={`${order.statusColor} f-10 m-r-5`}
+                                />
+                                {order.status}
+                              </span>
+                            </td>
+                            <td className="text-end">{order.amount}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <AnalyticsReport />
+          </div>
+        </div>
+      </div>
 
       {/* Features Section */}
       <section className="features">

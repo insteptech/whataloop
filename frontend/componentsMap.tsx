@@ -12,7 +12,10 @@ import dynamic from 'next/dynamic'; export const componentsMap = {
     "createLead": dynamic(() => import("@/modules/leads/containers/createLead/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
   },
   "dashboard": {
+    "UniqueVisitorChart": dynamic(() => import("@/modules/dashboard/containers/UniqueVisitorChart"), { ssr: false, loading: () => <div>Loading...</div> }), 
     "containers": dynamic(() => import("@/modules/dashboard/containers/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
+    "IncomeOverview": dynamic(() => import("@/modules/dashboard/containers/IncomeOverview"), { ssr: false, loading: () => <div>Loading...</div> }), 
+    "AnalyticsReport": dynamic(() => import("@/modules/dashboard/containers/AnalyticsReport"), { ssr: false, loading: () => <div>Loading...</div> }), 
     "dashboard": dynamic(() => import("@/modules/dashboard/containers/dashboard/index"), { ssr: false, loading: () => <div>Loading...</div> }), 
   },
   "subscription": {
