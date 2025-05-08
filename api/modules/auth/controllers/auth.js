@@ -84,7 +84,7 @@ exports.getMe = async (req, res) => {
   }
 };
 
-exports.updateUser = async (req, res, next) => {
+exports.updateUserProfile = async (req, res, next) => {
   try {
     if (!Object.keys(supportedDbTypes).includes(process.env.DB_TYPE)) {
       return next(new CustomError(unsupportedDBType, 400));
@@ -94,13 +94,12 @@ exports.updateUser = async (req, res, next) => {
     const { error } = schema.validate(req.body);
     if (error) return next(new CustomError(error.details[0].message, 400));
 
-    const result = await authManager.updateUser(req, res);
-    return result;
+    const result = await authManager.updateUser(req.user.id, req.body);
+    res.status(200).json({ message: "User updated successfully", data: result });
   } catch (error) {
     return next(new CustomError(error.message, 500));
   }
 };
-
 exports.deleteUser = async (req, res, next) => {
   try {
     if (!Object.keys(supportedDbTypes).includes(process.env.DB_TYPE)) {
@@ -168,3 +167,4 @@ exports.signup = async (req, res, next) => {
     return next(new CustomError(error.message, 500));
   }
 };
+

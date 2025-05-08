@@ -461,3 +461,25 @@
         }
     }
 }
+.sort-btn {
+    background: none;
+    border: none;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .sort-btn:hover {
+    color: #007bff;
+  }
+  
+  .lead-list-header-row {
+    font-weight: bold;
+    margin-top: 20px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 8px;
+  }
+  

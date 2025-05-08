@@ -13,5 +13,4 @@ router.post('/', authenticate, validateCreateLead, leadController.create);
 router.get('/', authenticate, leadController.getAll);
 router.put('/:id', authenticate, validateUpdateLead, leadController.update);
 router.delete('/:id', authenticate, leadController.remove);
-
 module.exports = router;

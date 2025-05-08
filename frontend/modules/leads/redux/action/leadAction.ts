@@ -15,7 +15,7 @@ export const postLeads = createAsyncThunk("postLeads", async (payload: any) => {
 export const getLeads = createAsyncThunk(
    "getLeads",
   async (
-    { page, limit, search }: { page: number; limit: number; search?: string },
+    { page, limit, search, sort, order }: { page: number; limit: number; search?: string; sort?: string; order?: string },
     { rejectWithValue }
   )=> {
     try {
@@ -25,6 +25,8 @@ export const getLeads = createAsyncThunk(
       });
 
       if (search) queryParams.append("search", search);
+      if (sort) queryParams.append("sort", sort);
+      if (order) queryParams.append("order", order);
 
       const response = await api.get(`/lead?${queryParams.toString()}`);
       console.log("Response", response);
@@ -50,3 +52,16 @@ export const getLeads = createAsyncThunk(
       return error.response.data;
     }
   });
+
+  export const deleteLead = createAsyncThunk(
+    "deleteLead",
+    async (id: string, { rejectWithValue, getState }) => {
+      try {
+        const response = await api.delete(`/lead/${id}`);
+        return { id, message: response.data?.message || "Deleted successfully" };
+      } catch (error: any) {
+        return rejectWithValue(error.response?.data?.message || error.message);
+      }
+    }
+  );
+  

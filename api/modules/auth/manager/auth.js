@@ -85,10 +85,8 @@ exports.getUserDetails = async (req, res) => {
   return sendResponse(res, 200, true, message, user);
 };
 
-exports.updateUser = async (req, res) => {
-  const { id } = req.decoded;
-  const user = await authService.updateUser(req.body, { id });
-  return sendResponse(res, 200, true, "User updated successfully", user);
+exports.updateUserProfile = async (userId, updateData) => {
+  return await authService.updateUserProfile(userId, updateData);
 };
 
 exports.deleteUser = async (req, res) => {

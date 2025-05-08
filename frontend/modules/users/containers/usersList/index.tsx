@@ -5,65 +5,74 @@ import router from "next/router";
 
 const UsersList = () => {
   const dispatch = useDispatch<any>();
-
   const { users, loading, error } = useSelector((state: any) => state.usersReducer);
   const total = users.count;
-  
+
   const queryPage = router.query.page as string;
   const currentPage = parseInt(queryPage || "1");
   const itemsPerPage = 3;
 
   const [searchInput, setSearchInput] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [sortBy, setSortBy] = useState("createdAt"); 
+  const [sortOrder, setSortOrder] = useState("DESC");
 
-     useEffect(() => {
-        const timer = setTimeout(() => {
-          setDebouncedSearch(searchInput.trim());
-      
-          router.push({
-            pathname: router.asPath.split("?")[0],
-            query: { page: "1" },
-          });
-        }, 1000);
-      
-        return () => clearTimeout(timer);
-      }, [searchInput]);
-      
   useEffect(() => {
-    dispatch( getUsers({
-            page: currentPage,
-            pageSize: itemsPerPage,
-            search: debouncedSearch,
-          }) as any
-        );  }, [dispatch, currentPage, debouncedSearch]);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput.trim());
+      router.push({
+        pathname: router.asPath.split("?")[0],
+        query: { page: "1" },
+      });
+    }, 1000);
 
-        const totalPages = Math.ceil(total / itemsPerPage);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
-        const handlePageChange = (page: number) => {
-          router.push({
-            pathname: router.pathname,
-            query: { ...router.query, page: page.toString() },
-          });
-        };
+  useEffect(() => {
+    dispatch(
+      getUsers({
+        page: currentPage,
+        pageSize: itemsPerPage,
+        search: debouncedSearch,
+        sort: sortBy, 
+        order: sortOrder,
+      }) as any
+    );
+  }, [dispatch, currentPage, debouncedSearch, sortBy, sortOrder]);
 
-        if (loading) return <p>Loading users...</p>;
-        if (error) return <p>Error: {error}</p>;      
+  const totalPages = Math.ceil(total / itemsPerPage);
+
+  const handlePageChange = (page: number) => {
+    router.push({
+      pathname: router.pathname,
+      query: { ...router.query, page: page.toString() },
+    });
+  };
+
+  const handleSort = (column: string) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === "ASC" ? "DESC" : "ASC");
+    } else {
+      setSortBy(column);
+      setSortOrder("ASC");
+    }
+  };
 
   return (
-  <div className="container mt-4">
+    <div className="container mt-4">
       <h2>Users List</h2>
 
       <form onSubmit={(e) => e.preventDefault()} className="mb-3">
         <input
           type="search"
-          placeholder="Search by name, emai, or phone"
+          placeholder="Search by name, email, or phone"
           className="form-control w-25"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
         />
       </form>
 
-      {loading && <p>Loading...</p>}
       {error && <p className="text-danger">Error: {error}</p>}
       {!loading && (!users?.rows || users.rows.length === 0) && <p>No users found.</p>}
 
@@ -72,11 +81,19 @@ const UsersList = () => {
           <thead className="table-dark">
             <tr>
               <th>S.no</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Phone</th>
-              <th>Created At</th>
+              <th onClick={() => handleSort("fullName")} style={{ cursor: "pointer" }}>
+                Name {sortBy === "fullName" ? (sortOrder === "ASC" ? "▲" : "▼") : ""}
+              </th>
+              <th onClick={() => handleSort("email")} style={{ cursor: "pointer" }}>
+                Email {sortBy === "email" ? (sortOrder === "ASC" ? "▲" : "▼") : ""}
+              </th>
+              <th>Account Type</th>
+              <th onClick={() => handleSort("phone")} style={{ cursor: "pointer" }}>
+                Phone {sortBy === "phone" ? (sortOrder === "ASC" ? "▲" : "▼") : ""}
+              </th>
+              <th onClick={() => handleSort("createdAt")} style={{ cursor: "pointer" }}>
+                Created At {sortBy === "createdAt" ? (sortOrder === "ASC" ? "▲" : "▼") : ""}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -94,7 +111,7 @@ const UsersList = () => {
         </table>
       )}
 
-      {totalPages > 0 && (
+      {totalPages > 1 && (
         <div className="pagination">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
@@ -122,9 +139,7 @@ const UsersList = () => {
             </button>
           )}
 
-          {currentPage < totalPages - 2 && (
-            <span className="pagination-ellipsis">...</span>
-          )}
+          {currentPage < totalPages - 2 && <span className="pagination-ellipsis">...</span>}
 
           {currentPage !== totalPages && (
             <button onClick={() => handlePageChange(totalPages)} className="pagination-button">

@@ -57,9 +57,9 @@ const createUser = async (requestBody) => {
     throw { message: "Invalid request body" };
   }
   const { User, UserRole, sequelize } = await getAllModels(process.env.DB_TYPE);
-  if(!User) {
+  if (!User) {
     throw { message: "User model not found" };
-  }  
+  }
   const transaction = await sequelize.transaction();
   try {
     requestBody["uuid"] = uuidv4();
@@ -160,10 +160,10 @@ const create = async (data) => {
     throw error;
   }
 };
-  
+
 const getAll = async (userId, query) => {
   const { search, tag, status, sort = 'createdAt', order = 'DESC', page = 1, limit = 10 } = query;
-  const { Lead, User } = await getAllModels(process.env.DB_TYPE); // ✅ Also get User if you want to include
+  const { Lead, User } = await getAllModels(process.env.DB_TYPE);
 
   if (!Lead) {
     throw new Error("Lead model not found");
@@ -195,31 +195,31 @@ const getAll = async (userId, query) => {
   });
 
   console.log(result, "result");
-  
+
 
   return result;
 };
 
 const update = async (id, data, userId) => {
-const { Lead } = await getAllModels(process.env.DB_TYPE);
-if (!Lead) {
+  const { Lead } = await getAllModels(process.env.DB_TYPE);
+  if (!Lead) {
     throw new Error("Lead model not found");
-}
-const lead = await Lead.findOne({ where: { id, userId } });
-if (!lead) throw new Error('Lead not found or unauthorized');
-return await lead.update(data);
+  }
+  const lead = await Lead.findOne({ where: { id, userId } });
+  if (!lead) throw new Error('Lead not found or unauthorized');
+  return await lead.update(data);
 };
 
-const remove = async (id, userId) => {
-const { Lead } = await getAllModels(process.env.DB_TYPE);
-if (!Lead) {
+const remove = async (id) => {
+  const { Lead } = await getAllModels(process.env.DB_TYPE);
+  if (!Lead) {
     throw new Error("Lead model not found");
-}
-const lead = await Lead.findOne({ where: { id, userId } });
-if (!lead) throw new Error('Lead not found or unauthorized');
-await lead.destroy();
+  }
+  const lead = await Lead.findOne({ where: { id } });
+  if (!lead) throw new Error('Lead not found or unauthorized');
+  await lead.destroy();
 };
-  
+
 
 // addLead
 module.exports = {

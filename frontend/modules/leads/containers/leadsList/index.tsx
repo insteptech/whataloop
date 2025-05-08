@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import { getLeads } from "../../redux/action/leadAction";
+import { getLeads, deleteLead } from "../../redux/action/leadAction";
 import { Col, Row } from "react-bootstrap";
 
-function UserDetails() {
+const LeadsList = () =>  {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const { leads, total, loading, error } = useSelector(
+  const { leads, total } = useSelector(
     (state: any) => state.leadReducer
   );
 
@@ -19,19 +19,35 @@ function UserDetails() {
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
+  const [sortColumn, setSortColumn] = useState("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+  const handleSortClick = (column: string) => {
+    if (sortColumn === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortOrder("asc");
+    }
+  };
+
+  const renderSortIcon = (column: string) => {
+    if (sortColumn !== column) return "↕";
+    return sortOrder === "asc" ? "▲" : "▼";
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchInput.trim());
-  
+
       router.push({
         pathname: router.asPath.split("?")[0],
         query: { page: "1" },
       });
     }, 1000);
-  
+
     return () => clearTimeout(timer);
   }, [searchInput]);
-  
 
   useEffect(() => {
     dispatch(
@@ -39,8 +55,11 @@ function UserDetails() {
         page: currentPage,
         limit: itemsPerPage,
         search: debouncedSearch,
+        sort: sortColumn,
+        order: sortOrder,
       }) as any
-    );  }, [dispatch, currentPage, debouncedSearch]);
+    );
+  }, [dispatch, currentPage, debouncedSearch, sortColumn, sortOrder]);
 
   const totalPages = Math.ceil(total / itemsPerPage);
 
@@ -51,8 +70,23 @@ function UserDetails() {
     });
   };
 
-  if (loading) return <p>Loading users...</p>;
-  if (error) return <p>Error: {error}</p>;
+  const handleDeleteLead = (id: string) => {
+    if (window.confirm("Are you sure you want to delete this lead?")) {
+      dispatch(deleteLead(id) as any).then((action) => {
+        if (deleteLead.fulfilled.match(action)) {
+          dispatch(
+            getLeads({
+              page: currentPage,
+              limit: itemsPerPage,
+              search: debouncedSearch,
+              sort: sortColumn,
+              order: sortOrder,
+            }) as any
+          );
+        }
+      });
+    }
+  };
 
   return (
     <div className="lead-list-container">
@@ -66,7 +100,7 @@ function UserDetails() {
           <form onSubmit={(e) => e.preventDefault()}>
             <input
               type="search"
-              placeholder="Search by name"
+              placeholder="Search by name or email"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
@@ -80,47 +114,86 @@ function UserDetails() {
       </div>
 
       <Row className="lead-list-header-row">
-        <Col md={2} className="header-cell">Name</Col>
-          <Col md={2} className="header-cell">Contact</Col>
-        <Col md={2} className="header-cell">Status</Col>
-         <Col md={2} className="header-cell">Source</Col>
-            <Col md={2} className="header-cell">Tag</Col>
-        <Col md={2} className="header-cell">Last Contacted</Col>
+        <Col md={2} className="header-cell">
+          <button className="sort-btn" onClick={() => handleSortClick("name")}>
+            Name {renderSortIcon("name")}
+          </button>
+        </Col>
+        <Col md={2} className="header-cell">
+          <button className="sort-btn" onClick={() => handleSortClick("email")}>
+            Email {renderSortIcon("email")}
+          </button>
+        </Col>
+        <Col md={2} className="header-cell">
+          <button className="sort-btn" onClick={() => handleSortClick("phone")}>
+            Phone{renderSortIcon("phone")}
+          </button>
+        </Col>
+        <Col md={2} className="header-cell">
+          <button className="sort-btn" onClick={() => handleSortClick("status")}>
+            Status {renderSortIcon("status")}
+          </button>
+        </Col>
+        <Col md={2} className="header-cell">
+          <button className="sort-btn" onClick={() => handleSortClick("source")}>
+            Source {renderSortIcon("source")}
+          </button>
+        </Col>
+        <Col md={2} className="header-cell">
+          <button className="sort-btn" onClick={() => handleSortClick("tag")}>
+            Tag {renderSortIcon("tag")}
+          </button>
+        </Col>
+        <Col md={1} className="header-cell">
+          <button className="sort-btn" onClick={() => handleSortClick("last_contacted")}>
+            Last Contacted {renderSortIcon("last_contacted")}
+          </button>
+        </Col>
+        <Col md={1} className="header-cell">Action</Col>
       </Row>
 
       {leads?.length > 0 ? (
-  leads.map((lead: any) => (
-    <Row key={lead.id} className="lead-item">
-      <Col md={2} className="lead-cell">
-        <div className="lead-name">{lead.name}</div>
-        <div className="lead-notes">{lead.notes}</div>
-      </Col>
-      <Col md={2} className="lead-cell">
-        <div className="lead-email">Email: {lead.email}</div>
-        <div className="lead-phone">Phone: {lead.phone}</div>
-      </Col>
-      <Col md={2} className="lead-cell">
-        <div className="lead-status">{lead.status || "N/A"}</div>
-      </Col>
-      <Col md={2} className="lead-cell">
-        <div className="lead-source">{lead.source || "N/A"}</div>
-      </Col>
-      <Col md={2} className="lead-cell">
-        <div className="lead-tag">{lead.tag || "No Tag"}</div>
-      </Col>
-      <Col md={2} className="lead-cell">
-        <div className="lead-date">
-          {lead.last_contacted
-            ? new Date(lead.last_contacted).toLocaleDateString()
-            : "—"}
-        </div>
-      </Col>
-    </Row>
-  ))
-) : (
-  <p>No users found.</p>
-)}
-
+        leads.map((lead: any) => (
+          <Row key={lead.id} className="lead-item">
+            <Col md={2} className="lead-cell">
+              <div className="lead-name">{lead.name}</div>
+              <div className="lead-notes">{lead.notes}</div>
+            </Col>
+            <Col md={2} className="lead-cell">
+              <div className="lead-email">Email: {lead.email}</div>
+            </Col>
+            <Col md={2} className="lead-cell">
+              <div className="lead-phone">Phone: {lead.phone}</div>
+            </Col>
+            <Col md={2} className="lead-cell">
+              <div className="lead-status">{lead.status || "N/A"}</div>
+            </Col>
+            <Col md={2} className="lead-cell">
+              <div className="lead-source">{lead.source || "N/A"}</div>
+            </Col>
+            <Col md={2} className="lead-cell">
+              <div className="lead-tag">{lead.tag || "No Tag"}</div>
+            </Col>
+            <Col md={1} className="lead-cell">
+              <div className="lead-date">
+                {lead.last_contacted
+                  ? new Date(lead.last_contacted).toLocaleDateString()
+                  : "—"}
+              </div>
+            </Col>
+            <Col md={1} className="lead-cell text-end">
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={() => handleDeleteLead(lead.id)}
+              >
+                Delete
+              </button>
+            </Col>
+          </Row>
+        ))
+      ) : (
+        <p>No users found.</p>
+      )}
 
       {totalPages > 1 && (
         <div className="pagination">
@@ -173,4 +246,4 @@ function UserDetails() {
   );
 }
 
-export default UserDetails;
+export default LeadsList;

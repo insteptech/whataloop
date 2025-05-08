@@ -1,6 +1,6 @@
 // modules/lead/redux/leadSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
-import { getLeads, postLeads } from "../action/leadAction";
+import { deleteLead, getLeads, postLeads } from "../action/leadAction";
 
 const initialState = {
   leads: [],
@@ -46,7 +46,23 @@ const leadSlice = createSlice({
       .addCase(getLeads.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error?.message || "Something went wrong";
+      })
+      .addCase(deleteLead.pending, (state) => {
+        state.loading = true;
+        state.error = "";
+      })
+      .addCase(deleteLead.fulfilled, (state, action) => {
+        state.loading = false;
+        const deletedId = action.payload?.id;
+        if (deletedId) {
+          state.leads = state.leads.filter((lead: any) => lead.id !== deletedId);
+        }
+      })
+      .addCase(deleteLead.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Failed to delete lead";
       });
+      
   },
 });
 

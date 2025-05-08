@@ -24,6 +24,7 @@ router.post("/login", authController.login);
 router.get("/users", authenticate, authController.listUsers);
 router.get('/profile', authenticate, authController.getMe);
 router.get("/:id", authenticate, authController.getUserDetails);
+router.put("/updateprofile", authenticate, authController.updateUserProfile);
 
 router.put(
   "/complete",

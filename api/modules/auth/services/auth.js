@@ -84,21 +84,6 @@ const createUser = async (requestBody) => {
   }
 };
 
-const updateUser = async (requestBody, where) => {
-  if (
-    typeof requestBody !== "object" ||
-    Object.keys(requestBody).length === 0
-  ) {
-    throw { message: "Invalid request body" };
-  }
-
-  if (typeof where !== "object" || Object.keys(where).length === 0) {
-    throw { message: "Invalid where condition" };
-  }
-  const { User } = await getAllModels(process.env.DB_TYPE);
-  return await User.update(requestBody, { where: where });
-};
-
 const deleteUser = async (where) => {
   if (typeof where !== "object" || Object.keys(where).length === 0) {
     throw { message: "Invalid where condition" };
@@ -125,6 +110,17 @@ const updateOtp = async (email, otp, expirationTime) => {
   }
 };
 
+const updateUserProfile = async (userId, updateData) => {
+  const user = await User.findByPk(userId);
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  await user.update(updateData);
+
+  return user;
+};
 const findByMobileAndOtp = async (email, otp) => {
   try {
     if (process.env.USE_REDIS === "true") {
@@ -290,7 +286,7 @@ const signup = async (requestBody) => {
 module.exports = {
   findUser,
   createUser,
-  updateUser,
+  updateUserProfile,
   deleteUser,
   updateOtp,
   findByMobileAndOtp,

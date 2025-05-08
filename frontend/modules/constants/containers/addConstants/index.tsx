@@ -37,20 +37,25 @@ const AddConstants = () => {
       <form onSubmit={formik.handleSubmit}>
         <div className="form-group mb-3">
           <label htmlFor="type">Type</label>
-          <input
-            type="text"
+          <select
             id="type"
             name="type"
             className={`form-control ${formik.touched.type && formik.errors.type ? "is-invalid" : ""}`}
             value={formik.values.type}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-          />
+          >
+            <option value="">Select Type</option>
+            <option value="tag">Tag</option>
+            <option value="status">Status</option>
+            <option value="source">Source</option>
+          </select>
           {formik.touched.type && formik.errors.type && (
             <div className="invalid-feedback">{formik.errors.type}</div>
           )}
         </div>
 
+        {/* Label Field */}
         <div className="form-group mb-3">
           <label htmlFor="label">Label</label>
           <input
@@ -67,6 +72,7 @@ const AddConstants = () => {
           )}
         </div>
 
+        {/* Value Field */}
         <div className="form-group mb-4">
           <label htmlFor="value">Value</label>
           <input

@@ -5,17 +5,6 @@ import LeftSidebar from "@/components/common/LeftSidebar";
 import { Col, Container, Row } from "react-bootstrap";
 import HeaderTopBar from "@/components/common/HeaderTopBar";
 
-import {
-  DownArrow,
-  HamburgerMenuIcon,
-  LogOutIcon,
-  MessageIcon,
-  SearchIcon,
-  SettingsIcon,
-  UserIcon,
-  ViewProfileIcon,
-} from "@/components/common/Icon";
-
 const Layout = dynamic(() => import("../layouts/main"));
 const Default = dynamic(() => import("./default"));
 
