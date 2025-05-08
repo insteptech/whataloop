@@ -293,35 +293,92 @@ a {
   height: 100vh;
   transition: width 0.4s linear;
 
-  &.siddebar-hide-width {
-    width: 80px !important;
+  @media (min-width:1200px) {
+    &.siddebar-hide-width {
+      width: 80px !important;
 
-    .left-sidebar-container {
-      .side-bar-body {
-        ul {
-          li {
-            a {
-              span {
-                display: none;
+      .left-sidebar-container {
+        .side-bar-body {
+          ul {
+            li {
+              a {
+                span {
+                  display: none;
+                }
               }
             }
           }
         }
-      }
 
-      .side-bar-footer {
-        visibility: hidden;
+        .side-bar-footer {
+          visibility: hidden;
+        }
       }
     }
   }
+
+
 }
 
-.right-sidebar-width {
-  width: calc(100% - 80px) !important;
-  transition: width 0.4s linear;
-  box-sizing: border-box;
-  padding-right: 0 !important;
+@media (min-width:1200px) {
+  .right-sidebar-width {
+    width: calc(100% - 80px) !important;
+    transition: width 0.4s linear;
+    box-sizing: border-box;
+    padding-right: 0 !important;
+  }
 }
+
+@media (max-width:1200px) {
+  .left-sidebar-sticky {
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding-left: 0 !important;
+    z-index: 999;
+    background: white;
+
+    &.siddebar-mobile-width {
+      width: 80px !important;
+
+      .left-sidebar-container {
+        .side-bar-body {
+          ul {
+            li {
+              a {
+                span {
+                  display: none;
+                }
+              }
+            }
+          }
+        }
+
+        .side-bar-footer {
+          visibility: hidden;
+        }
+      }
+    }
+
+    &.siddebar-hide-width {
+      width: 50% !important;
+    }
+
+  }
+
+  .right-sidebar-mobile-width {
+    width: calc(100% - 91px) !important;
+    transition: width 0.4s linear;
+    box-sizing: border-box;
+    padding-right: 0 !important;
+    margin-left: auto;
+  }
+
+  .right-sidebar-width {
+    width: 100% !important;
+  }
+}
+
 
 .left-sidebar-container {
   // background-color: #1e293b;

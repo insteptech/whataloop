@@ -48,75 +48,77 @@ const UniqueVisitorChart: React.FC = () => {
 
   return (
     <div className="col-md-12 col-xl-8">
-      <div className="d-flex align-items-center justify-content-between mb-3">
-        <h5 className="mb-0">Unique Visitor</h5>
-        <ul
-          className="nav nav-pills justify-content-end mb-0"
-          id="chart-tab-tab"
-          role="tablist"
-        >
-          <li className="nav-item" role="presentation">
-            <button
-              className="nav-link"
-              id="chart-tab-home-tab"
-              data-bs-toggle="pill"
-              data-bs-target="#chart-tab-home"
-              type="button"
-              role="tab"
-              aria-controls="chart-tab-home"
-              aria-selected="false"
-              tabIndex={-1}
-            >
-              Month
-            </button>
-          </li>
-          <li className="nav-item" role="presentation">
-            <button
-              className="nav-link active"
-              id="chart-tab-profile-tab"
-              data-bs-toggle="pill"
-              data-bs-target="#chart-tab-profile"
-              type="button"
-              role="tab"
-              aria-controls="chart-tab-profile"
-              aria-selected="true"
-            >
-              Week
-            </button>
-          </li>
-        </ul>
-      </div>
-      <div className="card">
-        <div className="card-body">
-          <div className="tab-content" id="chart-tab-tabContent">
-            <div
-              className="tab-pane"
-              id="chart-tab-home"
-              role="tabpanel"
-              aria-labelledby="chart-tab-home-tab"
-              tabIndex={0}
-            >
-              <div id="visitor-chart-1" style={{ minHeight: "465px" }}>
-                {/* Placeholder for monthly chart */}
-                <div style={{ height: "450px" }}>
-                  Monthly chart would go here
+      <div className="unique-visitor-chart">
+        <div className="d-flex align-items-center justify-content-between mb-3">
+          <h5 className="mb-0">Unique Visitor</h5>
+          <ul
+            className="nav nav-pills justify-content-end mb-0"
+            id="chart-tab-tab"
+            role="tablist"
+          >
+            <li className="nav-item" role="presentation">
+              <button
+                className="nav-link"
+                id="chart-tab-home-tab"
+                data-bs-toggle="pill"
+                data-bs-target="#chart-tab-home"
+                type="button"
+                role="tab"
+                aria-controls="chart-tab-home"
+                aria-selected="false"
+                tabIndex={-1}
+              >
+                Month
+              </button>
+            </li>
+            <li className="nav-item" role="presentation">
+              <button
+                className="nav-link active"
+                id="chart-tab-profile-tab"
+                data-bs-toggle="pill"
+                data-bs-target="#chart-tab-profile"
+                type="button"
+                role="tab"
+                aria-controls="chart-tab-profile"
+                aria-selected="true"
+              >
+                Week
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div className="card">
+          <div className="card-body">
+            <div className="tab-content" id="chart-tab-tabContent">
+              <div
+                className="tab-pane"
+                id="chart-tab-home"
+                role="tabpanel"
+                aria-labelledby="chart-tab-home-tab"
+                tabIndex={0}
+              >
+                <div id="visitor-chart-1" style={{ minHeight: "465px" }}>
+                  {/* Placeholder for monthly chart */}
+                  <div style={{ height: "450px" }}>
+                    Monthly chart would go here
+                  </div>
                 </div>
               </div>
-            </div>
-            <div
-              className="tab-pane show active"
-              id="chart-tab-profile"
-              role="tabpanel"
-              aria-labelledby="chart-tab-profile-tab"
-              tabIndex={0}
-            >
-              <div id="visitor-chart" style={{ minHeight: "465px" }}>
-                <Chart
-                  options={options}
-                  series={series}
-                  type="area"
-                  height={450}
-                />
+              <div
+                className="tab-pane show active"
+                id="chart-tab-profile"
+                role="tabpanel"
+                aria-labelledby="chart-tab-profile-tab"
+                tabIndex={0}
+              >
+                <div id="visitor-chart" style={{ minHeight: "465px" }}>
+                  <Chart
+                    options={options}
+                    series={series}
+                    type="area"
+                    height={450}
+                  />
+                </div>
               </div>
             </div>
           </div>

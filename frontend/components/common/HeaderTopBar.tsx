@@ -60,14 +60,14 @@ const HeaderTopBar: FC<Props> = ({
                 <HamburgerMenuIcon />
               </button>
 
-              <div className="search-bar position-relative flex-grow-1">
+              {/* <div className="search-bar position-relative flex-grow-1">
                 <input
                   type="text"
                   placeholder="Search..."
                   className="form-control py-2 rounded-pill"
                 />
                 <SearchIcon />
-              </div>
+              </div> */}
             </div>
           </div>
 

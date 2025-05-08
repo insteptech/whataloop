@@ -64,12 +64,12 @@ export default function Page({ slug }: PageProps) {
 
   return (
     <Layout>
-      {isToken ? (
+      {!isToken ? (
         <Row className="w-100">
           <Col
             md={2}
             className={` padding-right-0 left-sidebar-sticky ${
-              sideBarWidth ? "siddebar-hide-width" : ""
+              sideBarWidth ? "siddebar-hide-width" : "siddebar-mobile-width"
             }`}
           >
             <LeftSidebar Width={sideBarWidth} />
@@ -77,20 +77,21 @@ export default function Page({ slug }: PageProps) {
           <Col
             md={10}
             className={`padding-left-0  padding-right-0 ${
-              sideBarWidth ? "right-sidebar-width" : ""
+              sideBarWidth
+                ? "right-sidebar-width"
+                : "right-sidebar-mobile-width"
             }`}
           >
             {" "}
             <Row>
               <Col md={12}>
-  <HeaderTopBar
-    profileOpen={profile}
-    toggleProfile={OpenProfileDropDown}
-    toggleSidebar={() => setSideBarWidth(!sideBarWidth)}
-  />
-</Col>
+                <HeaderTopBar
+                  profileOpen={profile}
+                  toggleProfile={OpenProfileDropDown}
+                  toggleSidebar={() => setSideBarWidth(!sideBarWidth)}
+                />
+              </Col>
 
-             
               <Col md={12}>
                 {" "}
                 <Component />

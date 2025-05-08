@@ -13,278 +13,22 @@ $danger-color: #f72585;
     line-height: 1.6;
     min-height: 100vh;
     background-color: #f5f7ff;
+    padding: 0 42px;
 
-    a {
-        text-decoration: none;
-        transition: all 0.3s ease;
-        font-family: $font-family;
-    }
 
-    .btn {
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        font-family: $font-family;
+    .dashboard-top-card {
+        padding: 50px 0;
 
-        &-primary {
-            background-color: $primary-color;
-            border-color: $primary-color;
 
-            &:hover {
-                background-color: $secondary-color;
-                border-color: $secondary-color;
-                transform: translateY(-2px);
-            }
-        }
+        .card {
+            height: 100%;
 
-        &-outline {
-            border: 2px solid $primary-color;
-            color: $primary-color;
-
-            &:hover {
-                background-color: $primary-color;
-                color: white;
-            }
-        }
-    }
-}
-
-// Hero Section
-.hero {
-    padding: 5rem 0;
-    background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(63, 55, 201, 0.05) 100%);
-
-    &-content {
-        h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            margin-bottom: 1.5rem;
-            color: $dark-color;
-            font-family: $font-family;
-
-            span {
-                color: $primary-color;
-            }
-        }
-
-        p {
-            font-size: 1.25rem;
-            color: lighten($dark-color, 20%);
-            margin-bottom: 2rem;
-            font-family: $font-family;
-        }
-
-        .cta-buttons {
-            .btn {
-                margin-right: 1rem;
-                margin-bottom: 1rem;
+            .card-body {
+                font-family: $font-family;
             }
         }
     }
 
-    &-image {
-        img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-    }
-}
-
-// Features Section
-.features {
-    padding: 5rem 0;
-    font-family: $font-family;
-
-    .section-title {
-        text-align: center;
-        margin-bottom: 3rem;
-        font-family: $font-family;
-
-        h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        p {
-            color: lighten($dark-color, 30%);
-            max-width: 700px;
-            margin: 0 auto;
-        }
-    }
-
-    .feature-card {
-        background: white;
-        border-radius: 12px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-        height: 100%;
-
-        &:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .icon {
-            width: 60px;
-            height: 60px;
-            background: rgba($primary-color, 0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-
-            svg {
-                width: 30px;
-                height: 30px;
-                color: $primary-color;
-            }
-        }
-
-        h3 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-
-        p {
-            color: lighten($dark-color, 30%);
-        }
-    }
-}
-
-// Testimonials Section
-.testimonials {
-    font-family: $font-family;
-    padding: 5rem 0;
-    background: linear-gradient(135deg, rgba(67, 97, 238, 0.05) 0%, rgba(63, 55, 201, 0.02) 100%);
-
-    .testimonial-card {
-        background: white;
-        border-radius: 12px;
-        padding: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-        margin-bottom: 2rem;
-
-        .quote {
-            font-size: 1.1rem;
-            font-style: italic;
-            margin-bottom: 1.5rem;
-            color: lighten($dark-color, 20%);
-        }
-
-        .author {
-            display: flex;
-            align-items: center;
-
-            img {
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                margin-right: 1rem;
-                object-fit: cover;
-            }
-
-            .info {
-                h4 {
-                    font-weight: 600;
-                    margin-bottom: 0.25rem;
-                }
-
-                p {
-                    color: lighten($dark-color, 40%);
-                    font-size: 0.9rem;
-                    margin-bottom: 0;
-                }
-            }
-        }
-    }
-}
-
-// CTA Section
-.cta-section {
-    font-family: $font-family;
-    padding: 5rem 0;
-    background: $primary-color;
-    color: white;
-    text-align: center;
-
-    h2 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 1.5rem;
-    }
-
-    p {
-        font-size: 1.25rem;
-        max-width: 700px;
-        margin: 0 auto 2rem;
-        opacity: 0.9;
-    }
-
-    .btn {
-        background: white;
-        color: $primary-color;
-        font-weight: 600;
-
-        &:hover {
-            background: rgba(white, 0.9);
-            color: $primary-color;
-        }
-    }
-}
-
-// Responsive Adjustments
-@media (max-width: 992px) {
-    .hero {
-        padding: 3rem 0;
-
-        &-content {
-            h1 {
-                font-size: 2.5rem;
-            }
-
-            p {
-                font-size: 1.1rem;
-            }
-        }
-    }
-
-    .features,
-    .testimonials,
-    .cta-section {
-        padding: 3rem 0;
-    }
-}
-
-@media (max-width: 768px) {
-    .hero {
-        text-align: center;
-
-        &-content {
-            margin-bottom: 2rem;
-
-            .cta-buttons {
-                justify-content: center;
-            }
-        }
-    }
-
-    .section-title {
-        h2 {
-            font-size: 2rem !important;
-        }
-    }
-}
-
-
-.homepage {
     .badge {
         &.bg-light-primary {
             background: #e8f4ff;
@@ -308,88 +52,117 @@ $danger-color: #f72585;
 
     }
 
+    .visitor-graph-container {
+        padding: 60px 0;
+
+        h5 {
+            color: #343a40;
+            font-family: $font-family;
+        }
+
+        .incoming-overview {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+
+            .card {
+                height: 90%;
+            }
+        }
+    }
+
+    .table-container {
+        padding-bottom: 60px;
+
+        h5 {
+            color: #343a40;
+            font-family: $font-family;
+        }
+
+        .table-container-inner {
+
+
+            table {
+                tr {
+                    &:hover {
+                        background-color: rgba(24, 144, 255, 0.03);
+                    }
+
+                    th {
+                        font-family: $font-family;
+                        font-weight: 500;
+                        padding: 0.9rem 0.75rem;
+                        font-size: 14px;
+                    }
+
+                    td {
+                        font-family: $font-family;
+                        font-weight: 400;
+                        color: #212529bf;
+                        padding: 0.9rem 0.75rem;
+                        font-size: 14px;
+
+                        a {
+                            color: #212529bf;
+                            text-decoration: none;
+                        }
+                    }
+                }
+            }
+        }
+
+        .analytics-report-card {
+            height: 100%;
+
+            .card {
+                height: 94%;
+            }
+        }
+    }
+
+    .salery-report-and-transition-history {
+        padding-bottom: 100px;
+        font-family: $font-family;
+
+        h5 {
+            color: #343a40;
+            font-family: $font-family;
+        }
+
+        .transition-history-sec {
+
+            .avtar.avtar-s {
+                width: 40px;
+                height: 40px;
+                font-size: 14px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+
+                &.bg-light-success {
+                    background: #eef9e8;
+                    color: #52c41a;
+                }
+
+                &.bg-light-primary {
+                    background: #e8f4ff;
+                    color: #1890ff;
+                }
+
+                &.bg-light-danger {
+                    background: #ffeded;
+                    color: #ff4d4f;
+                }
+            }
+
+        }
+    }
 
 }
 
-
-
-.apexcharts-legend {
-    display: flex;
-    overflow: auto;
-    padding: 0 10px;
-}
-
-.apexcharts-legend.apx-legend-position-bottom,
-.apexcharts-legend.apx-legend-position-top {
-    flex-wrap: wrap
-}
-
-.apexcharts-legend.apx-legend-position-right,
-.apexcharts-legend.apx-legend-position-left {
-    flex-direction: column;
-    bottom: 0;
-}
-
-.apexcharts-legend.apx-legend-position-bottom.apexcharts-align-left,
-.apexcharts-legend.apx-legend-position-top.apexcharts-align-left,
-.apexcharts-legend.apx-legend-position-right,
-.apexcharts-legend.apx-legend-position-left {
-    justify-content: flex-start;
-}
-
-.apexcharts-legend.apx-legend-position-bottom.apexcharts-align-center,
-.apexcharts-legend.apx-legend-position-top.apexcharts-align-center {
-    justify-content: center;
-}
-
-.apexcharts-legend.apx-legend-position-bottom.apexcharts-align-right,
-.apexcharts-legend.apx-legend-position-top.apexcharts-align-right {
-    justify-content: flex-end;
-}
-
-.apexcharts-legend-series {
-    cursor: pointer;
-    line-height: normal;
-}
-
-.apexcharts-legend.apx-legend-position-bottom .apexcharts-legend-series,
-.apexcharts-legend.apx-legend-position-top .apexcharts-legend-series {
-    display: flex;
-    align-items: center;
-}
-
-.apexcharts-legend-text {
-    position: relative;
-    font-size: 14px;
-}
-
-.apexcharts-legend-text *,
-.apexcharts-legend-marker * {
-    pointer-events: none;
-}
-
-.apexcharts-legend-marker {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-    margin-right: 3px;
-    border-style: solid;
-}
-
-.apexcharts-legend.apexcharts-align-right .apexcharts-legend-series,
-.apexcharts-legend.apexcharts-align-left .apexcharts-legend-series {
-    display: inline-block;
-}
-
-.apexcharts-legend-series.apexcharts-no-click {
-    cursor: auto;
-}
-
-.apexcharts-legend .apexcharts-hidden-zero-series,
-.apexcharts-legend .apexcharts-hidden-null-series {
-    display: none !important;
-}
-
-.apexcharts-inactive-legend {
-    opacity: 0.45;
+@media (max-width:768px) {
+    .homepage {
+        padding: 0 15px;
+    }
 }
