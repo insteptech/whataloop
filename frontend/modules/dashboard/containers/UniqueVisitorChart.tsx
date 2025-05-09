@@ -1,7 +1,40 @@
-import React from "react";
+import React, { useState } from "react";
 import Chart from "react-apexcharts";
 
 const UniqueVisitorChart: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<"week" | "month">("week");
+
+  const weeklyData = {
+    categories: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    series: [
+      {
+        name: "Page Views",
+        data: [30, 40, 45, 50, 49, 60, 70],
+      },
+      {
+        name: "Sessions",
+        data: [23, 32, 27, 38, 27, 35, 40],
+      },
+    ],
+  };
+
+  const monthlyData = {
+    categories: ["Week 1", "Week 2", "Week 3", "Week 4"],
+    series: [
+      {
+        name: "Page Views",
+        data: [300, 400, 450, 500],
+      },
+      {
+        name: "Sessions",
+        data: [230, 320, 270, 380],
+      },
+    ],
+  };
+
+  const { categories, series } =
+    activeTab === "week" ? weeklyData : monthlyData;
+
   const options = {
     chart: {
       id: "visitor-chart",
@@ -10,11 +43,12 @@ const UniqueVisitorChart: React.FC = () => {
       },
     },
     xaxis: {
-      categories: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      categories,
     },
     yaxis: {
       labels: {
-        formatter: (val: number) => val.toFixed(0),
+        formatter: (val: number) =>
+          val !== undefined && val !== null ? val.toFixed(0) : "0",
       },
     },
     colors: ["#1890ff", "#13c2c2"],
@@ -30,21 +64,10 @@ const UniqueVisitorChart: React.FC = () => {
       },
     },
     legend: {
-      position: "bottom",
-      horizontalAlign: "center",
+      position: "bottom" as "bottom" | "top" | "right" | "left",
+      horizontalAlign: "center" as "right" | "left" | "center",
     },
   };
-
-  const series = [
-    {
-      name: "Page Views",
-      data: [30, 40, 45, 50, 49, 60, 70],
-    },
-    {
-      name: "Sessions",
-      data: [23, 32, 27, 38, 27, 35, 40],
-    },
-  ];
 
   return (
     <div className="col-md-12 col-xl-8">
@@ -58,29 +81,30 @@ const UniqueVisitorChart: React.FC = () => {
           >
             <li className="nav-item" role="presentation">
               <button
-                className="nav-link"
+                className={`nav-link ${activeTab === "month" ? "active" : ""}`}
                 id="chart-tab-home-tab"
                 data-bs-toggle="pill"
                 data-bs-target="#chart-tab-home"
                 type="button"
                 role="tab"
                 aria-controls="chart-tab-home"
-                aria-selected="false"
-                tabIndex={-1}
+                aria-selected={activeTab === "month"}
+                onClick={() => setActiveTab("month")}
               >
                 Month
               </button>
             </li>
             <li className="nav-item" role="presentation">
               <button
-                className="nav-link active"
+                className={`nav-link ${activeTab === "week" ? "active" : ""}`}
                 id="chart-tab-profile-tab"
                 data-bs-toggle="pill"
                 data-bs-target="#chart-tab-profile"
                 type="button"
                 role="tab"
                 aria-controls="chart-tab-profile"
-                aria-selected="true"
+                aria-selected={activeTab === "week"}
+                onClick={() => setActiveTab("week")}
               >
                 Week
               </button>

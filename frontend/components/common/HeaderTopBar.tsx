@@ -1,6 +1,6 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useState } from "react";
 import {
   DownArrow,
   HamburgerMenuIcon,
@@ -14,6 +14,7 @@ import {
 import { useDispatch } from "react-redux";
 import { fetchProfile } from "@/modules/userprofile/redux/actions/profileAction";
 import { useRouter } from "next/navigation";
+import ChatModal from "@/components/common/ChatModal";
 
 type Props = {
   profileOpen: boolean;
@@ -27,8 +28,9 @@ const HeaderTopBar: FC<Props> = ({
   toggleSidebar,
 }) => {
   const dispatch: any = useDispatch();
-
   const router = useRouter();
+
+  const [messageOpen, setMessageOpen] = useState(false);
 
   const handleViewProfile = async () => {
     const token = localStorage.getItem("auth_token");
@@ -73,10 +75,16 @@ const HeaderTopBar: FC<Props> = ({
 
           <div className="col-md-6">
             <div className="header-top-bar-right d-flex align-items-center justify-content-end">
-              <button className="msg-button bg-transparent border-0 position-relative me-3">
+              <button
+                className="msg-button bg-transparent border-0 position-relative me-3"
+                onClick={() => setMessageOpen(true)}
+              >
                 <MessageIcon />
               </button>
-
+              <ChatModal
+                show={messageOpen}
+                onClose={() => setMessageOpen(false)}
+              />
               <div className="user-profile dropdown">
                 <button
                   className="d-flex align-items-center bg-transparent border-0"
@@ -134,6 +142,9 @@ const HeaderTopBar: FC<Props> = ({
           </div>
         </div>
       </div>
+
+      {/* Chat Modal */}
+      <ChatModal show={messageOpen} onClose={() => setMessageOpen(false)} />
     </header>
   );
 };
