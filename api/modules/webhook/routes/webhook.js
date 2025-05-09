@@ -7,7 +7,7 @@ const router = express.Router();
 const webhookController = require('../controllers/webhook');
 
 
-router.post('/message', authenticate, webhookController.createWebhookMessage);
+router.post('/message', webhookController.createWebhookMessage);
 router.get('/messages', authenticate, webhookController.getMessagesByLead);
 
 

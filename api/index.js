@@ -98,6 +98,7 @@ app.use(
 
 // Error handling middleware
 app.use(errorHandler);
+app.set('trust proxy', true);
 
 app.listen(port, () => {
   logger.info(`Server running at http://localhost:${port}`);
