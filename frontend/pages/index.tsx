@@ -64,7 +64,7 @@ export default function Page({ slug }: PageProps) {
 
   return (
     <Layout>
-      {!isToken ? (
+      {isToken ? (
         <Row className="w-100">
           <Col
             md={2}
