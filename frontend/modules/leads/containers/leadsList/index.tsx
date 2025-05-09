@@ -5,12 +5,13 @@ import { useRouter } from "next/router";
 import { getLeads, deleteLead } from "../../redux/action/leadAction";
 import { Col, Row } from "react-bootstrap";
 import ChatModal from "@/components/common/ChatModal";
+import Loader from "@/components/common/loader";
 
 const LeadsList = () => {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const { leads, total } = useSelector((state: any) => state.leadReducer);
+  const { leads, total, loading } = useSelector((state: any) => state.leadReducer);
 
   const queryPage = router.query.page as string;
   const currentPage = parseInt(queryPage || "1");
@@ -81,6 +82,11 @@ const LeadsList = () => {
     }
   };
 
+  if(loading){
+    return (
+    <Loader/>
+    )
+  }
   return (
     <div className="lead-list-container">
       <div className="lead-list-header">
@@ -124,10 +130,10 @@ const LeadsList = () => {
               <div className="lead-notes">{lead.notes}</div>
             </Col>
             <Col md={2} className="lead-cell">
-              <div className="lead-email">Email: {lead.email}</div>
+              <div className="lead-email">{lead.email}</div>
             </Col>
             <Col md={2} className="lead-cell">
-              <div className="lead-phone">Phone: {lead.phone}</div>
+              <div className="lead-phone">{lead.phone}</div>
             </Col>
             <Col md={2} className="lead-cell">
               <div className="lead-status">{lead.status || "N/A"}</div>

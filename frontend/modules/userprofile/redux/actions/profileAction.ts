@@ -19,21 +19,22 @@ export const fetchProfile = createAsyncThunk<any, string>(
 );
 
 export const updateProfile = createAsyncThunk<
-any,
-  { data: any; token: string }, 
-  { rejectValue: any } 
+  any,
+  { data: any; token: string },
+  { rejectValue: any }
 >(
   "auth/updateProfile",
   async ({ data, token }, { rejectWithValue }) => {
     try {
-      const response = await api.put(`/auth/updateprofile`, data, {
+      const response = await api.put("/auth/updateprofile", data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
+      console.log("Profile update response:", response.data);
       return response.data;
     } catch (error: any) {
+      console.error("Profile update error:", error);
       return rejectWithValue(error.response?.data || "Something went wrong");
     }
   }

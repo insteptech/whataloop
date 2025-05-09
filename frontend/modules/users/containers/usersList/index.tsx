@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getUsers } from "../../redux/action/usersAction";
 import router from "next/router";
+import Loader from "@/components/common/loader";
 
 const UsersList = () => {
   const dispatch = useDispatch<any>();
@@ -58,7 +59,13 @@ const UsersList = () => {
       setSortOrder("ASC");
     }
   };
-
+    if(loading){
+        return (
+        <Loader/>
+        )
+      }
+      if (error) return <p style={{ color: 'red' }}>{error}</p>;
+     
   return (
     <div className="container mt-4">
       <h2>Users List</h2>

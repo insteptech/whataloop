@@ -111,6 +111,8 @@ const updateOtp = async (email, otp, expirationTime) => {
 };
 
 const updateUserProfile = async (userId, updateData) => {
+
+  const { User } = await getAllModels(process.env.DB_TYPE);
   const user = await User.findByPk(userId);
 
   if (!user) {

@@ -2,7 +2,8 @@ const {
   otpInput,
   verifyOtpInput,
   userDetailInput,
-  updateUserInput,
+  // updateUserInput,
+  updateUserProfileInput,
   profileCompleteInput,
   userDeleteInput,
   loginInput,
@@ -13,7 +14,6 @@ const authManager = require("../manager/auth");
 const { supportedDbTypes } = require("../utils/staticData");
 const { unsupportedDBType } = require("../utils/messages");
 const CustomError = require("../../../middlewares/customError");
-const userManager = require('../manager/auth');
 
 
 exports.sendOtp = async (req, res, next) => {
@@ -76,6 +76,7 @@ exports.getMe = async (req, res) => {
     if (!req.user || !req.user.id) {
       return res.status(400).json({ message: 'User not authenticated properly' });
     }
+    console.log("Authenticated user id:", req.user?.id);
     const user = await authManager.getUserById(req.user.id);
     res.json(user);
   } catch (err) {
@@ -89,12 +90,13 @@ exports.updateUserProfile = async (req, res, next) => {
     if (!Object.keys(supportedDbTypes).includes(process.env.DB_TYPE)) {
       return next(new CustomError(unsupportedDBType, 400));
     }
-
-    const schema = buildSchema(updateUserInput);
+    console.log("Authenticated user id:", req.user?.id);
+    const schema = buildSchema(updateUserProfileInput);
     const { error } = schema.validate(req.body);
     if (error) return next(new CustomError(error.details[0].message, 400));
 
-    const result = await authManager.updateUser(req.user.id, req.body);
+    const result = await authManager.updateUserProfile(req.user.id, req.body);
+
     res.status(200).json({ message: "User updated successfully", data: result });
   } catch (error) {
     return next(new CustomError(error.message, 500));

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchConstants, deleteConstant } from "../../redux/action/constantAction";
 import router from "next/router";
+import Loader from "@/components/common/loader";
 
 const ConstantsList = () => {
   const dispatch = useDispatch<any>();
@@ -29,7 +30,13 @@ const ConstantsList = () => {
       }
     }
   };
-  
+  if(loading){
+    return (
+    <Loader/>
+    )
+  }
+  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+ 
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">

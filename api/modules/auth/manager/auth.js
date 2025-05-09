@@ -89,6 +89,7 @@ exports.updateUserProfile = async (userId, updateData) => {
   return await authService.updateUserProfile(userId, updateData);
 };
 
+
 exports.deleteUser = async (req, res) => {
   const { id } = req.params;
   const user = await authService.deleteUser({

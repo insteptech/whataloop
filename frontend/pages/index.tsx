@@ -4,7 +4,6 @@ import { componentsMap } from "@/componentsMap"; // Import the generated map
 import LeftSidebar from "@/components/common/LeftSidebar";
 import { Col, Container, Row } from "react-bootstrap";
 import HeaderTopBar from "@/components/common/HeaderTopBar";
-
 const Layout = dynamic(() => import("../layouts/main"));
 const Default = dynamic(() => import("./default"));
 
@@ -64,7 +63,7 @@ export default function Page({ slug }: PageProps) {
 
   return (
     <Layout>
-      {!isToken ? (
+      {isToken ? (
         <Row className="w-100">
           <Col
             md={2}

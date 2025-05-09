@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProfile, updateProfile } from '@/modules/userprofile/redux/actions/profileAction';
+import Loader from '@/components/common/loader';
+import Notification from '@/components/common/Notification';
 
 const UserProfilePage = () => {
   const dispatch = useDispatch<any>();
@@ -33,17 +35,24 @@ const UserProfilePage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     const token = localStorage.getItem('auth_token');
     if (token) {
-      dispatch(updateProfile({ data: formData, token }));
+      const result = await dispatch(updateProfile({ data: formData, token }));
+      if (updateProfile.fulfilled.match(result)) {
+        dispatch(fetchProfile(token)); 
+      }
     }
   };
-
-  if (loading) return <p>Loading profile...</p>;
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
-  if (!user) return null;
-
+  
+  if(loading){
+      return (
+      <Loader/>
+      )
+    }
+   
+    if (!user) return null;
+  
   return (
     <div style={{ padding: '2rem', fontFamily: 'Arial, sans-serif', maxWidth: '600px', margin: 'auto' }}>
       <h1 style={{ textAlign: 'center', color: '#333', marginBottom: '2rem' }}>Edit Your Profile</h1>

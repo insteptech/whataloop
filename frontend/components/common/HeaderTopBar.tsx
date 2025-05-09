@@ -1,13 +1,11 @@
-"use client";
 
-import { FC, useState } from "react";
+import { FC, useEffect, useRef,useState } from "react";
+import { useSelector } from "react-redux";  
 import {
   DownArrow,
   HamburgerMenuIcon,
   LogOutIcon,
   MessageIcon,
-  SearchIcon,
-  SettingsIcon,
   UserIcon,
   ViewProfileIcon,
 } from "@/components/common/Icon";
@@ -29,19 +27,41 @@ const HeaderTopBar: FC<Props> = ({
 }) => {
   const dispatch: any = useDispatch();
   const router = useRouter();
+  const profileRef = useRef<HTMLDivElement>(null);
+  const { data: user } = useSelector(
+    (state: { profileReducer: { data: any; loading: boolean; error: string } }) => state.profileReducer
+  );
+
+
+  useEffect(() => {
+    const token = localStorage.getItem('auth_token');
+    if (token && !user?.fullName) {
+      dispatch(fetchProfile(token));
+    } else if (!token) {
+      console.warn('No token found in localStorage');
+    }
+  }, [dispatch]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileOpen && profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        toggleProfile();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [profileOpen, toggleProfile]);
 
   const [messageOpen, setMessageOpen] = useState(false);
 
   const handleViewProfile = async () => {
     const token = localStorage.getItem("auth_token");
-    if (!token) {
-      console.warn("No token found in localStorage");
-      return;
-    }
+    if (!token) return;
 
     const result = await dispatch(fetchProfile(token));
     if (fetchProfile.fulfilled.match(result)) {
-      console.log("Profile fetched:", result.payload);
+      toggleProfile();
       router.push("/userprofile/profile");
     } else {
       console.error("Failed to fetch profile:", result.payload);
@@ -61,15 +81,6 @@ const HeaderTopBar: FC<Props> = ({
               >
                 <HamburgerMenuIcon />
               </button>
-
-              {/* <div className="search-bar position-relative flex-grow-1">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="form-control py-2 rounded-pill"
-                />
-                <SearchIcon />
-              </div> */}
             </div>
           </div>
 
@@ -88,53 +99,37 @@ const HeaderTopBar: FC<Props> = ({
               <div className="user-profile dropdown">
                 <button
                   className="d-flex align-items-center bg-transparent border-0"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
                   onClick={toggleProfile}
                 >
                   <div className="avatar me-2">
                     <UserIcon />
                   </div>
                   <span className="d-none d-md-inline text-dark fw-medium">
-                    John Doe
+                    {user?.fullName || "User"}
                   </span>
                   <DownArrow />
                 </button>
 
-                <ul
-                  className={`dropdown-menu dropdown-menu-end ${
-                    profileOpen ? "open-profile-menu" : ""
-                  }`}
-                >
+                <ul className={`dropdown-menu dropdown-menu-end ${profileOpen ? "open-profile-menu" : ""}`}>
                   <li>
-                    <button
-                      className="dropdown-item d-flex align-items-center"
-                      onClick={handleViewProfile}
-                    >
+                    <button className="dropdown-item d-flex align-items-center" onClick={handleViewProfile}>
                       <ViewProfileIcon />
                       Profile
                     </button>
                   </li>
+                  <li><hr className="dropdown-divider" /></li>
                   <li>
-                    <a
-                      className="dropdown-item d-flex align-items-center"
-                      href="#"
-                    >
-                      <SettingsIcon />
-                      Settings
-                    </a>
-                  </li>
-                  <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-                  <li>
-                    <a
+                    <button
                       className="dropdown-item d-flex align-items-center text-danger"
-                      href="#"
+                      onClick={() => {
+                        localStorage.removeItem("auth_token");
+                        toggleProfile();
+                        router.push("/auth/login");
+                      }}
                     >
                       <LogOutIcon />
                       Logout
-                    </a>
+                    </button>
                   </li>
                 </ul>
               </div>
