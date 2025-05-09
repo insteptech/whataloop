@@ -163,32 +163,53 @@ const LeadsList = () => {
         <p>No users found.</p>
       )}
 
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-            Previous
-          </button>
-          {currentPage > 2 && (
-            <>
-              <button onClick={() => handlePageChange(1)}>1</button>
-              <span>...</span>
-            </>
-          )}
-          <button disabled>{currentPage}</button>
-          {currentPage < totalPages - 1 && (
-            <button onClick={() => handlePageChange(currentPage + 1)}>
-              {currentPage + 1}
-            </button>
-          )}
-          {currentPage < totalPages - 2 && <span>...</span>}
-          {currentPage !== totalPages && (
-            <button onClick={() => handlePageChange(totalPages)}>{totalPages}</button>
-          )}
-          <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-            Next
-          </button>
-        </div>
-      )}
+{totalPages > 0 && (
+  <div className="pagination mt-4">
+    <button
+      onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
+      disabled={currentPage === 1}
+      className="pagination-button"
+    >
+      Previous
+    </button>
+
+    {currentPage > 2 && (
+      <>
+        <button onClick={() => handlePageChange(1)} className="pagination-button">
+          1
+        </button>
+        <span className="pagination-ellipsis">...</span>
+      </>
+    )}
+
+    <button className="pagination-button active" disabled>
+      {currentPage}
+    </button>
+
+    {currentPage < totalPages - 1 && (
+      <button onClick={() => handlePageChange(currentPage + 1)} className="pagination-button">
+        {currentPage + 1}
+      </button>
+    )}
+
+    {currentPage < totalPages - 2 && <span className="pagination-ellipsis">...</span>}
+
+    {currentPage !== totalPages && (
+      <button onClick={() => handlePageChange(totalPages)} className="pagination-button">
+        {totalPages}
+      </button>
+    )}
+
+    <button
+      onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
+      disabled={currentPage === totalPages}
+      className="pagination-button"
+    >
+      Next
+    </button>
+  </div>
+)}
+
 
       <ChatModal show={showChatModal} onClose={() => setShowChatModal(false)} />
     </div>

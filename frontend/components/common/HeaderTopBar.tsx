@@ -86,16 +86,6 @@ const HeaderTopBar: FC<Props> = ({
 
           <div className="col-md-6">
             <div className="header-top-bar-right d-flex align-items-center justify-content-end">
-              <button
-                className="msg-button bg-transparent border-0 position-relative me-3"
-                onClick={() => setMessageOpen(true)}
-              >
-                <MessageIcon />
-              </button>
-              <ChatModal
-                show={messageOpen}
-                onClose={() => setMessageOpen(false)}
-              />
               <div className="user-profile dropdown">
                 <button
                   className="d-flex align-items-center bg-transparent border-0"
