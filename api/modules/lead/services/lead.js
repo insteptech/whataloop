@@ -163,7 +163,7 @@ const create = async (data) => {
 
 const getAll = async (userId, query) => {
   const { search, tag, status, sort = 'createdAt', order = 'DESC', page = 1, limit = 10 } = query;
-  const { Lead, User } = await getAllModels(process.env.DB_TYPE);
+  const { Lead, Constant } = await getAllModels(process.env.DB_TYPE);
 
   if (!Lead) {
     throw new Error("Lead model not found");
@@ -184,11 +184,11 @@ const getAll = async (userId, query) => {
 
   const result = await Lead.findAndCountAll({
     where,
-    include: [{
-      model: User,
-      as: 'user',
-      attributes: ['id', 'fullName', 'email']
-    }],
+    include: [
+      { model: Constant, as: 'tagDetail', attributes: ['label'] },
+      { model: Constant, as: 'statusDetail', attributes: ['label'] },
+      { model: Constant, as: 'sourceDetail', attributes: ['label'] },
+    ],
     order: [[sort, order.toUpperCase()]],
     offset: (page - 1) * limit,
     limit: parseInt(limit),

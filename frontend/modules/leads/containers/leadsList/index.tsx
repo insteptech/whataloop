@@ -179,13 +179,13 @@ const LeadsList = () => {
               <div className="lead-phone">{lead.phone}</div>
             </Col>
             <Col md={2} className="lead-cell">
-              <div className="lead-status">{lead.status || "N/A"}</div>
+              <div className="lead-status">{lead.statusDetail?.label || "N/A"}</div>
             </Col>
             <Col md={2} className="lead-cell">
-              <div className="lead-source">{lead.source || "N/A"}</div>
+              <div className="lead-source">{lead.sourceDetail?.label|| "N/A"}</div>
             </Col>
             <Col md={2} className="lead-cell">
-              <div className="lead-tag">{lead.tag || "No Tag"}</div>
+              <div className="lead-tag">{lead.tagDetail?.label|| "No Tag"}</div>
             </Col>
             <Col md={1} className="lead-cell">
               <button className="btn btn-outline-secondary btn-sm" onClick={() => setShowChatModal(true)}>
