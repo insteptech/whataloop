@@ -30,6 +30,7 @@ const UserProfilePage = () => {
     onSubmit: async (values) => {
       setShowSuccess(false);
       setShowError(false);
+      const confirmUpdate = window.confirm('Are you sure you want to update your profile?');
 
       if (token) {
         const result = await dispatch(updateProfile({ data: values, token }));

@@ -7,6 +7,7 @@ type NotificationProps = {
   message?: string;
   type: "success" | "error" | "info" | "warning";
   position?: ToastPosition;
+  onClose?: () => void; 
 };
 
 const Notification: FC<NotificationProps> = ({
@@ -14,6 +15,7 @@ const Notification: FC<NotificationProps> = ({
   message = "",
   type,
   position = "top-right",
+  onClose
 }) => {
   useEffect(() => {
     toast[type](
@@ -28,9 +30,12 @@ const Notification: FC<NotificationProps> = ({
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
+        onClose: () => {
+          if (onClose) onClose(); 
+        },
       }
     );
-  }, [title, message, type, position]);
+  }, [title, message, type, position, onClose]);
 
   return <ToastContainer />;
 };

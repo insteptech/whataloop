@@ -65,3 +65,22 @@ export const getLeads = createAsyncThunk(
     }
   );
   
+
+ interface UpdateLeadArgs {
+  id: string;
+  formData: any;
+}
+
+export const updateLead = createAsyncThunk(
+  "updateLead",
+  async ({ id, data }: { id: string; data: any }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(`/lead/${id}`, data);
+      return response.data; 
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+  

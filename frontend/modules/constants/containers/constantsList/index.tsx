@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchConstants, deleteConstant } from "../../redux/action/constantAction";
 import router from "next/router";
 import Loader from "@/components/common/loader";
-
+import Notification from "@/components/common/Notification"; 
 const ConstantsList = () => {
   const dispatch = useDispatch<any>();
   const { constantsList, loading, error, totalPages } = useSelector(
@@ -11,6 +11,7 @@ const ConstantsList = () => {
   );
 
   const [page, setPage] = useState(1);
+  const [showSuccess, setShowSuccess] = useState(false);
   const limit = 10;
 
   useEffect(() => {
@@ -20,23 +21,23 @@ const ConstantsList = () => {
   const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this constant?")) {
       try {
-        await dispatch(deleteConstant(id)).unwrap(); 
-        dispatch(fetchConstants({ page, limit })); 
+        await dispatch(deleteConstant(id)).unwrap();
+        dispatch(fetchConstants({ page, limit }));
+        setShowSuccess(true); 
+        setTimeout(() => setShowSuccess(false), 3000);
       } catch (err: any) {
         console.error("Delete failed:", err);
         const message =
-          "Cannot delete!!. This constant is already in in use in Leads table";
-        alert(message); 
+          "Cannot delete!!. This constant is already in use in Leads table";
+        alert(message);
       }
     }
   };
-  if(loading){
-    return (
-    <Loader/>
-    )
+
+  if (loading) {
+    return <Loader />;
   }
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
- 
+
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -48,7 +49,6 @@ const ConstantsList = () => {
           ADD CONSTANT
         </button>
       </div>
-      {loading && <p>Loading...</p>}
 
       {!loading && Array.isArray(constantsList) && constantsList.length === 0 && (
         <p>No constants found.</p>
@@ -129,6 +129,14 @@ const ConstantsList = () => {
             </div>
           )}
         </>
+      )}
+      {showSuccess && (
+        <Notification
+          title="Deleted"
+          message="Constant deleted successfully!"
+          type="success"
+          position="bottom-center"
+        />
       )}
     </div>
   );

@@ -169,7 +169,7 @@ const getAll = async (userId, query) => {
     throw new Error("Lead model not found");
   }
 
-  const where = { user_id: userId }; // ✅ correct key is 'user_id'
+  const where = { user_id: userId };
 
   if (search) {
     where[Op.or] = [
@@ -193,7 +193,6 @@ const getAll = async (userId, query) => {
     offset: (page - 1) * limit,
     limit: parseInt(limit),
   });
-
   console.log(result, "result");
 
 
@@ -205,7 +204,7 @@ const update = async (id, data, userId) => {
   if (!Lead) {
     throw new Error("Lead model not found");
   }
-  const lead = await Lead.findOne({ where: { id, userId } });
+  const lead = await Lead.findOne({ where: { id, user_id: userId } });
   if (!lead) throw new Error('Lead not found or unauthorized');
   return await lead.update(data);
 };
@@ -221,7 +220,6 @@ const remove = async (id) => {
 };
 
 
-// addLead
 module.exports = {
   findUser,
   createUser,

@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { postConstant } from "../../redux/action/constantAction";
+import Notification from "@/components/common/Notification";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
 const AddConstants = () => {
-  const dispatch = useDispatch<any>();
+  const dispatch = useDispatch<any>(); 
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -22,7 +24,7 @@ const AddConstants = () => {
       dispatch(postConstant(values))
         .unwrap()
         .then(() => {
-          alert("Constant added successfully!");
+          setShowSuccess(true);
           resetForm();
         })
         .catch((err) => {
@@ -30,6 +32,9 @@ const AddConstants = () => {
         });
     },
   });
+
+  const getInputClass = (field: keyof typeof formik.values) =>
+    `form-control ${formik.touched[field] && formik.errors[field] ? "is-invalid" : ""}`;
 
   return (
     <div className="container mt-4">
@@ -40,7 +45,7 @@ const AddConstants = () => {
           <select
             id="type"
             name="type"
-            className={`form-control ${formik.touched.type && formik.errors.type ? "is-invalid" : ""}`}
+            className={getInputClass("type")}
             value={formik.values.type}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -55,14 +60,13 @@ const AddConstants = () => {
           )}
         </div>
 
-        {/* Label Field */}
         <div className="form-group mb-3">
           <label htmlFor="label">Label</label>
           <input
             type="text"
             id="label"
             name="label"
-            className={`form-control ${formik.touched.label && formik.errors.label ? "is-invalid" : ""}`}
+            className={getInputClass("label")}
             value={formik.values.label}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -72,14 +76,13 @@ const AddConstants = () => {
           )}
         </div>
 
-        {/* Value Field */}
         <div className="form-group mb-4">
           <label htmlFor="value">Value</label>
           <input
             type="text"
             id="value"
             name="value"
-            className={`form-control ${formik.touched.value && formik.errors.value ? "is-invalid" : ""}`}
+            className={getInputClass("value")}
             value={formik.values.value}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -89,10 +92,19 @@ const AddConstants = () => {
           )}
         </div>
 
-        <button type="submit" className="btn btn-primary me-2">
+        <button type="submit" className="btn btn-primary">
           Add Constant
         </button>
       </form>
+
+      {showSuccess && (
+        <Notification
+          title="Success"
+          message="Constant added successfully!"
+          type="success"
+          position="bottom-center"
+        />
+      )}
     </div>
   );
 };

@@ -118,7 +118,7 @@ const UsersList = () => {
         </table>
       )}
 
-      {totalPages > 1 && (
+      {totalPages > 0 && (
         <div className="pagination">
           <button
             onClick={() => handlePageChange(currentPage - 1)}

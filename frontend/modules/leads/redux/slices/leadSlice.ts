@@ -1,10 +1,9 @@
-// modules/lead/redux/leadSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
-import { deleteLead, getLeads, postLeads } from "../action/leadAction";
+import { deleteLead, getLeads, postLeads, updateLead } from "../action/leadAction";
 
 const initialState = {
   leads: [],
-  total: 0, 
+  total: 0,
   loading: false,
   error: "",
   message: "",
@@ -17,10 +16,11 @@ const leadSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Post Lead
       .addCase(postLeads.pending, (state) => {
         state.loading = true;
         state.error = "";
-      }) 
+      })
       .addCase(postLeads.fulfilled, (state, action) => {
         state.loading = false;
         if (action.payload && action.payload.statusCode === 200) {
@@ -34,6 +34,8 @@ const leadSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || "Something went wrong";
       })
+
+      // Get Leads
       .addCase(getLeads.pending, (state) => {
         state.loading = true;
         state.error = "";
@@ -41,12 +43,14 @@ const leadSlice = createSlice({
       .addCase(getLeads.fulfilled, (state, action) => {
         state.loading = false;
         state.leads = action.payload.leads;
-        state.total = action.payload.total; 
+        state.total = action.payload.total;
       })
       .addCase(getLeads.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error?.message || "Something went wrong";
       })
+
+      // Delete Lead
       .addCase(deleteLead.pending, (state) => {
         state.loading = true;
         state.error = "";
@@ -61,8 +65,27 @@ const leadSlice = createSlice({
       .addCase(deleteLead.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Failed to delete lead";
+      })
+
+      // ✅ Update Lead
+      .addCase(updateLead.pending, (state) => {
+        state.loading = true;
+        state.error = "";
+      })
+    .addCase(updateLead.fulfilled, (state, action) => {
+  state.loading = false;
+  const updatedLead = action.payload?.updatedLead;
+  if (updatedLead) {
+    state.leads = state.leads.map(lead => 
+      lead.id === updatedLead.id ? updatedLead : lead
+    );
+  }
+  state.message = action.payload?.message || "Lead updated successfully";
+})
+      .addCase(updateLead.rejected, (state, action) => {
+        state.loading = false;
+        state.error = (action.payload as string) || action.error.message || "Failed to update lead";
       });
-      
   },
 });
 

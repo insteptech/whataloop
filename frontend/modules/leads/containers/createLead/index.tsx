@@ -4,15 +4,59 @@ import * as Yup from "yup";
 import { Col, Row } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
-import { FiUserPlus, FiInfo, FiTag, FiFileText, FiSend } from "react-icons/fi";
+import {
+  FiUserPlus,
+  FiInfo,
+  FiTag,
+  FiFileText,
+  FiSend,
+} from "react-icons/fi";
+
 import InputField from "@/components/common/InputField";
 import SelectField from "@/components/common/SelectField";
 import TextAreaField from "@/components/common/TextareaField";
-import CustomDatePicker from "@/components/common/DatePicker";
+import Notification from "@/components/common/Notification";
 import { getConstantType, postLeads } from "../../redux/action/leadAction";
 
 const LeadsForm = () => {
-  const [formData, setFormData] = useState({
+  const [tagOptions, setTagOptions] = useState([]);
+  const [statusOptions, setStatusOptions] = useState([]);
+  const [sourceOptions, setSourceOptions] = useState([]);
+  const [successNotification, setSuccessNotification] = useState(false);
+
+  const dispatch = useDispatch<any>();
+
+  useEffect(() => {
+    const fetchConstants = async () => {
+      try {
+        const response = await dispatch(getConstantType()).unwrap();
+        const constants = response?.data?.constantType?.rows || [];
+
+        setTagOptions(
+          constants
+            .filter((item) => item.type === "tag")
+            .map(({ label, id }) => ({ label, value: id }))
+        );
+        setStatusOptions(
+          constants
+            .filter((item) => item.type === "status")
+            .map(({ label, id }) => ({ label, value: id }))
+        );
+        setSourceOptions(
+          constants
+            .filter((item) => item.type === "source")
+            .map(({ label, id }) => ({ label, value: id }))
+        );
+      } catch (err) {
+        console.error("Failed to load constants", err);
+        toast.error("Failed to load select field data");
+      }
+    };
+
+    fetchConstants();
+  }, [dispatch]);
+
+  const initialValues = {
     name: "",
     phone: "",
     email: "",
@@ -20,46 +64,8 @@ const LeadsForm = () => {
     status: "",
     source: "",
     notes: "",
-    last_contacted: null,
-  });
-  const [tagOptions, setTagOptions] = useState([]);
-  const [statusOptions, setStatusOptions] = useState([]);
-  const [sourceOptions, setSourceOptions] = useState([]);
-  
-  const dispatch = useDispatch<any>();
-
-  useEffect(() => {
-    const fetchConstants = async () => {
-      try {
-        const response = await dispatch(getConstantType()).unwrap();
-        const data = response?.data || {};
-  
-        const constants = data.constantType?.rows || [];
-  
-        const tags = constants
-          .filter((item) => item.type === "tag")
-          .map((item) => ({ label: item.label, value: item.id }));
-  
-        const statuses = constants
-          .filter((item) => item.type === "status")
-          .map((item) => ({ label: item.label, value: item.id }));
-  
-        const sources = constants
-          .filter((item) => item.type === "source")
-          .map((item) => ({ label: item.label, value: item.id }));
-  
-        setTagOptions(tags);
-        setStatusOptions(statuses);
-        setSourceOptions(sources);
-      } catch (err) {
-        console.error("Failed to load constants", err);
-        toast.error("Failed to load select field data");
-      }
-    };
-  
-    fetchConstants();
-  }, [dispatch]);
-  
+    last_contacted: "",
+  };
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
@@ -75,48 +81,28 @@ const LeadsForm = () => {
     last_contacted: Yup.date().nullable(),
   });
 
-  const handleSubmit = async () => {
-    const tagLabel = tagOptions.find(option => option.value === formData.tag)?.label || '';
-    const statusLabel = statusOptions.find(option => option.value === formData.status)?.label || '';
-    const sourceLabel = sourceOptions.find(option => option.value === formData.source)?.label || '';
-  
-    const { name, phone, email, notes, last_contacted } = formData;
-  
-    const payload = {
-      name,
-      phone,
-      email,
-      tag: formData.tag,      
-      tag_label: tagLabel,          
-      status: formData.status, 
-      status_label: statusLabel,     
-      source: formData.source, 
-      source_label: sourceLabel,   
-      notes,
-      last_contacted: last_contacted ? last_contacted : null,
-    };
+  const handleSubmit = async (values: typeof initialValues, { resetForm }) => {
+    const tagLabel = tagOptions.find((opt) => opt.value === values.tag)?.label || "";
+    const statusLabel = statusOptions.find((opt) => opt.value === values.status)?.label || "";
+    const sourceLabel = sourceOptions.find((opt) => opt.value === values.source)?.label || "";
 
-    console.log("PayLoad", payload);
+    const payload = {
+      ...values,
+      tag_label: tagLabel,
+      status_label: statusLabel,
+      source_label: sourceLabel,
+      last_contacted: values.last_contacted || null,
+    };
 
     try {
       const response = await dispatch(postLeads(payload)).unwrap();
-      console.log("Response:", response);
       if (response.statusCode === 200) {
-        toast.success(response.message || "Lead posted successfully");
-        setFormData({
-          name: "",
-          phone: "",
-          email: "",
-          tag: "",
-          status: "",
-          source: "",
-          notes: "",
-          last_contacted: null,
-        });
+        setSuccessNotification(true);
+        resetForm({ values: initialValues }); 
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error(error?.message || "Error submitting form. Please try again.");
+      console.error("Form submission failed:", error);
+      toast.error(error?.message || "Submission error. Please try again.");
     }
   };
 
@@ -131,13 +117,13 @@ const LeadsForm = () => {
         </div>
 
         <Formik
-          initialValues={formData}
-          enableReinitialize
+          initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {() => (
+          {({ values, handleChange, setFieldValue }) => (
             <Form>
+              {/* Basic Info */}
               <div className="form-section">
                 <div className="section-title">
                   <FiInfo size={18} />
@@ -150,10 +136,8 @@ const LeadsForm = () => {
                       name="name"
                       id="name"
                       placeholder="Enter Name"
-                      value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
+                      value={values.name}
+                      onChange={handleChange}
                     />
                   </Col>
                   <Col md={6}>
@@ -162,10 +146,8 @@ const LeadsForm = () => {
                       name="phone"
                       id="phone"
                       placeholder="Enter Phone"
-                      value={formData.phone}
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                      }
+                      value={values.phone}
+                      onChange={handleChange}
                     />
                   </Col>
                   <Col md={6}>
@@ -175,15 +157,14 @@ const LeadsForm = () => {
                       id="email"
                       type="email"
                       placeholder="Enter Email"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
+                      value={values.email}
+                      onChange={handleChange}
                     />
                   </Col>
                 </Row>
               </div>
 
+              {/* Classification */}
               <div className="form-section">
                 <div className="section-title">
                   <FiTag size={18} />
@@ -196,10 +177,8 @@ const LeadsForm = () => {
                       label="Tag"
                       required
                       options={tagOptions}
-                      value={formData.tag}
-                      onChange={(e) =>
-                        setFormData({ ...formData, tag: e.target.value })
-                      }
+                      value={values.tag}
+                      onChange={(e) => setFieldValue("tag", e.target.value)}
                     />
                   </Col>
                   <Col md={6}>
@@ -208,10 +187,8 @@ const LeadsForm = () => {
                       label="Select Status"
                       required
                       options={statusOptions}
-                      value={formData.status}
-                      onChange={(e) =>
-                        setFormData({ ...formData, status: e.target.value })
-                      }
+                      value={values.status}
+                      onChange={(e) => setFieldValue("status", e.target.value)}
                     />
                   </Col>
                   <Col md={6}>
@@ -220,15 +197,14 @@ const LeadsForm = () => {
                       label="Select Source"
                       required
                       options={sourceOptions}
-                      value={formData.source}
-                      onChange={(e) =>
-                        setFormData({ ...formData, source: e.target.value })
-                      }
+                      value={values.source}
+                      onChange={(e) => setFieldValue("source", e.target.value)}
                     />
                   </Col>
                 </Row>
               </div>
 
+              {/* Additional Info */}
               <div className="form-section">
                 <div className="section-title">
                   <FiFileText size={18} />
@@ -240,10 +216,8 @@ const LeadsForm = () => {
                       label="Notes"
                       id="notes"
                       name="notes"
-                      value={formData.notes}
-                      onChange={(e) =>
-                        setFormData({ ...formData, notes: e.target.value })
-                      }
+                      value={values.notes}
+                      onChange={handleChange}
                     />
                   </Col>
                   <Col md={12}>
@@ -252,13 +226,8 @@ const LeadsForm = () => {
                       name="last_contacted"
                       id="last_contacted"
                       type="datetime-local"
-                      value={formData.last_contacted}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          last_contacted: e.target.value,
-                        })
-                      }
+                      value={values.last_contacted}
+                      onChange={handleChange}
                     />
                   </Col>
                 </Row>
@@ -274,6 +243,15 @@ const LeadsForm = () => {
           )}
         </Formik>
       </div>
+
+      {successNotification && (
+        <Notification
+          title="Lead Submitted"
+          message="The lead was submitted successfully."
+          type="success"
+          position="top-right"
+        />
+      )}
     </div>
   );
 };
