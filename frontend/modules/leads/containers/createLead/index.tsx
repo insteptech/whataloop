@@ -95,8 +95,8 @@ const LeadsForm = () => {
       const response = await dispatch(postLeads(payload)).unwrap();
       if (response.statusCode === 200) {
         setSuccessNotification(true);
-        // resetForm({ values: initialValues });
       }
+      resetForm("");
     } catch (error) {
       console.error("Form submission failed:", error);
       toast.error(error?.message || "Submission error. Please try again.");
@@ -118,7 +118,7 @@ const LeadsForm = () => {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {({ values, handleChange, setFieldValue, resetForm }) => (
+          {({ values, handleChange, setFieldValue }) => (
             <Form>
               {/* Basic Info */}
               <div className="form-section">
@@ -231,11 +231,7 @@ const LeadsForm = () => {
               </div>
 
               <div className="form-footer">
-                <button
-                  type="submit"
-                  className="login-button"
-                  onClick={() => resetForm()}
-                >
+                <button type="submit" className="login-button">
                   <FiSend size={18} />
                   <span>Submit Lead</span>
                 </button>
