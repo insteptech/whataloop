@@ -29,12 +29,12 @@ function LeftSidebar({ Width }: any) {
     {
       href: "/users/usersList",
       label: "Users",
-      icon: '',
+      icon: "",
     },
     {
       href: "constants/constantsList",
       label: "Constants",
-      icon: '',
+      icon: "",
     },
   ];
 
@@ -59,9 +59,9 @@ function LeftSidebar({ Width }: any) {
       </div>
       <div className="side-bar-footer">
         <div className="user-profile">
-          <div className="avatar">TD</div>
+          <div className="avatar">U</div>
           <div className="user-info">
-            <div className="name">Tanuj Deoli</div>
+            <div className="name">User </div>
             <div className="role">Admin</div>
           </div>
         </div>
