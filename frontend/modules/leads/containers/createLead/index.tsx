@@ -4,13 +4,7 @@ import * as Yup from "yup";
 import { Col, Row } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
-import {
-  FiUserPlus,
-  FiInfo,
-  FiTag,
-  FiFileText,
-  FiSend,
-} from "react-icons/fi";
+import { FiUserPlus, FiInfo, FiTag, FiFileText, FiSend } from "react-icons/fi";
 
 import InputField from "@/components/common/InputField";
 import SelectField from "@/components/common/SelectField";
@@ -82,9 +76,12 @@ const LeadsForm = () => {
   });
 
   const handleSubmit = async (values: typeof initialValues, { resetForm }) => {
-    const tagLabel = tagOptions.find((opt) => opt.value === values.tag)?.label || "";
-    const statusLabel = statusOptions.find((opt) => opt.value === values.status)?.label || "";
-    const sourceLabel = sourceOptions.find((opt) => opt.value === values.source)?.label || "";
+    const tagLabel =
+      tagOptions.find((opt) => opt.value === values.tag)?.label || "";
+    const statusLabel =
+      statusOptions.find((opt) => opt.value === values.status)?.label || "";
+    const sourceLabel =
+      sourceOptions.find((opt) => opt.value === values.source)?.label || "";
 
     const payload = {
       ...values,
@@ -98,7 +95,7 @@ const LeadsForm = () => {
       const response = await dispatch(postLeads(payload)).unwrap();
       if (response.statusCode === 200) {
         setSuccessNotification(true);
-        resetForm({ values: initialValues }); 
+        // resetForm({ values: initialValues });
       }
     } catch (error) {
       console.error("Form submission failed:", error);
@@ -121,7 +118,7 @@ const LeadsForm = () => {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {({ values, handleChange, setFieldValue }) => (
+          {({ values, handleChange, setFieldValue, resetForm }) => (
             <Form>
               {/* Basic Info */}
               <div className="form-section">
@@ -234,7 +231,11 @@ const LeadsForm = () => {
               </div>
 
               <div className="form-footer">
-                <button type="submit" className="login-button">
+                <button
+                  type="submit"
+                  className="login-button"
+                  onClick={() => resetForm()}
+                >
                   <FiSend size={18} />
                   <span>Submit Lead</span>
                 </button>
