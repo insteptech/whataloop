@@ -26,9 +26,9 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ show, onClose, lead, onSa
         name: lead.name || "",
         email: lead.email || "",
         phone: lead.phone || "",
-        status: lead.status || "",
-        source: lead.source || "",
-        tag: lead.tag || "",
+        status: lead.statusDetail?.label || "",
+        source: lead.sourceDetail?.label|| "",
+        tag: lead.tagDetail?.label || "",
       });
     }
   }, [lead]);
