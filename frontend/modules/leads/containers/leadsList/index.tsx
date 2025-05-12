@@ -1,18 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import { getLeads, deleteLead, updateLead } from "../../redux/action/leadAction";
+import {
+  getLeads,
+  deleteLead,
+  updateLead,
+} from "../../redux/action/leadAction";
 import { Col, Row } from "react-bootstrap";
 import ChatModal from "@/components/common/ChatModal";
 import Loader from "@/components/common/loader";
 import EditLeadModal from "@/components/leadEditModal";
-import Notification from "@/components/common/Notification"; 
+import Notification from "@/components/common/Notification";
+import DeleteIcon from "../../../../public/delete.png";
+import EditIcon from "../../../../public/edit.png";
+import Image from "next/image";
 
 const LeadsList = () => {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const { leads, total, loading } = useSelector((state: any) => state.leadReducer);
+  const { leads, total, loading } = useSelector(
+    (state: any) => state.leadReducer
+  );
 
   const queryPage = router.query.page as string;
   const currentPage = parseInt(queryPage || "1");
@@ -25,7 +34,7 @@ const LeadsList = () => {
   const [showChatModal, setShowChatModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedLead, setSelectedLead] = useState<any>(null);
-  
+
   const [notification, setNotification] = useState<{
     show: boolean;
     title: string;
@@ -50,7 +59,10 @@ const LeadsList = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchInput.trim());
-      router.push({ pathname: router.asPath.split("?")[0], query: { page: "1" } });
+      router.push({
+        pathname: router.asPath.split("?")[0],
+        query: { page: "1" },
+      });
     }, 1000);
 
     return () => clearTimeout(timer);
@@ -71,13 +83,42 @@ const LeadsList = () => {
   const totalPages = Math.ceil(total / itemsPerPage);
 
   const handlePageChange = (page: number) => {
-    router.push({ pathname: router.pathname, query: { ...router.query, page: page.toString() } });
+    router.push({
+      pathname: router.pathname,
+      query: { ...router.query, page: page.toString() },
+    });
   };
 
- const handleDeleteLead = (id: string) => {
-  if (window.confirm("Are you sure you want to delete this lead?")) {
-    dispatch(deleteLead(id) as any).then((action) => {
-      if (deleteLead.fulfilled.match(action)) {
+  const handleDeleteLead = (id: string) => {
+    if (window.confirm("Are you sure you want to delete this lead?")) {
+      dispatch(deleteLead(id) as any).then((action) => {
+        if (deleteLead.fulfilled.match(action)) {
+          dispatch(
+            getLeads({
+              page: currentPage,
+              limit: itemsPerPage,
+              search: debouncedSearch,
+              sort: sortColumn,
+              order: sortOrder,
+            }) as any
+          );
+
+          if (!notification.show) {
+            setNotification({
+              show: true,
+              title: "Lead Deleted",
+              message: "The lead has been deleted successfully.",
+              type: "success",
+            });
+          }
+        }
+      });
+    }
+  };
+
+  const handleUpdateLead = (updatedLead: any) => {
+    dispatch(updateLead(updatedLead) as any).then((action) => {
+      if (updateLead.fulfilled.match(action)) {
         dispatch(
           getLeads({
             page: currentPage,
@@ -91,42 +132,16 @@ const LeadsList = () => {
         if (!notification.show) {
           setNotification({
             show: true,
-            title: "Lead Deleted",
-            message: "The lead has been deleted successfully.",
+            title: "Lead Updated",
+            message: "The lead information has been updated successfully.",
             type: "success",
           });
         }
       }
     });
-  }
-};
+  };
 
- const handleUpdateLead = (updatedLead: any) => {
-  dispatch(updateLead(updatedLead) as any).then((action) => {
-    if (updateLead.fulfilled.match(action)) {
-      dispatch(
-        getLeads({
-          page: currentPage,
-          limit: itemsPerPage,
-          search: debouncedSearch,
-          sort: sortColumn,
-          order: sortOrder,
-        }) as any
-      );
-
-      if (!notification.show) {
-        setNotification({
-          show: true,
-          title: "Lead Updated",
-          message: "The lead information has been updated successfully.",
-          type: "success",
-        });
-      }
-    }
-  });
-};
-
-  if(loading){
+  if (loading) {
     return <Loader />;
   }
 
@@ -149,66 +164,89 @@ const LeadsList = () => {
           </form>
         </div>
         <div className="col-md-4 text-end">
-          <button onClick={() => router.push("/leads/createLead")}>Create a Lead</button>
+          <button onClick={() => router.push("/leads/createLead")}>
+            Create a Lead
+          </button>
         </div>
       </div>
 
       <Row className="lead-list-header-row">
-        {["name", "email", "phone", "status", "source", "tag", "last_contacted"].map((col, idx) => (
-          <Col key={idx} md={2} className="header-cell">
+        {[
+          "name",
+          "email",
+          "phone",
+          "status",
+          "source",
+          "tag",
+          "last_contacted",
+        ].map((col, idx) => (
+          <div key={idx} className="header-cell ">
             <button className="sort-btn" onClick={() => handleSortClick(col)}>
               {col.replace("_", " ").toUpperCase()} {renderSortIcon(col)}
             </button>
-          </Col>
+          </div>
         ))}
-        <Col md={1} className="header-cell">Chat</Col>
-        <Col md={1} className="header-cell">Action</Col>
+        <div className="header-cell ">Chat</div>
+        <div className="header-cell ">Action</div>
       </Row>
 
       {leads?.length > 0 ? (
         leads.map((lead: any) => (
           <Row key={lead.id} className="lead-item">
-            <Col md={2} className="lead-cell">
+            <div className="lead-cell ">
               <div className="lead-name">{lead.name}</div>
               <div className="lead-notes">{lead.notes}</div>
-            </Col>
-            <Col md={2} className="lead-cell">
+            </div>
+            <div className="lead-cell ">
               <div className="lead-email">{lead.email}</div>
-            </Col>
-            <Col md={2} className="lead-cell">
+            </div>
+            <div className="lead-cell ">
               <div className="lead-phone">{lead.phone}</div>
-            </Col>
-            <Col md={2} className="lead-cell">
-              <div className="lead-status">{lead.statusDetail?.label || "N/A"}</div>
-            </Col>
-            <Col md={2} className="lead-cell">
-              <div className="lead-source">{lead.sourceDetail?.label|| "N/A"}</div>
-            </Col>
-            <Col md={2} className="lead-cell">
-              <div className="lead-tag">{lead.tagDetail?.label|| "No Tag"}</div>
-            </Col>
-            <Col md={1} className="lead-cell">
-              <button className="btn btn-outline-secondary btn-sm" onClick={() => setShowChatModal(true)}>
+            </div>
+            <div className="lead-cell ">
+              <div className="lead-status">
+                {lead.statusDetail?.label || "N/A"}
+              </div>
+            </div>
+            <div className="lead-cell ">
+              <div className="lead-source">
+                {lead.sourceDetail?.label || "N/A"}
+              </div>
+            </div>
+            <div className="lead-cell ">
+              <div className="lead-tag">
+                {lead.tagDetail?.label || "No Tag"}
+              </div>
+            </div>
+            <div className="lead-cell ">
+              <div className="lead-tag">{lead.last_contacted || "No Tag"}</div>
+            </div>
+            <div className="lead-cell ">
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                onClick={() => setShowChatModal(true)}
+              >
                 Chat
               </button>
-            </Col>
-            <Col md={1} className="lead-cell text-end">
+            </div>
+            <div className="lead-cell  text-end lead-action-button">
               <button
-                className="btn btn-primary btn-sm me-2"
                 onClick={() => {
-                  setSelectedLead(lead); 
+                  setSelectedLead(lead);
                   setShowEditModal(true);
                 }}
               >
-                Edit
+                <Image src={EditIcon} width={24} height={24} alt="edit lead" />
               </button>
-              <button
-                className="btn btn-danger btn-sm"
-                onClick={() => handleDeleteLead(lead.id)}
-              >
-                Delete
+              <button onClick={() => handleDeleteLead(lead.id)}>
+                <Image
+                  src={DeleteIcon}
+                  width={24}
+                  height={24}
+                  alt="delete lead"
+                />
               </button>
-            </Col>
+            </div>
           </Row>
         ))
       ) : (
@@ -227,7 +265,10 @@ const LeadsList = () => {
 
           {currentPage > 2 && (
             <>
-              <button onClick={() => handlePageChange(1)} className="pagination-button">
+              <button
+                onClick={() => handlePageChange(1)}
+                className="pagination-button"
+              >
                 1
               </button>
               <span className="pagination-ellipsis">...</span>
@@ -239,21 +280,31 @@ const LeadsList = () => {
           </button>
 
           {currentPage < totalPages - 1 && (
-            <button onClick={() => handlePageChange(currentPage + 1)} className="pagination-button">
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              className="pagination-button"
+            >
               {currentPage + 1}
             </button>
           )}
 
-          {currentPage < totalPages - 2 && <span className="pagination-ellipsis">...</span>}
+          {currentPage < totalPages - 2 && (
+            <span className="pagination-ellipsis">...</span>
+          )}
 
           {currentPage !== totalPages && (
-            <button onClick={() => handlePageChange(totalPages)} className="pagination-button">
+            <button
+              onClick={() => handlePageChange(totalPages)}
+              className="pagination-button"
+            >
               {totalPages}
             </button>
           )}
 
           <button
-            onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
+            onClick={() =>
+              handlePageChange(Math.min(currentPage + 1, totalPages))
+            }
             disabled={currentPage === totalPages}
             className="pagination-button"
           >
@@ -264,7 +315,6 @@ const LeadsList = () => {
 
       <ChatModal show={showChatModal} onClose={() => setShowChatModal(false)} />
 
-     
       <EditLeadModal
         show={showEditModal}
         onClose={() => setShowEditModal(false)}
@@ -272,16 +322,15 @@ const LeadsList = () => {
         onSave={handleUpdateLead}
       />
 
-    
-   {notification.show && (
-  <Notification
-    title={notification.title}
-    message={notification.message}
-    type={notification.type}
-    position="bottom-center"
-    onClose={() => setNotification({ ...notification, show: false })}
-  />
-)}
+      {notification.show && (
+        <Notification
+          title={notification.title}
+          message={notification.message}
+          type={notification.type}
+          position="bottom-center"
+          onClose={() => setNotification({ ...notification, show: false })}
+        />
+      )}
     </div>
   );
 };

@@ -697,8 +697,10 @@ $dark: #212529;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
     overflow: hidden;
     animation: fadeInUp 0.5s ease-out;
+    font-family: $font-family;
 
     &__header {
+      font-family: $font-family;
       background: linear-gradient(to right, $primary, $secondary);
       color: white;
       padding: 2rem;
@@ -706,12 +708,14 @@ $dark: #212529;
       position: relative;
 
       h1 {
+        font-family: $font-family;
         font-weight: 700;
         margin-bottom: 0.5rem;
         font-size: 1.8rem;
       }
 
       p {
+        font-family: $font-family;
         opacity: 0.9;
         font-size: 0.95rem;
       }
@@ -749,12 +753,14 @@ $dark: #212529;
         text-align: center;
 
         &__name {
+          font-family: $font-family;
           font-weight: 600;
           font-size: 1.2rem;
           margin-bottom: 0.25rem;
         }
 
         &__role {
+          font-family: $font-family;
           display: inline-block;
           background: rgba($primary, 0.1);
           color: $primary;
@@ -773,6 +779,7 @@ $dark: #212529;
         margin-bottom: 1.5rem;
 
         label {
+          font-family: $font-family;
           display: block;
           margin-bottom: 0.5rem;
           font-size: 0.9rem;
@@ -781,6 +788,7 @@ $dark: #212529;
         }
 
         .form-control {
+          font-family: $font-family;
           width: 100%;
           padding: 0.75rem 1rem;
           border: 1px solid #e9ecef;
@@ -803,6 +811,7 @@ $dark: #212529;
         }
 
         .error-message {
+          font-family: $font-family;
           color: #dc3545;
           font-size: 0.8rem;
           margin-top: 0.25rem;
@@ -810,6 +819,7 @@ $dark: #212529;
       }
 
       .submit-btn {
+        font-family: $font-family;
         background: linear-gradient(to right, $primary, $secondary);
         color: white;
         border: none;
