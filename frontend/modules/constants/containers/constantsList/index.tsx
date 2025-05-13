@@ -67,7 +67,7 @@ const ConstantsList = () => {
             <tbody>
               {constantsList.map((constant: any) => (
                 <tr key={constant.id}>
-                  <td>{constant.type}</td>
+                  <td>{constant.type.charAt(0).toUpperCase()+ constant.type.slice(1)}</td>
                   <td>{constant.label}</td>
                   <td>
                     <button

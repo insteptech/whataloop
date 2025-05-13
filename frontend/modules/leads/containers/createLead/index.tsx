@@ -93,10 +93,9 @@ const LeadsForm = () => {
 
     try {
       const response = await dispatch(postLeads(payload)).unwrap();
-      if (response.statusCode === 200) {
-        setSuccessNotification(true);
-      }
+      console.log("Lead created successfully:", response);
       resetForm("");
+      setSuccessNotification(true); 
     } catch (error) {
       console.error("Form submission failed:", error);
       toast.error(error?.message || "Submission error. Please try again.");
@@ -113,6 +112,16 @@ const LeadsForm = () => {
           <h2>Leads Form</h2>
         </div>
 
+        {successNotification && (
+          <Notification
+            title="Lead Created"
+            message="Lead Created successfully."
+            type="success"
+            position="top-right"
+            onClose={() => setSuccessNotification(false)}
+          />
+        )}
+
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
@@ -120,7 +129,7 @@ const LeadsForm = () => {
         >
           {({ values, handleChange, setFieldValue }) => (
             <Form>
-              {/* Basic Info */}
+            
               <div className="form-section">
                 <div className="section-title">
                   <FiInfo size={18} />
@@ -181,7 +190,7 @@ const LeadsForm = () => {
                   <Col md={6}>
                     <SelectField
                       name="status"
-                      label="Select Status"
+                      label="Status"
                       required
                       options={statusOptions}
                       value={values.status}
@@ -191,7 +200,7 @@ const LeadsForm = () => {
                   <Col md={6}>
                     <SelectField
                       name="source"
-                      label="Select Source"
+                      label="Source"
                       required
                       options={sourceOptions}
                       value={values.source}
@@ -240,15 +249,6 @@ const LeadsForm = () => {
           )}
         </Formik>
       </div>
-
-      {successNotification && (
-        <Notification
-          title="Lead Submitted"
-          message="The lead was submitted successfully."
-          type="success"
-          position="top-right"
-        />
-      )}
     </div>
   );
 };

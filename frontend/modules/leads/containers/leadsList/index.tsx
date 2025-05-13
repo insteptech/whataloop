@@ -14,6 +14,7 @@ import Notification from "@/components/common/Notification";
 import DeleteIcon from "../../../../public/delete.png";
 import EditIcon from "../../../../public/edit.png";
 import Image from "next/image";
+import CustomTooltip from "@/components/common/Tooltip";
 
 const LeadsList = () => {
   const dispatch = useDispatch();
@@ -157,7 +158,7 @@ const LeadsList = () => {
           <form onSubmit={(e) => e.preventDefault()}>
             <input
               type="search"
-              placeholder="Search by name or email"
+              placeholder="Search by Name or E-mail"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
@@ -193,34 +194,40 @@ const LeadsList = () => {
       {leads?.length > 0 ? (
         leads.map((lead: any) => (
           <Row key={lead.id} className="lead-item">
-            <div className="lead-cell ">
-              <div className="lead-name">{lead.name}</div>
-              <div className="lead-notes">{lead.notes}</div>
-            </div>
-            <div className="lead-cell ">
-              <div className="lead-email">{lead.email}</div>
-            </div>
-            <div className="lead-cell ">
-              <div className="lead-phone">{lead.phone}</div>
-            </div>
-            <div className="lead-cell ">
-              <div className="lead-status">
-                {lead.statusDetail?.label || "N/A"}
-              </div>
-            </div>
-            <div className="lead-cell ">
-              <div className="lead-source">
-                {lead.sourceDetail?.label || "N/A"}
-              </div>
-            </div>
-            <div className="lead-cell ">
-              <div className="lead-tag">
-                {lead.tagDetail?.label || "No Tag"}
-              </div>
-            </div>
-            <div className="lead-cell ">
-              <div className="lead-tag">{lead.last_contacted || "No Tag"}</div>
-            </div>
+           <div className="lead-cell">
+  <CustomTooltip message={lead.name} className="lead-name" />
+  <CustomTooltip message={lead.notes} className="lead-notes" />
+</div>
+<div className="lead-cell">
+  <CustomTooltip message={lead.email} className="lead-email" />
+</div>
+<div className="lead-cell">
+  <CustomTooltip message={lead.phone} className="lead-phone" />
+</div>
+<div className="lead-cell">
+  <CustomTooltip
+    message={lead.statusDetail?.label || "N/A"}
+    className="lead-status"
+  />
+</div>
+<div className="lead-cell">
+  <CustomTooltip
+    message={lead.sourceDetail?.label || "N/A"}
+    className="lead-source"
+  />
+</div>
+<div className="lead-cell">
+  <span className="lead-tag">
+    {lead.tagDetail?.label || "No Tag"}
+  </span>
+</div>
+<div className="lead-cell">
+  <CustomTooltip
+    message={lead.last_contacted || "Not selected"}
+    className="lead-date"
+  />
+</div>
+
             <div className="lead-cell ">
               <button
                 className="btn btn-outline-secondary btn-sm"

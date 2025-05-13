@@ -1,18 +1,15 @@
-
-import { FC, useEffect, useRef,useState } from "react";
-import { useSelector } from "react-redux";  
+import { FC, useEffect, useRef, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useRouter } from "next/navigation";
 import {
   DownArrow,
   HamburgerMenuIcon,
   LogOutIcon,
-  MessageIcon,
   UserIcon,
   ViewProfileIcon,
 } from "@/components/common/Icon";
-import { useDispatch } from "react-redux";
-import { fetchProfile } from "@/modules/userprofile/redux/actions/profileAction";
-import { useRouter } from "next/navigation";
 import ChatModal from "@/components/common/ChatModal";
+import { fetchProfile } from "@/modules/userprofile/redux/actions/profileAction";
 
 type Props = {
   profileOpen: boolean;
@@ -28,32 +25,39 @@ const HeaderTopBar: FC<Props> = ({
   const dispatch: any = useDispatch();
   const router = useRouter();
   const profileRef = useRef<HTMLDivElement>(null);
+  const [messageOpen, setMessageOpen] = useState(false);
+
   const { data: user } = useSelector(
-    (state: { profileReducer: { data: any; loading: boolean; error: string } }) => state.profileReducer
+    (state: {
+      profileReducer: { data: any; loading: boolean; error: string };
+    }) => state.profileReducer
   );
 
-
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem("auth_token");
     if (token && !user?.fullName) {
       dispatch(fetchProfile(token));
     } else if (!token) {
-      console.warn('No token found in localStorage');
+      console.warn("No token found in localStorage");
     }
-  }, [dispatch]);
+  }, [dispatch, user?.fullName]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (profileOpen && profileRef.current && !profileRef.current.contains(event.target as Node)) {
+      if (
+        profileOpen &&
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
+      ) {
         toggleProfile();
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
   }, [profileOpen, toggleProfile]);
-
-  const [messageOpen, setMessageOpen] = useState(false);
 
   const handleViewProfile = async () => {
     const token = localStorage.getItem("auth_token");
@@ -86,7 +90,7 @@ const HeaderTopBar: FC<Props> = ({
 
           <div className="col-md-6">
             <div className="header-top-bar-right d-flex align-items-center justify-content-end">
-              <div className="user-profile dropdown">
+              <div className="user-profile dropdown" ref={profileRef}>
                 <button
                   className="d-flex align-items-center bg-transparent border-0"
                   onClick={toggleProfile}
@@ -100,14 +104,23 @@ const HeaderTopBar: FC<Props> = ({
                   <DownArrow />
                 </button>
 
-                <ul className={`dropdown-menu dropdown-menu-end ${profileOpen ? "open-profile-menu" : ""}`}>
+                <ul
+                  className={`dropdown-menu dropdown-menu-end ${
+                    profileOpen ? "open-profile-menu" : ""
+                  }`}
+                >
                   <li>
-                    <button className="dropdown-item d-flex align-items-center" onClick={handleViewProfile}>
+                    <button
+                      className="dropdown-item d-flex align-items-center"
+                      onClick={handleViewProfile}
+                    >
                       <ViewProfileIcon />
                       Profile
                     </button>
                   </li>
-                  <li><hr className="dropdown-divider" /></li>
+                  <li>
+                    <hr className="dropdown-divider" />
+                  </li>
                   <li>
                     <button
                       className="dropdown-item d-flex align-items-center text-danger"

@@ -98,7 +98,9 @@ const UserProfilePage = () => {
                   onBlur={formik.handleBlur}
                 />
                 {formik.touched.fullName && formik.errors.fullName && (
-                  <div className="error-message">{formik.errors.fullName}</div>
+                  <div className="error-message">
+                    {typeof formik.errors.fullName === "string" && formik.errors.fullName}
+                  </div>
                 )}
               </div>
 
