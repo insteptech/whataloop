@@ -187,48 +187,48 @@ const LeadsList = () => {
             </button>
           </div>
         ))}
-        <div className="header-cell ">Chat</div>
+        <div className="header-cell chat-button">Chat</div>
         <div className="header-cell ">Action</div>
       </Row>
 
       {leads?.length > 0 ? (
         leads.map((lead: any) => (
           <Row key={lead.id} className="lead-item">
-           <div className="lead-cell">
-  <CustomTooltip message={lead.name} className="lead-name" />
-  <CustomTooltip message={lead.notes} className="lead-notes" />
-</div>
-<div className="lead-cell">
-  <CustomTooltip message={lead.email} className="lead-email" />
-</div>
-<div className="lead-cell">
-  <CustomTooltip message={lead.phone} className="lead-phone" />
-</div>
-<div className="lead-cell">
-  <CustomTooltip
-    message={lead.statusDetail?.label || "N/A"}
-    className="lead-status"
-  />
-</div>
-<div className="lead-cell">
-  <CustomTooltip
-    message={lead.sourceDetail?.label || "N/A"}
-    className="lead-source"
-  />
-</div>
-<div className="lead-cell">
-  <span className="lead-tag">
-    {lead.tagDetail?.label || "No Tag"}
-  </span>
-</div>
-<div className="lead-cell">
-  <CustomTooltip
-    message={lead.last_contacted || "Not selected"}
-    className="lead-date"
-  />
-</div>
+            <div className="lead-cell">
+              <CustomTooltip message={lead.name} className="lead-name" />
+              <CustomTooltip message={lead.notes} className="lead-notes" />
+            </div>
+            <div className="lead-cell">
+              <CustomTooltip message={lead.email} className="lead-email" />
+            </div>
+            <div className="lead-cell">
+              <CustomTooltip message={lead.phone} className="lead-phone" />
+            </div>
+            <div className="lead-cell">
+              <CustomTooltip
+                message={lead.statusDetail?.label || "N/A"}
+                className="lead-status"
+              />
+            </div>
+            <div className="lead-cell">
+              <CustomTooltip
+                message={lead.sourceDetail?.label || "N/A"}
+                className="lead-source"
+              />
+            </div>
+            <div className="lead-cell">
+              <span className={`lead-tag ${lead.tagDetail?.label}`}>
+                {lead.tagDetail?.label || "No Tag"}
+              </span>
+            </div>
+            <div className="lead-cell">
+              <CustomTooltip
+                message={lead.last_contacted || "Not selected"}
+                className="lead-date"
+              />
+            </div>
 
-            <div className="lead-cell ">
+            <div className="lead-cell chat-button">
               <button
                 className="btn btn-outline-secondary btn-sm"
                 onClick={() => setShowChatModal(true)}

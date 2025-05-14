@@ -6,7 +6,9 @@ import Loader from "@/components/common/loader";
 
 const UsersList = () => {
   const dispatch = useDispatch<any>();
-  const { users, loading, error } = useSelector((state: any) => state.usersReducer);
+  const { users, loading, error } = useSelector(
+    (state: any) => state.usersReducer
+  );
   const total = users.count;
 
   const queryPage = router.query.page as string;
@@ -15,7 +17,7 @@ const UsersList = () => {
 
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [sortBy, setSortBy] = useState("createdAt"); 
+  const [sortBy, setSortBy] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("DESC");
 
   useEffect(() => {
@@ -36,7 +38,7 @@ const UsersList = () => {
         page: currentPage,
         pageSize: itemsPerPage,
         search: debouncedSearch,
-        sort: sortBy, 
+        sort: sortBy,
         order: sortOrder,
       }) as any
     );
@@ -59,110 +61,197 @@ const UsersList = () => {
       setSortOrder("ASC");
     }
   };
-    if(loading){
-        return (
-        <Loader/>
-        )
-      }
-      if (error) return <p style={{ color: 'red' }}>{error}</p>;
-     
+  if (loading) {
+    return <Loader />;
+  }
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
+
   return (
-    <div className="container mt-4">
-      <h2>Users List</h2>
+    <div className="container-fluid">
+      <div className="row justify-content-center">
+        <div className="col-12 col-lg-10 col-xl-12">
+          <div className="users-table-container">
+            <div className="row align-items-center mb-4">
+              <div className="col-12 col-md-6">
+                <h2 className="mb-3 mb-md-0">Users List</h2>
+              </div>
+              <div className="col-12 col-md-6">
+                <form
+                  onSubmit={(e) => e.preventDefault()}
+                  className="search-container"
+                >
+                  <input
+                    type="search"
+                    placeholder="Search by name, email, or phone"
+                    className="form-control search-input"
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                  />
+                </form>
+              </div>
+            </div>
 
-      <form onSubmit={(e) => e.preventDefault()} className="mb-3">
-        <input
-          type="search"
-          placeholder="Search by name, email, or phone"
-          className="form-control w-25"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-        />
-      </form>
+            {error && (
+              <div className="row">
+                <div className="col-12">
+                  <p className="error-message">Error: {error}</p>
+                </div>
+              </div>
+            )}
 
-      {error && <p className="text-danger">Error: {error}</p>}
-      {!loading && (!users?.rows || users.rows.length === 0) && <p>No users found.</p>}
+            {!loading && (!users?.rows || users.rows.length === 0) && (
+              <div className="no-users">
+                <p>No users found.</p>
+              </div>
+            )}
 
-      {users?.rows?.length > 0 && (
-        <table className="table table-bordered mt-3">
-          <thead className="table-dark">
-            <tr>
-              <th>S.no</th>
-              <th onClick={() => handleSort("fullName")} style={{ cursor: "pointer" }}>
-                Name {sortBy === "fullName" ? (sortOrder === "ASC" ? "▲" : "▼") : ""}
-              </th>
-              <th onClick={() => handleSort("email")} style={{ cursor: "pointer" }}>
-                Email {sortBy === "email" ? (sortOrder === "ASC" ? "▲" : "▼") : ""}
-              </th>
-              <th>Account Type</th>
-              <th onClick={() => handleSort("phone")} style={{ cursor: "pointer" }}>
-                Phone {sortBy === "phone" ? (sortOrder === "ASC" ? "▲" : "▼") : ""}
-              </th>
-              <th onClick={() => handleSort("createdAt")} style={{ cursor: "pointer" }}>
-                Created At {sortBy === "createdAt" ? (sortOrder === "ASC" ? "▲" : "▼") : ""}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.rows.map((user: any, index: number) => (
-              <tr key={user.id}>
-                <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                <td>{user.fullName || " "}</td>
-                <td>{user.email || " "}</td>
-                <td>{user.account_type || "User"}</td>
-                <td>{user.phone}</td>
-                <td>{new Date(user.createdAt).toLocaleDateString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            {users?.rows?.length > 0 && (
+              <>
+                <div className="table-responsive">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>S.no</th>
+                        <th
+                          className="sortable"
+                          onClick={() => handleSort("fullName")}
+                        >
+                          Name
+                          {sortBy === "fullName" && (
+                            <span className="sort-icon">
+                              {sortOrder === "ASC" ? "▲" : "▼"}
+                            </span>
+                          )}
+                        </th>
+                        <th
+                          className="sortable"
+                          onClick={() => handleSort("email")}
+                        >
+                          Email
+                          {sortBy === "email" && (
+                            <span className="sort-icon">
+                              {sortOrder === "ASC" ? "▲" : "▼"}
+                            </span>
+                          )}
+                        </th>
+                        <th>Account Type</th>
+                        <th
+                          className="sortable"
+                          onClick={() => handleSort("phone")}
+                        >
+                          Phone
+                          {sortBy === "phone" && (
+                            <span className="sort-icon">
+                              {sortOrder === "ASC" ? "▲" : "▼"}
+                            </span>
+                          )}
+                        </th>
+                        <th
+                          className="sortable"
+                          onClick={() => handleSort("createdAt")}
+                        >
+                          Created At
+                          {sortBy === "createdAt" && (
+                            <span className="sort-icon">
+                              {sortOrder === "ASC" ? "▲" : "▼"}
+                            </span>
+                          )}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {users.rows.map((user: any, index: number) => (
+                        <tr key={user.id}>
+                          <td data-label="S.no">
+                            {(currentPage - 1) * itemsPerPage + index + 1}
+                          </td>
+                          <td data-label="Name">{user.fullName || " "}</td>
+                          <td data-label="Email">{user.email || " "}</td>
+                          <td data-label="Account Type">
+                            {user.account_type || "User"}
+                          </td>
+                          <td data-label="Phone">{user.phone}</td>
+                          <td data-label="Created At">
+                            {new Date(user.createdAt).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
 
-      {totalPages > 0 && (
-        <div className="pagination">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="pagination-button"
-          >
-            Previous
-          </button>
+                {totalPages > 0 && (
+                  <div className="pagination">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="pagination-button"
+                    >
+                      Previous
+                    </button>
 
-          {currentPage > 2 && (
-            <>
-              <button onClick={() => handlePageChange(1)} className="pagination-button">1</button>
-              <span className="pagination-ellipsis">...</span>
-            </>
-          )}
+                    {currentPage > 2 && (
+                      <>
+                        <button
+                          onClick={() => handlePageChange(1)}
+                          className="pagination-button"
+                        >
+                          1
+                        </button>
+                        <span className="pagination-ellipsis">...</span>
+                      </>
+                    )}
 
-          <button className="pagination-button active" disabled>{currentPage}</button>
+                    {currentPage > 1 && (
+                      <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        className="pagination-button"
+                      >
+                        {currentPage - 1}
+                      </button>
+                    )}
 
-          {currentPage < totalPages - 1 && (
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              className="pagination-button"
-            >
-              {currentPage + 1}
-            </button>
-          )}
+                    <button className="pagination-button active" disabled>
+                      {currentPage}
+                    </button>
 
-          {currentPage < totalPages - 2 && <span className="pagination-ellipsis">...</span>}
+                    {currentPage < totalPages && (
+                      <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        className="pagination-button"
+                      >
+                        {currentPage + 1}
+                      </button>
+                    )}
 
-          {currentPage !== totalPages && (
-            <button onClick={() => handlePageChange(totalPages)} className="pagination-button">
-              {totalPages}
-            </button>
-          )}
+                    {currentPage < totalPages - 1 && (
+                      <>
+                        {currentPage < totalPages - 2 && (
+                          <span className="pagination-ellipsis">...</span>
+                        )}
+                        <button
+                          onClick={() => handlePageChange(totalPages)}
+                          className="pagination-button"
+                        >
+                          {totalPages}
+                        </button>
+                      </>
+                    )}
 
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="pagination-button"
-          >
-            Next
-          </button>
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="pagination-button"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

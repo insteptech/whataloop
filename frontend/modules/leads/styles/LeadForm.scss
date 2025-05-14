@@ -49,109 +49,146 @@
     .header-cell {
         padding: 8px 15px;
         width: 11%;
+
+        &.chat-button {
+            text-align: center;
+        }
     }
 }
 
 .lead-item {
-  margin: 0;
-  padding: 15px 0;
-  border-bottom: 1px solid #f5f5f5;
-  transition: background-color 0.2s ease;
-  font-family: $font-family;
+    margin: 0;
+    padding: 15px 0;
+    border-bottom: 1px solid #f5f5f5;
+    transition: background-color 0.2s ease;
+    font-family: $font-family;
 
-  &:hover {
-    background-color: #f9f9f9;
-  }
-
-  .lead-cell {
-    padding: 8px 15px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 11%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .lead-name,
-  .lead-email,
-  .lead-phone,
-  .lead-notes,
-  .lead-status,
-  .lead-source,
-  .lead-tag,
-  .lead-date {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .lead-name {
-    font-weight: 500;
-    color: #333;
-    margin-bottom: 5px;
-  }
-
-  .lead-email {
-    color: #333;
-    margin-bottom: 3px;
-  }
-
-  .lead-phone {
-    color: #666;
-    font-size: 0.9rem;
-  }
-
-  .lead-notes {
-    color: #666;
-    font-size: 0.85rem;
-  }
-
-  .lead-status {
-    color: #444;
-    font-weight: 500;
-  }
-
-  .lead-source {
-    color: #555;
-  }
-
-  .lead-date {
-    color: #555;
-    font-size: 0.9rem;
-  }
-
-  .badge {
-    display: inline-block;
-    padding: 8px 16px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    width: fit-content;
-
-    &.badge-hot {
-      background-color: #ffebee;
-      color: #d32f2f;
+    &:hover {
+        background-color: #f9f9f9;
     }
 
-    &.badge-warm {
-      background-color: #fff8e1;
-      color: #ff8f00;
+    .lead-cell {
+        padding: 8px 15px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 11%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &.chat-button {
+            align-items: center;
+
+            button {
+                background: #3b82f6;
+                border: none;
+                color: #ffff;
+                width: fit-content;
+                padding-inline: 16px;
+            }
+        }
     }
 
-    &.badge-cold {
-      background-color: #e3f2fd;
-      color: #1976d2;
+    .lead-name,
+    .lead-email,
+    .lead-phone,
+    .lead-notes,
+    .lead-status,
+    .lead-source,
+    .lead-tag,
+    .lead-date {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    &.badge-default {
-      background-color: #f5f5f5;
-      color: #616161;
+    .lead-tag {
+        padding: 4px 29px;
+        width: fit-content;
+        border-radius: 24px;
+
+        &.Hot {
+            color: #FF4500;
+            background: #ff450040;
+        }
+
+        &.Cold {
+            color: #00BFFF;
+            background: #00bfff2e;
+        }
+
+        &.Paid {
+            color: #32CD32;
+            background: #32cd322b;
+        }
     }
-  }
+
+    .lead-name {
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .lead-email {
+        color: #333;
+        margin-bottom: 3px;
+    }
+
+    .lead-phone {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .lead-notes {
+        color: #666;
+        font-size: 0.85rem;
+    }
+
+    .lead-status {
+        color: #444;
+        font-weight: 500;
+    }
+
+    .lead-source {
+        color: #555;
+    }
+
+    .lead-date {
+        color: #555;
+        font-size: 0.9rem;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        width: fit-content;
+
+        &.badge-hot {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+
+        &.badge-warm {
+            background-color: #fff8e1;
+            color: #ff8f00;
+        }
+
+        &.badge-cold {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        &.badge-default {
+            background-color: #f5f5f5;
+            color: #616161;
+        }
+    }
 }
 
 
@@ -505,7 +542,14 @@
 }
 
 .lead-action-button button {
-    background-color: transparent;
-    border: none;
+    background-color: #3b82f617;
+    border: 1px solid;
     outline: none;
+    padding: 12px;
+    border-radius: 12px;
+}
+
+.lead-action-button button:nth-of-type(2) {
+    border-color: red;
+    background-color: #ff00001c;
 }

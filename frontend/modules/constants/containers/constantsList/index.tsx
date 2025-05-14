@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchConstants, deleteConstant } from "../../redux/action/constantAction";
+import {
+  fetchConstants,
+  deleteConstant,
+} from "../../redux/action/constantAction";
 import router from "next/router";
 import Loader from "@/components/common/loader";
-import Notification from "@/components/common/Notification"; 
+import Notification from "@/components/common/Notification";
 const ConstantsList = () => {
   const dispatch = useDispatch<any>();
   const { constantsList, loading, error, totalPages } = useSelector(
@@ -23,7 +26,7 @@ const ConstantsList = () => {
       try {
         await dispatch(deleteConstant(id)).unwrap();
         dispatch(fetchConstants({ page, limit }));
-        setShowSuccess(true); 
+        setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
       } catch (err: any) {
         console.error("Delete failed:", err);
@@ -50,9 +53,9 @@ const ConstantsList = () => {
         </button>
       </div>
 
-      {!loading && Array.isArray(constantsList) && constantsList.length === 0 && (
-        <p>No constants found.</p>
-      )}
+      {!loading &&
+        Array.isArray(constantsList) &&
+        constantsList.length === 0 && <p>No constants found.</p>}
 
       {Array.isArray(constantsList) && constantsList.length > 0 && (
         <>
@@ -67,7 +70,10 @@ const ConstantsList = () => {
             <tbody>
               {constantsList.map((constant: any) => (
                 <tr key={constant.id}>
-                  <td>{constant.type.charAt(0).toUpperCase()+ constant.type.slice(1)}</td>
+                  <td>
+                    {constant.type.charAt(0).toUpperCase() +
+                      constant.type.slice(1)}
+                  </td>
                   <td>{constant.label}</td>
                   <td>
                     <button
@@ -94,7 +100,10 @@ const ConstantsList = () => {
 
               {page > 2 && (
                 <>
-                  <button onClick={() => setPage(1)} className="pagination-button">
+                  <button
+                    onClick={() => setPage(1)}
+                    className="pagination-button"
+                  >
                     1
                   </button>
                   <span className="pagination-ellipsis">...</span>
@@ -106,21 +115,31 @@ const ConstantsList = () => {
               </button>
 
               {page < totalPages - 1 && (
-                <button onClick={() => setPage(page + 1)} className="pagination-button">
+                <button
+                  onClick={() => setPage(page + 1)}
+                  className="pagination-button"
+                >
                   {page + 1}
                 </button>
               )}
 
-              {page < totalPages - 2 && <span className="pagination-ellipsis">...</span>}
+              {page < totalPages - 2 && (
+                <span className="pagination-ellipsis">...</span>
+              )}
 
               {page !== totalPages && (
-                <button onClick={() => setPage(totalPages)} className="pagination-button">
+                <button
+                  onClick={() => setPage(totalPages)}
+                  className="pagination-button"
+                >
                   {totalPages}
                 </button>
               )}
 
               <button
-                onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                onClick={() =>
+                  setPage((prev) => Math.min(prev + 1, totalPages))
+                }
                 disabled={page === totalPages}
                 className="pagination-button"
               >
