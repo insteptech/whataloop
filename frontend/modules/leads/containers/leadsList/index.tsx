@@ -171,94 +171,133 @@ const LeadsList = () => {
         </div>
       </div>
 
-      <Row className="lead-list-header-row">
-        {[
-          "name",
-          "email",
-          "phone",
-          "status",
-          "source",
-          "tag",
-          "last_contacted",
-        ].map((col, idx) => (
-          <div key={idx} className="header-cell ">
-            <button className="sort-btn" onClick={() => handleSortClick(col)}>
-              {col.replace("_", " ").toUpperCase()} {renderSortIcon(col)}
-            </button>
-          </div>
-        ))}
-        <div className="header-cell chat-button">Chat</div>
-        <div className="header-cell ">Action</div>
-      </Row>
-
-      {leads?.length > 0 ? (
-        leads.map((lead: any) => (
-          <Row key={lead.id} className="lead-item">
-            <div className="lead-cell">
-              <CustomTooltip message={lead.name} className="lead-name" />
-              <CustomTooltip message={lead.notes} className="lead-notes" />
-            </div>
-            <div className="lead-cell">
-              <CustomTooltip message={lead.email} className="lead-email" />
-            </div>
-            <div className="lead-cell">
-              <CustomTooltip message={lead.phone} className="lead-phone" />
-            </div>
-            <div className="lead-cell">
-              <CustomTooltip
-                message={lead.statusDetail?.label || "N/A"}
-                className="lead-status"
-              />
-            </div>
-            <div className="lead-cell">
-              <CustomTooltip
-                message={lead.sourceDetail?.label || "N/A"}
-                className="lead-source"
-              />
-            </div>
-            <div className="lead-cell">
-              <span className={`lead-tag ${lead.tagDetail?.label}`}>
-                {lead.tagDetail?.label || "No Tag"}
-              </span>
-            </div>
-            <div className="lead-cell">
-              <CustomTooltip
-                message={lead.last_contacted || "Not selected"}
-                className="lead-date"
-              />
-            </div>
-
-            <div className="lead-cell chat-button">
-              <button
-                className="btn btn-outline-secondary btn-sm"
-                onClick={() => setShowChatModal(true)}
-              >
-                Chat
-              </button>
-            </div>
-            <div className="lead-cell  text-end lead-action-button">
-              <button
-                onClick={() => {
-                  setSelectedLead(lead);
-                  setShowEditModal(true);
-                }}
-              >
-                <Image src={EditIcon} width={24} height={24} alt="edit lead" />
-              </button>
-              <button onClick={() => handleDeleteLead(lead.id)}>
-                <Image
-                  src={DeleteIcon}
-                  width={24}
-                  height={24}
-                  alt="delete lead"
-                />
-              </button>
-            </div>
-          </Row>
-        ))
-      ) : (
-        <p>No users found.</p>
-      )}
+      <div className="leads-table-container">
+        <table className="leads-table">
+          <thead>
+            <tr>
+              {[
+                "name",
+                "email",
+                "phone",
+                "status",
+                "source",
+                "tag",
+                "last_contacted",
+                "chat",
+                "action",
+              ].map((col, idx) => (
+                <th key={idx} className={`th-${col.replace("_", "-")}`}>
+                  {col !== "chat" && col !== "action" ? (
+                    <button
+                      className="sort-btn"
+                      onClick={() => handleSortClick(col)}
+                    >
+                      {col.replace("_", " ").toUpperCase()}{" "}
+                      {renderSortIcon(col)}
+                    </button>
+                  ) : (
+                    col.toUpperCase()
+                  )}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {leads?.length > 0 ? (
+              leads.map((lead: any) => (
+                <tr key={lead.id} className="lead-row">
+                  <td className="td-name" data-label="Name">
+                    <div>
+                      <CustomTooltip
+                        message={lead.name}
+                        className="lead-name"
+                      />
+                      <CustomTooltip
+                        message={lead.notes}
+                        className="lead-notes"
+                      />
+                    </div>
+                  </td>
+                  <td className="td-email" data-label="Email">
+                    <CustomTooltip
+                      message={lead.email}
+                      className="lead-email"
+                    />
+                  </td>
+                  <td className="td-phone" data-label="Phone">
+                    <CustomTooltip
+                      message={lead.phone}
+                      className="lead-phone"
+                    />
+                  </td>
+                  <td className="td-status" data-label="Status">
+                    <CustomTooltip
+                      message={lead.statusDetail?.label || "N/A"}
+                      className="lead-status"
+                    />
+                  </td>
+                  <td className="td-source" data-label="Source">
+                    <CustomTooltip
+                      message={lead.sourceDetail?.label || "N/A"}
+                      className="lead-source"
+                    />
+                  </td>
+                  <td className="td-tag" data-label="Tag">
+                    <span className={`lead-tag ${lead.tagDetail?.label}`}>
+                      {lead.tagDetail?.label || "No Tag"}
+                    </span>
+                  </td>
+                  <td className="td-last-contacted" data-label="Last Contacted">
+                    <CustomTooltip
+                      message={lead.last_contacted || "Not selected"}
+                      className="lead-date"
+                    />
+                  </td>
+                  <td className="td-chat" data-label="Chat">
+                    <button
+                      className="btn btn-outline-secondary btn-sm chat-btn"
+                      onClick={() => setShowChatModal(true)}
+                    >
+                      Chat
+                    </button>
+                  </td>
+                  <td className="td-action" data-label="Action">
+                    <div className="action-buttons">
+                      <button
+                        onClick={() => {
+                          setSelectedLead(lead);
+                          setShowEditModal(true);
+                        }}
+                      >
+                        <Image
+                          src={EditIcon}
+                          width={24}
+                          height={24}
+                          alt="edit lead"
+                        />
+                      </button>
+                      <button onClick={() => handleDeleteLead(lead.id)}>
+                        <Image
+                          src={DeleteIcon}
+                          width={24}
+                          height={24}
+                          alt="delete lead"
+                        />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={9} className="no-leads-message">
+                  No users found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {totalPages > 0 && (
         <div className="pagination mt-4">
