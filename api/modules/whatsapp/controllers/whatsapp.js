@@ -1,11 +1,25 @@
 const whatsappManager = require('../manager/whatsapp');
+const { logToFile } = require('../../../utils/logger');
+
+// exports.incomingMessage = async (req, res) => {
+//   try {
+//     await whatsappManager.processIncoming(req.body);
+//     res.status(200).send('Message received');
+//   } catch (err) {
+//     console.error('WhatsApp Webhook Error:', err);
+//     res.status(500).send('Internal Server Error');
+//   }
+// };
 
 exports.incomingMessage = async (req, res) => {
+  logToFile('📥 WhatsApp Webhook Triggered');
+  logToFile(`Payload: ${JSON.stringify(req.body)}`);
+
   try {
     await whatsappManager.processIncoming(req.body);
     res.status(200).send('Message received');
   } catch (err) {
-    console.error('WhatsApp Webhook Error:', err);
+    logToFile('❌ Webhook error: ' + (err.stack || err.message));
     res.status(500).send('Internal Server Error');
   }
 };
@@ -31,16 +45,30 @@ exports.verifyWebhook = (req, res) => {
   }
 };
 
+// exports.receiveMessage = async (req, res) => {
+//   try {
+//     console.log('📩 Incoming WhatsApp message:');
+//     console.dir(req.body, { depth: null });
+
+//     await whatsappManager.handleIncomingPayload(req.body);
+
+//     return res.sendStatus(200);
+//   } catch (error) {
+//     console.error('❌ Error handling incoming WhatsApp message:', error);
+//     return res.sendStatus(500);
+//   }
+// };
+
 exports.receiveMessage = async (req, res) => {
   try {
-    console.log('📩 Incoming WhatsApp message:');
-    console.dir(req.body, { depth: null });
+    logToFile('📩 Incoming WhatsApp message');
+    logToFile(`Payload: ${JSON.stringify(req.body, null, 2)}`);
 
     await whatsappManager.handleIncomingPayload(req.body);
 
     return res.sendStatus(200);
   } catch (error) {
-    console.error('❌ Error handling incoming WhatsApp message:', error);
+    logToFile(`❌ Error handling incoming WhatsApp message: ${error.stack || error.message}`);
     return res.sendStatus(500);
   }
 };

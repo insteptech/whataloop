@@ -6,5 +6,6 @@
     {"name": "category"},
     {"name": "lead"},
     {"name": "webhook"},
-    {"name": "whatsapp"}
+    {"name": "whatsapp"},
+    {"name": "onboarding"}
 ]

@@ -5,35 +5,30 @@ const WHATSAPP_API_URL = 'https://graph.facebook.com/v18.0';
 const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
 const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 
+// const handleIncomingMessage = async (data) => {
+
+//   const { Whatsapp } = await getAllModels(process.env.DB_TYPE);
+//    if(!Whatsapp) {
+//     throw new Error('WhatsApp model not found');
+//   }
+//   await Whatsapp.create({
+//     raw_payload: JSON.stringify(data),
+//   });
+// };
+
 const handleIncomingMessage = async (data) => {
-  // const phone = from.replace('whatsapp:', '');
-  // const { Whatsapp, Lead } = await getAllModels(process.env.DB_TYPE);
-  // console.log('whatsapp:----', Whatsapp);
-  
-  // if(!Whatsapp) {
-  //   throw new Error('WhatsApp model not found');
-  // }
-  // if(!Lead) {
-  //   throw new Error('Lead model not found');
-  // }
-  // const lead = await Lead.findOne({ where: { phone } });
+  console.log('🔧 Processing WhatsApp Payload:', JSON.stringify(data, null, 2));
 
-  // const message = await Whatsapp.create({
-  //   phone,
-  //   body,
-  //   sender_name: senderName,
-  //   direction: 'incoming',
-  //   lead_id: lead?.id || null,
-  // });
-
-  // return message;
   const { Whatsapp } = await getAllModels(process.env.DB_TYPE);
-   if(!Whatsapp) {
+  if (!Whatsapp) {
     throw new Error('WhatsApp model not found');
   }
+
   await Whatsapp.create({
     raw_payload: JSON.stringify(data),
   });
+
+  console.log('✅ WhatsApp payload saved to DB');
 };
 
 const createWhatsappEntry = async (payload) => {
