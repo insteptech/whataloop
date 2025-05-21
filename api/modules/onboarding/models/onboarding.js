@@ -27,6 +27,22 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       defaultValue: 'inactive',
     },
+    linked: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    waba_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    waba_phone_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    raw_payload: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+    },
     createdAt: {
       allowNull: false,
       type: DataTypes.DATE,

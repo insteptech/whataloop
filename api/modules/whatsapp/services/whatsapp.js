@@ -74,9 +74,11 @@ const sendTextMessage = async (toPhone, messageText) => {
   };
 
   try {
-    console.log('Sending message to WhatsApp API...');
+    // console.log('Sending message to WhatsApp API...');
+    console.log('📩 Sending message:---------------', url, payload, { headers });
+    
     const { data } = await axios.post(url, payload, { headers });
-    console.log('Message sent successfully:', data);
+    // console.log('Message sent successfully:', data);
     return data;
   } catch (error) {
     console.error('Error sending message to WhatsApp API:', error);

@@ -83,7 +83,7 @@ exports.sendMessage = async (req, res) => {
     const response = await whatsappManager.sendMessage(phone, message);
     res.status(200).json({ success: true, data: response });
   } catch (error) {
-    console.error('Error sending WhatsApp message:', error);
+    // console.error('Error sending WhatsApp message:', error);
     res.status(500).json({ error: 'Failed to send message.' });
   }
 };

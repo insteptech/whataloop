@@ -166,6 +166,11 @@ const create = async (data) => {
         throw new Error("Lead with this phone number already exists");
       }
     }
+    
+    const existingLead = await Lead.findOne({ where: { phone: data.phone } });
+    if (existingLead) {
+      throw new Error("Lead with this phone number already exists");
+    }
 
     const newLead = await Lead.create(data);
     return newLead;

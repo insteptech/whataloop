@@ -43,7 +43,10 @@ exports.create = async (req, res) => {
     res.status(201).json(lead);
   } catch (err) {
     console.error("Error creating lead:", err.message);
-    res.status(400).json({ message: err.message });
+    if (error.message.includes("already exists")) {
+      return res.status(409).json({ error: error.message }); // 409 Conflict
+    }
+    return res.status(500).json({ error: "Something went wrong" });
   }
 };
 

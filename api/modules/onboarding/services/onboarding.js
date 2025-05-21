@@ -14,13 +14,13 @@ const createBusinessProfile = async (businessName, whatsappNumber) => {
   const { Onboarding } = await getAllModels(process.env.DB_TYPE);
   if (!Onboarding) {
     throw new Error("Onboarding model not found");
-  }
+ }
 
   const profile = await Onboarding.create({
     business_name: businessName,
     whatsapp_number: whatsappNumber,
     profile_status: 'active'
-  });
+ });
 
   return profile;
 };
@@ -31,15 +31,15 @@ const associateBusinessNumber = async (whatsappNumber) => {
   const data = {
     phone_number: whatsappNumber,
     access_token: ACCESS_TOKEN
-  };
+ };
 
   try {
     const response = await axios.post(url, data);
     console.log("Business Number associated:", response.data);
     return response.data;
-  } catch (error) {
+ } catch (error) {
     throw new Error("Error associating business number: " + error.message);
-  }
+ }
 };
 
 // 3. Set up the Webhook URL to handle incoming messages
@@ -51,20 +51,20 @@ const setupWebhook = async () => {
     callback_url: WEB_HOOK_URL,
     fields: ["messages"],
     verify_token: VERIFY_TOKEN
-  };
+ };
 
   try {
     const response = await axios.post(url, data, {
       headers: {
         Authorization: `Bearer ${ACCESS_TOKEN}`
-      }
-    });
+ }
+ });
     console.log("Webhook setup successful:", response.data);
     return WEB_HOOK_URL;
-  } catch (error) {
+ } catch (error) {
     console.error("Webhook setup failed:", error.response?.data || error.message);
     throw new Error("Error setting up webhook: " + error.message);
-  }
+ }
 };
 
 

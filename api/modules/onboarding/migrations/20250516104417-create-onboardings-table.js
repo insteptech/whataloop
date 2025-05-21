@@ -16,11 +16,25 @@ module.exports = {
       whatsapp_number: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique: true,  // add unique constraint as per your model
       },
       profile_status: {
         type: Sequelize.STRING,
         allowNull: false,
         defaultValue: 'active',
+      },
+      linked: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      waba_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      waba_phone_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       raw_payload: {
         type: Sequelize.JSONB,
