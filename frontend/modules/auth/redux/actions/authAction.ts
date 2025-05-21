@@ -71,7 +71,7 @@ console.log('response:-----',response?.data?.statusCode);
         
         await api.post("/onboarding/onboard", onboardingPayload);
       }
-
+      return response.data;
       // return userData;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(

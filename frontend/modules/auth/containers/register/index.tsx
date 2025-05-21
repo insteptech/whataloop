@@ -76,11 +76,11 @@ const SignUp = () => {
     };
 
     try {
-      console.log('payload:-------- 1', payload);
 
       const response = await dispatch(register(payload)).unwrap();
-
-      if (response.statusCode === 200) {
+      console.log("Register response:", response);
+      
+      if (response?.statusCode === 200) {
         toast.success("Registration successful!");
         window.location.href = "/";
       }
@@ -139,7 +139,7 @@ const SignUp = () => {
       const response = await dispatch(
         verifyOtp({ email: formData.email, otp: formData.otp })
       ).unwrap();
-      if (response.statusCode === 200) {
+      if (response?.statusCode === 200) {
         setOtpVerified(true);
         setEmailVerify(false);
         toast.success("OTP verified successfully!");
