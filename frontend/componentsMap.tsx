@@ -15,8 +15,8 @@ export const componentsMap = {
     "createLead": dynamic(() => import("@/modules/leads/containers/createLead/index"), { ssr: false, loading: () => <Loader /> }), 
   },
   "dashboard": {
-    "UniqueVisitorChart": dynamic(() => import("@/modules/dashboard/containers/UniqueVisitorChart"), { ssr: false, loading: () => <Loader /> }), 
     "containers": dynamic(() => import("@/modules/dashboard/containers/index"), { ssr: false, loading: () => <Loader /> }), 
+    "UniqueVisitorChart": dynamic(() => import("@/modules/dashboard/containers/UniqueVisitorChart"), { ssr: false, loading: () => <Loader /> }), 
     "IncomeOverview": dynamic(() => import("@/modules/dashboard/containers/IncomeOverview"), { ssr: false, loading: () => <Loader /> }), 
     "AnalyticsReport": dynamic(() => import("@/modules/dashboard/containers/AnalyticsReport"), { ssr: false, loading: () => <Loader /> }), 
     "dashboard": dynamic(() => import("@/modules/dashboard/containers/dashboard/index"), { ssr: false, loading: () => <Loader /> }), 
