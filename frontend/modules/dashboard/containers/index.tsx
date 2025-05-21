@@ -1,133 +1,95 @@
 import { DashBoardPreviewImg } from "@/components/common/Icon";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
 import { FaCircle } from "react-icons/fa";
 import { TbGift, TbMessageCircle, TbSettings } from "react-icons/tb";
 import IncomeOverview from "./IncomeOverview";
 import AnalyticsReport from "./AnalyticsReport";
 import UniqueVisitorChart from "./UniqueVisitorChart";
+import { useDispatch, useSelector } from "react-redux";
+import { getLeads } from "@/modules/leads/redux/action/leadAction";
+import { getUsers } from "@/modules/users/redux/action/usersAction";
+import Loader from "@/components/common/loader";
+
+
 
 function DashboardPage() {
-  const orders = [
-    {
-      trackingNo: "84564564",
-      product: "Camera Lens",
-      total: 40,
-      status: "Rejected",
-      amount: "$40,570",
-      statusColor: "text-danger",
-    },
-    {
-      trackingNo: "84564564",
-      product: "Laptop",
-      total: 300,
-      status: "Pending",
-      amount: "$180,139",
-      statusColor: "text-warning",
-    },
-    {
-      trackingNo: "84564564",
-      product: "Mobile",
-      total: 355,
-      status: "Approved",
-      amount: "$180,139",
-      statusColor: "text-success",
-    },
-    {
-      trackingNo: "84564564",
-      product: "Camera Lens",
-      total: 40,
-      status: "Rejected",
-      amount: "$40,570",
-      statusColor: "text-danger",
-    },
-    {
-      trackingNo: "84564564",
-      product: "Laptop",
-      total: 300,
-      status: "Pending",
-      amount: "$180,139",
-      statusColor: "text-warning",
-    },
-    {
-      trackingNo: "84564564",
-      product: "Mobile",
-      total: 355,
-      status: "Approved",
-      amount: "$180,139",
-      statusColor: "text-success",
-    },
-    {
-      trackingNo: "84564564",
-      product: "Camera Lens",
-      total: 40,
-      status: "Rejected",
-      amount: "$40,570",
-      statusColor: "text-danger",
-    },
-    {
-      trackingNo: "84564564",
-      product: "Laptop",
-      total: 300,
-      status: "Pending",
-      amount: "$180,139",
-      statusColor: "text-warning",
-    },
-    {
-      trackingNo: "84564564",
-      product: "Mobile",
-      total: 355,
-      status: "Approved",
-      amount: "$180,139",
-      statusColor: "text-success",
-    },
-    {
-      trackingNo: "84564564",
-      product: "Mobile",
-      total: 355,
-      status: "Approved",
-      amount: "$180,139",
-      statusColor: "text-success",
-    },
-  ];
+  const dispatch = useDispatch();
+  const role = useSelector((state: any) => state.authReducer.role);
+  const isAdmin = role === 'admin';
+  const [isLoading, setIsLoading] = useState(true);
+
+  const { total: leadsTotal } = useSelector((state: any) => state.leadReducer);
+  const { users } = useSelector((state: any) => state.usersReducer);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+
+        await Promise.all([
+          dispatch(
+            getLeads({
+              page: 1,
+              limit: 1,
+              search: "",
+              sort: "",
+              order: "",
+              role: role
+            }) as any
+          ),
+          isAdmin ? dispatch(getUsers({
+            page: 1,
+            pageSize: 1,
+            search: "",
+            sort: "createdAt",
+            order: "DESC",
+          }) as any) : Promise.resolve()
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (role) {
+      fetchData();
+    }
+  }, [dispatch, role, isAdmin]);
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
   return (
     <div className="homepage">
       <div className="dashboard-top-card">
         <div className="row">
+          {/* Leads Card */}
           <div className="col-md-6 col-xl-3">
             <div className="card">
               <div className="card-body">
-                <h6 className="mb-2 f-w-400 text-muted">Total Page Views</h6>
-                <h4 className="mb-3">
-                  4,42,236{" "}
-                  <span className="badge bg-light-primary border border-primary">
-                    <i className="ti ti-trending-up"></i> 59.3%
-                  </span>
-                </h4>
+                <h6 className="mb-2 f-w-400 text-muted">Total Leads Generated</h6>
+                <h4 className="mb-3">{leadsTotal || 0}</h4>
                 <p className="mb-0 text-muted text-sm">
-                  You made an extra <span className="text-primary">35,000</span>{" "}
-                  this year
+                  You made an extra <span className="text-primary">35,000</span> this year
                 </p>
               </div>
             </div>
           </div>
-          <div className="col-md-6 col-xl-3">
-            <div className="card">
-              <div className="card-body">
-                <h6 className="mb-2 f-w-400 text-muted">Total Users</h6>
-                <h4 className="mb-3">
-                  78,250{" "}
-                  <span className="badge bg-light-success border border-success">
-                    <i className="ti ti-trending-up"></i> 70.5%
-                  </span>
-                </h4>
-                <p className="mb-0 text-muted text-sm">
-                  You made an extra <span className="text-success">8,900</span>{" "}
-                  this year
-                </p>
+
+          {isAdmin && (
+            <div className="col-md-6 col-xl-3">
+              <div className="card">
+                <div className="card-body">
+                  <h6 className="mb-2 f-w-400 text-muted">Total Users</h6>
+                  <h4 className="mb-3">{users?.count || 0}</h4>
+                  <p className="mb-0 text-muted text-sm">
+                    You made an extra <span className="text-success">8,900</span> this year
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
           <div className="col-md-6 col-xl-3">
             <div className="card">
               <div className="card-body">
@@ -172,7 +134,7 @@ function DashboardPage() {
         </div>
       </div>
 
-      <div className="table-container">
+      {/* <div className="table-container">
         <div className="row">
           <div className="col-md-12 col-xl-8">
             <div className="table-container-inner">
@@ -220,7 +182,7 @@ function DashboardPage() {
           </div>
           <AnalyticsReport />
         </div>
-      </div>
+      </div> */}
 
       <div className="salery-report-and-transition-history">
         <div className="row">

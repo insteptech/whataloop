@@ -88,9 +88,23 @@ const deleteUser = async (where) => {
   if (typeof where !== "object" || Object.keys(where).length === 0) {
     throw { message: "Invalid where condition" };
   }
-  const { User } = await getAllModels(process.env.DB_TYPE);
-  return await User.destroy({ where: where });
+
+  const { User, UserRole } = await getAllModels(process.env.DB_TYPE);
+
+  const user = await User.findOne({ where });
+  if (!user) {
+    throw { message: "User not found" };
+  }
+
+  // First delete related UserRoles
+  await UserRole.destroy({ where: { userId: user.id } });
+
+  // Then delete the user
+  await User.destroy({ where: { id: user.id } });
+
+  return { message: "User deleted successfully" };
 };
+
 
 const updateOtp = async (email, otp, expirationTime) => {
   try {
@@ -123,6 +137,7 @@ const updateUserProfile = async (userId, updateData) => {
 
   return user;
 };
+
 const findByMobileAndOtp = async (email, otp) => {
   try {
     if (process.env.USE_REDIS === "true") {
@@ -225,37 +240,59 @@ const profileComplete = async (requestBody, where) => {
   return await User.update(requestBody, { where: where });
 };
 
-const login = async (email, password) => {
+const login = async (email, password, id) => {
   try {
     const user = await findUser({ email: email.toLowerCase() });
+    const { UserRole, Role } = await getAllModels(process.env.DB_TYPE);
 
     if (!user) {
       throw { status: 401, message: "Invalid email or password" };
     }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       throw { status: 401, message: "Invalid email or password" };
     }
 
-    const token = generateToken({ id: user.id, email: user.email });
+    const userRole = await UserRole.findOne({
+      where: { userId: user.id },
+      attributes: ["roleId"],
+    });
+    console.log("User Roles", userRole.roleId);
+    if (!userRole || userRole.length === 0) {
+      throw { status: 401, message: "User has no roles assigned" };
+    }
+    const roleId = userRole.roleId;
+
+    const role = await Role.findOne({
+      where: { id: roleId },
+      attributes: ["name"],
+    });
+    console.log("Roles Data", role.name);
+
+
+    const token = generateToken({
+      id: user.id,
+      email: user.email,
+      role: role.name,
+    });
 
     return {
       token,
-      // user: {
-      //   id: user.id,
-      //   email: user.email,
-      //   fullName: user.fullName,
-      //   roles: user.roles || [],
-      // },
-    };
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
 
+      },
+    };
   } catch (error) {
-    console.error(
-      `Error in UserRepository.findByMobileAndOtp: ${error.message}`
-    );
+    console.error(`Error in login: ${error.message}`);
     throw error;
   }
 };
+
+
 
 const signup = async (requestBody) => {
   if (
@@ -264,7 +301,8 @@ const signup = async (requestBody) => {
   ) {
     throw { message: "Invalid request body" };
   }
-  const { User, sequelize } = await getAllModels(process.env.DB_TYPE);
+
+  const { User, UserRole, sequelize } = await getAllModels(process.env.DB_TYPE);
   const transaction = await sequelize.transaction();
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(requestBody.password, salt);
@@ -275,15 +313,28 @@ const signup = async (requestBody) => {
     requestBody.password = hashedPassword;
     requestBody["isActive"] = true;
 
+    // Create user
     const user = await User.create(requestBody, { transaction });
+
+    // Create UserRole with roleId = 2 and userId = newly created user's id
+    await UserRole.create(
+      {
+        userId: user.id,       // link to the user
+        roleId: 2,             // default role ID
+        createdAt: new Date(), // timestamp, if your table requires it
+      },
+      { transaction }
+    );
 
     await transaction.commit();
     return user;
+
   } catch (error) {
     await transaction.rollback();
     throw error;
   }
 };
+
 
 module.exports = {
   findUser,

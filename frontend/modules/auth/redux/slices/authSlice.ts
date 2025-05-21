@@ -1,13 +1,13 @@
-// modules/auth/redux/authSlice.ts
 import { createSlice } from '@reduxjs/toolkit';
 import { login, register, sendOtp, verifyOtp } from '../actions/authAction';
 
 const initialState = {
   user: null,
-  message:"",
+  message: "",
   loading: false,
-  token:"",
-  error:""
+  token: "",
+  error: "",
+  role: "",
 };
 
 const authSlice = createSlice({
@@ -19,9 +19,16 @@ const authSlice = createSlice({
     },
     logout(state) {
       state.user = null;
+      state.role = "";
+      state.token = ""; // clear token on logout
     },
     setLoading(state, action) {
       state.loading = action.payload;
+    },
+    setRole(state, action) {
+      console.log(action.payload, "pauysdfds");
+      
+      state.role = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -30,8 +37,8 @@ const authSlice = createSlice({
         state.loading = true;
       })
       .addCase(sendOtp.fulfilled, (state, action) => {
-       state.loading = false;
-        state.user = action.payload.data; 
+        state.loading = false;
+        state.user = action.payload.data;
       })
       .addCase(sendOtp.rejected, (state, action) => {
         state.loading = false;
@@ -41,9 +48,9 @@ const authSlice = createSlice({
         state.loading = true;
       })
       .addCase(verifyOtp.fulfilled, (state, action) => {
-       state.loading = false;
+        state.loading = false;
         state.user = action.payload.data;
-        state.token = action.payload.token
+        state.token = action.payload.token;
       })
       .addCase(verifyOtp.rejected, (state, action) => {
         state.loading = false;
@@ -55,6 +62,7 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.data;
+        state.token = action.payload.token;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -74,7 +82,5 @@ const authSlice = createSlice({
   },
 });
 
- 
-export const authActions = authSlice.actions;
+export const { setUser, logout, setLoading, setRole } = authSlice.actions;
 export default authSlice.reducer;
-

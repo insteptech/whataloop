@@ -113,7 +113,9 @@ exports.getAll = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const updatedLead = await leadManager.updateLead(req.params.id, req.user.id, req.body);
+    const role = req.decoded.role;
+    console.log("Role", role)
+    const updatedLead = await leadManager.updateLead(req.params.id, req.user.id, req.body, role);
     res.json(updatedLead);
   } catch (err) {
     res.status(400).json({ message: err.message });

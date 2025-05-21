@@ -153,29 +153,60 @@ const create = async (data) => {
       throw new Error("Lead model not found");
     }
 
+    if (data.email) {
+      const existingEmail = await Lead.findOne({ where: { email: data.email } });
+      if (existingEmail) {
+        throw new Error("Lead with this email already exists");
+      }
+    }
+
+    if (data.phone) {
+      const existingPhone = await Lead.findOne({ where: { phone: data.phone } });
+      if (existingPhone) {
+        throw new Error("Lead with this phone number already exists");
+      }
+    }
+
     const newLead = await Lead.create(data);
     return newLead;
+
   } catch (error) {
     console.error("Error in leadService.create:", error.message);
     throw error;
   }
 };
 
+
 const getAll = async (userId, query) => {
-  const { search, tag, status, sort = 'createdAt', order = 'DESC', page = 1, limit = 10 } = query;
+  const {
+    search,
+    tag,
+    status,
+    sort = 'createdAt',
+    order = 'DESC',
+    page = 1,
+    limit = 10,
+    role
+  } = query;
+
   const { Lead, Constant } = await getAllModels(process.env.DB_TYPE);
 
   if (!Lead) {
     throw new Error("Lead model not found");
   }
 
-  const where = { user_id: userId };
+  const where = {};
+
+
+  if (role !== 'admin') {
+    where.user_id = userId;
+  }
 
   if (search) {
     where[Op.or] = [
       { name: { [Op.iLike]: `%${search}%` } },
       { phone: { [Op.iLike]: `%${search}%` } },
-      { email: { [Op.iLike]: `%${search}%` } }
+      { email: { [Op.iLike]: `%${search}%` } },
     ];
   }
 
@@ -193,19 +224,26 @@ const getAll = async (userId, query) => {
     offset: (page - 1) * limit,
     limit: parseInt(limit),
   });
-  console.log(result, "result");
-
 
   return result;
 };
 
-const update = async (id, data, userId) => {
+
+const update = async (id, userId,data, role) => {
   const { Lead } = await getAllModels(process.env.DB_TYPE);
   if (!Lead) {
     throw new Error("Lead model not found");
   }
-  const lead = await Lead.findOne({ where: { id, user_id: userId } });
-  if (!lead) throw new Error('Lead not found or unauthorized');
+
+  const lead = await Lead.findOne({ where: { id } });
+  if (!lead) {
+    throw new Error("Lead not found");
+  }
+
+  if (role !== 'admin' && lead.user_id !== userId) {
+    throw new Error("Unauthorized: You do not have permission to update this lead");
+  }
+
   return await lead.update(data);
 };
 

@@ -102,6 +102,30 @@ exports.updateUserProfile = async (req, res, next) => {
     return next(new CustomError(error.message, 500));
   }
 };
+
+exports.updateProfileByAdmin = async (req, res, next) => {
+  try {
+    if (!Object.keys(supportedDbTypes).includes(process.env.DB_TYPE)) {
+      return next(new CustomError(unsupportedDBType, 400));
+    }
+    const userId = req.params.id;
+    const updateData = req.body;
+
+    const schema = buildSchema(updateUserProfileInput);
+    const { error } = schema.validate(updateData);
+    if (error) return next(new CustomError(error.details[0].message, 400));
+
+    const result = await authManager.updateProfileByAdmin(userId, updateData);
+    res.status(200).json({
+      message: "User profile updated successfully by admin",
+      data: result
+    });
+  } catch (error) {
+    return next(new CustomError(error.message, 500));
+  }
+};
+
+
 exports.deleteUser = async (req, res, next) => {
   try {
     if (!Object.keys(supportedDbTypes).includes(process.env.DB_TYPE)) {
@@ -109,7 +133,7 @@ exports.deleteUser = async (req, res, next) => {
     }
 
     const schema = buildSchema(userDeleteInput);
-    const { error } = schema.validate(req.body);
+    const { error } = schema.validate(req.params);
     if (error) return next(new CustomError(error.details[0].message, 400));
 
     const result = await authManager.deleteUser(req, res);
@@ -137,6 +161,8 @@ exports.profileComplete = async (req, res, next) => {
 };
 
 exports.login = async (req, res, next) => {
+  console.log("Login request body:", req.body);
+
   try {
     if (!Object.keys(supportedDbTypes).includes(process.env.DB_TYPE)) {
       return next(new CustomError(unsupportedDBType, 400));

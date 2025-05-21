@@ -51,4 +51,3 @@ export const getDecodedToken = (): JwtPayload | null => {
 export const isAuthenticated = (): boolean => {
   return isTokenValid();
 };
- 

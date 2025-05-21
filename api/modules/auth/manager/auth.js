@@ -88,7 +88,21 @@ exports.getUserDetails = async (req, res) => {
 exports.updateUserProfile = async (userId, updateData) => {
   return await authService.updateUserProfile(userId, updateData);
 };
+exports.updateProfileByAdmin = async (userId, updateData) => {
+  try {
+    const user = await authService.findUser({ id: userId });
+    if (!user) {
+      throw new Error("User not found");
+    }
 
+    const { id, role, ...safeUpdateData } = updateData;
+
+    const updatedUser = await authService.updateUserProfile(userId, safeUpdateData);
+    return updatedUser;
+  } catch (error) {
+    throw error;
+  }
+};
 
 exports.deleteUser = async (req, res) => {
   const { id } = req.params;
@@ -114,11 +128,11 @@ exports.profileComplete = async (req, res) => {
 
 exports.login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, id } = req.body;
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password required" });
     }
-    const result = await authService.login(email, password);
+    const result = await authService.login(email, password, id);
 
     return res.status(200).json({
       message: "Login successful",

@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getUsers } from "../action/usersAction";
+import { getUsers, deleteUser, updateProfileByAdmin } from "../action/usersAction";
 
 const initialState = {
   users: {
@@ -17,6 +17,7 @@ const userSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Get Users
       .addCase(getUsers.pending, (state) => {
         state.loading = true;
         state.error = "";
@@ -33,6 +34,47 @@ const userSlice = createSlice({
       .addCase(getUsers.rejected, (state, action) => {
         state.loading = false;
         state.error = (action.payload as string) || "Something went wrong";
+      })
+
+      // Delete User
+      .addCase(deleteUser.pending, (state) => {
+        state.loading = true;
+        state.error = "";
+      })
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        state.loading = false;
+        const deletedUserId = action.payload;
+        state.users.rows = state.users.rows.filter((user) => user.id !== deletedUserId);
+        state.users.count -= 1;
+        state.message = "User deleted successfully";
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = (action.payload as string) || "Failed to delete user";
+      })
+
+      // Update Profile By Admin
+      .addCase(updateProfileByAdmin.pending, (state) => {
+        state.loading = true;
+        state.error = "";
+        state.message = "";
+      })
+      .addCase(updateProfileByAdmin.fulfilled, (state, action) => {
+        state.loading = false;
+        const updatedUser = action.payload.data;
+        
+        // Update the user in the users list
+        state.users.rows = state.users.rows.map(user => 
+          user.id === updatedUser.id ? { ...user, ...updatedUser } : user
+        );
+        
+        state.message = action.payload.message || "User updated successfully";
+        state.error = "";
+      })
+      .addCase(updateProfileByAdmin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = (action.payload as string) || "Failed to update user";
+        state.message = "";
       });
   },
 });

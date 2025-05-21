@@ -14,7 +14,7 @@ import Loader from "@/components/common/loader";
 
 const LoginWithOTP = () => {
   const router = useRouter();
-  const isloding = useSelector((state)=>state?.authReducer?.loading);
+  const isloding = useSelector((state: any) => state?.authReducer?.loading);
   // const isloding = true
 
   const dispatch = useDispatch<any>();
@@ -40,12 +40,12 @@ const LoginWithOTP = () => {
     try {
       await dispatch(login(payload)).then((response) => {
         if (response.payload.status === 200) {
-          // window.location.href = "/dashboard/containers";
-          router.push("/dashboard/containers");
+
+          window.location.href = "/dashboard/containers";
         } else {
           alert(
             response.payload.data?.message ||
-              "Invalid credentials, please try again."
+            "Invalid credentials, please try again."
           );
         }
       });
@@ -62,7 +62,7 @@ const LoginWithOTP = () => {
   return (
 
     <div className="card-bg-container">
-      {isloding && <Loader/>}
+      {isloding && <Loader />}
       <div className="card-inner-content">
         <div className="module-card-header">
           <h2>Welcome</h2>
@@ -95,13 +95,13 @@ const LoginWithOTP = () => {
                 required
               />
 
-              <CheckBoxField
+              {/* <CheckBoxField
                 label="Remember me"
                 type="checkbox"
                 id="rememberMe"
                 checked={rememberMe}
                 onChange={handleCheckboxClick}
-              />
+              /> */}
 
               <button type="submit" className="login-button">
                 Login
@@ -111,11 +111,11 @@ const LoginWithOTP = () => {
                 <span>or</span>
               </div>
 
-              <div className="social-login">
+              {/* <div className="social-login">
                 <button type="button" className="social-button google">
                   <i className="fab fa-google"></i> Continue with Google
                 </button>
-              </div>
+              </div> */}
 
               <div className="signup-link">
                 Don't have an account? <a href="/auth/register">Sign up</a>

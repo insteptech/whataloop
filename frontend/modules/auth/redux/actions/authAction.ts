@@ -46,19 +46,33 @@ export const verifyOtp = createAsyncThunk("verifyOtp", async (payload: any) => {
   }
 });
 
-export const register = createAsyncThunk("register", async (payload: any) => {
-  try{
-    const response = await api.post("auth/signup", payload);
-    console.log("kk", response);
+export const register = createAsyncThunk(
+  "register",
+  async (payload: FormData, thunkAPI) => {
+    try {
+      const response = await api.post("/auth/signup", payload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-    
-    // if (response.data.statusCode == 200) {
-    //   setToken(response.data.token);
-    // }
-    
-    return response.data;
-  } catch(error){
-    return error.response.data
+      const userData = response.data;
+
+      if (userData?.statusCode === 200) {
+        const onboardingPayload = {
+          businessName: payload.get("businessName") as string,
+          whatsappNumber: payload.get("phone") as string,
+          userId: userData?.data?.id || userData?.user?.id,
+        };
+
+        await api.post("/onboarding/onboard", onboardingPayload);
+      }
+
+      return userData;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || { message: "An error occurred" }
+      );
+    }
   }
-})
-
+);

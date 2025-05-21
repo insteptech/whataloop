@@ -8,8 +8,8 @@ export const getUsers = createAsyncThunk(
       page,
       pageSize,
       search,
-      sort = "createdAt", // Default sort field
-      order = "DESC", // Default sort order
+      sort = "createdAt", 
+      order = "DESC", 
     }: {
       page: number;
       pageSize: number;
@@ -20,7 +20,6 @@ export const getUsers = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      // Construct query parameters based on passed arguments
       const queryParams = new URLSearchParams({
         page: page.toString(),
         pageSize: pageSize.toString(),
@@ -28,23 +27,77 @@ export const getUsers = createAsyncThunk(
         order,
       });
 
-      if (search) queryParams.append("search", search); // If search query is provided, append it
+      if (search) queryParams.append("search", search); 
 
-      // Send the GET request to the API with query parameters
       const response = await api.get(`/auth/users?${queryParams.toString()}`);
       console.log("Response", response.data, response.status);
 
-      // Destructure rows and totalRecords from the response data
       const { rows, totalRecords } = response.data.data;
 
-      // Return the necessary data for the Redux store
       return {
         rows,
         totalRecords,
       };
     } catch (error: any) {
-      // In case of an error, return a rejected value with an error message
       return rejectWithValue(error.response?.data || "Failed to fetch users");
+    }
+  }
+);
+export const deleteUser = createAsyncThunk(
+  "auth/deleteuser",
+  async (
+    userId: string,
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await api.delete(`/auth/deleteuser/${userId}`);
+      console.log("Delete response:", response.data);
+
+      if (response.status === 200) {
+        return {
+          userId,
+          message: response.data.message || "User deleted successfully",
+        };
+      } else {
+        return rejectWithValue(response.data.message || "Failed to delete user");
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Failed to delete user");
+    }
+  }
+);
+
+export const updateProfileByAdmin = createAsyncThunk(
+  "auth/updateProfileByAdmin",
+  async (
+    { userId, updateData, userRole }: { userId: string; updateData: any; userRole: string },
+    { rejectWithValue, getState }
+  ) => {
+    try {
+      
+      const token = localStorage.getItem('auth_token');
+
+      if (!token) {
+        return rejectWithValue("No authentication token found");
+      }
+
+      const response = await api.put(`/auth/updateprofilebyadmin/${userId}`, updateData, userRole,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Update successful:", response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error("Update error:", error);
+      if (error.response) {
+        return rejectWithValue(error.response.data.message || error.response.data);
+      }
+      return rejectWithValue(error.message || "Failed to update user");
     }
   }
 );

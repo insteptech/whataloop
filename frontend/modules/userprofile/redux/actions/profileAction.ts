@@ -23,10 +23,10 @@ export const updateProfile = createAsyncThunk<
   { data: any; token: string },
   { rejectValue: any }
 >(
-  "auth/updateProfile",
+  "auth/updateProfileSelf",
   async ({ data, token }, { rejectWithValue }) => {
     try {
-      const response = await api.put("/auth/updateprofile", data, {
+      const response = await api.put("/auth/updateprofileself", data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

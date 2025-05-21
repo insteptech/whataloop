@@ -1,18 +1,29 @@
-import React, { useRef, useState, useEffect } from "react";
-import { ErrorMessage, useField } from "formik";
+import React, { useRef, useState } from "react";
+import { ErrorMessage } from "formik";
 import Image from "next/image";
-import defaultProfile from "../../public/user.png";
 import UploadIcon from "../../public/camera.png";
 
-const ImageUpload = ({ name, label }) => {
-  const fileInputRef = useRef(null);
+interface ImageUploadProps {
+  name: string;
+  label?: string;
+  onChange?: (file: File) => void;
+}
+
+const ImageUpload: React.FC<ImageUploadProps> = ({ name, label, onChange }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState(UploadIcon.src);
   const [isUploaded, setIsUploaded] = useState(false);
 
-  const onImageChange = (event) => {
+  const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
-      setPreview(URL.createObjectURL(event.target.files[0]));
+      const file = event.target.files[0];
+      console.log(file, "file file");
+
+      setPreview(URL.createObjectURL(file));
       setIsUploaded(true);
+      if (onChange) {
+        onChange(file); // Pass file to parent
+      }
     }
   };
 
@@ -28,7 +39,6 @@ const ImageUpload = ({ name, label }) => {
               alt="Profile"
               width={70}
               height={70}
-              className=""
               style={{
                 width: overlayClass ? "70px" : "100%",
                 height: overlayClass ? "70px" : "100%",
@@ -47,11 +57,7 @@ const ImageUpload = ({ name, label }) => {
           onChange={onImageChange}
           style={{ display: "none" }}
         />
-        <ErrorMessage
-          name={name}
-          component="div"
-          className="text-danger small"
-        />
+        <ErrorMessage name={name} component="div" className="text-danger small" />
       </div>
     </div>
   );

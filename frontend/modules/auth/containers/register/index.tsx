@@ -15,11 +15,12 @@ const SignUp = () => {
   const dispatch = useDispatch<any>();
 
   const [emailVerify, setEmailVerify] = useState(false);
-  const isloading = useSelector((state) => state?.authReducer?.loading);
+  const isloading = useSelector((state: any) => state?.authReducer?.loading);
   const [otpVerified, setOtpVerified] = useState(false);
 
   const [formData, setFormData] = useState({
     fullName: "",
+    businessName: "",
     email: "",
     phone: "",
     password: "",
@@ -32,6 +33,10 @@ const SignUp = () => {
   const validationSchema = Yup.object().shape({
     fullName: Yup.string()
       .required("Full name is required")
+      .min(2, "Too short!")
+      .max(20, "Too long!"),
+    businessName: Yup.string()
+      .required("Business name is required")
       .min(2, "Too short!")
       .max(20, "Too long!"),
     email: Yup.string().email("Invalid email").required("Email is required"),
@@ -48,26 +53,43 @@ const SignUp = () => {
   });
 
   // Handle Form Submit
-  const handleSubmit = async () => {
-    if (!otpVerified) {
-      toast.error("Please verify your email before signing up.");
-      return;
-    }
+ const handleSubmit = async () => {
+  if (!otpVerified) {
+    toast.error("Please verify your email before signing up.");
+    return;
+  }
 
-    const { fullName, email, phone, password } = formData;
-    const payload = { fullName, email, phone, password };
+  const { fullName, businessName, email, phone, password } = formData;
 
-    try {
-      const response = await dispatch(register(payload)).unwrap();
-      if (response.statusCode === 200) {
-        toast.success("Registration successful!");
-        window.location.href = "/";
-      }
-    } catch (error: any) {
-      console.error("Register error:", error);
-      toast.error(error?.message || "An error occurred during registration.");
+  // Create FormData object
+  const payload = new FormData();
+  payload.append("fullName", fullName);
+  payload.append("businessName", businessName);
+  payload.append("email", email);
+  payload.append("phone", phone);
+  payload.append("password", password);
+
+  // Only append photo if it exists
+  if (formData.photo) {
+    payload.append("photo", formData.photo); // 'photo' should match backend field name
+  }
+
+  try {
+    const response = await dispatch(register(payload)).unwrap();
+    if (response.statusCode === 200) {
+      toast.success("Registration successful!");
+      window.location.href = "/";
     }
-  };
+  } catch (error: any) {
+    console.error("Register error:", error);
+    toast.error(error?.message || "An error occurred during registration.");
+    if (error?.message?.includes("Email already exists")) {
+      toast.error("This email is already registered.");
+    } else if (error?.message?.includes("Phone already exists")) {
+      toast.error("This phone number is already registered.");
+    }
+  }
+};
 
   // Handle Send OTP
   const handleSendOtp = async () => {
@@ -137,8 +159,8 @@ const SignUp = () => {
                   <ImageUpload
                     name="photo"
                     label="Click to upload"
-                    //   onChange={(file) => setFormData({ ...formData, photo: file })
-                    // }
+                    onChange={(file) => setFormData({ ...formData, photo: file })
+                    }
                   />
 
                   <Row>
@@ -152,6 +174,20 @@ const SignUp = () => {
                         value={formData.fullName}
                         onChange={(e) =>
                           setFormData({ ...formData, fullName: e.target.value })
+                        }
+                        required
+                      />
+                    </Col>
+                    <Col md={6}>
+                      <InputField
+                        label="Business Name"
+                        placeholder="Enter Business Name "
+                        id="businessName"
+                        type="text"
+                        name="businessname"
+                        value={formData.businessName}
+                        onChange={(e) =>
+                          setFormData({ ...formData, businessName: e.target.value })
                         }
                         required
                       />

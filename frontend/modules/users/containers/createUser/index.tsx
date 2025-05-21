@@ -1,0 +1,334 @@
+import React, { useRef, useState } from "react";
+import { Formik, Form, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import InputField from "@/components/common/InputField";
+import { Col, Row } from "react-bootstrap";
+import ImageUpload from "@/components/common/ImageUpload";
+import verifiedIcon from "../../../../public/verified.png";
+import InputFieldWithCountryCode from "@/components/common/InputFieldWithCountryCode";
+import { register, sendOtp, verifyOtp } from '../../../auth/redux/actions/authAction'
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import Loader from "@/components/common/loader";
+
+const CreateUser = () => {
+    const dispatch = useDispatch<any>();
+
+    const [emailVerify, setEmailVerify] = useState(false);
+    const isloading = useSelector((state: any) => state?.authReducer?.loading);
+    const [otpVerified, setOtpVerified] = useState(false);
+
+    const [formData, setFormData] = useState({
+        fullName: "",
+        businessName: "",
+        email: "",
+        phone: "",
+        password: "",
+        confirmPassword: "",
+        photo: null,
+        otp: "",
+    });
+
+    // Validation Schema
+    const validationSchema = Yup.object().shape({
+        fullName: Yup.string()
+            .required("Full name is required")
+            .min(2, "Too short!")
+            .max(20, "Too long!"),
+        businessName: Yup.string()
+            .required("Business name is Required")
+            .min(2, "Too short!")
+            .max(20, "Too long!"),
+        email: Yup.string().email("Invalid email").required("Email is required"),
+        phone: Yup.string()
+            .required("Mobile number is required")
+            .matches(/^[0-9]+$/, "Only numbers allowed")
+            .min(10, "Enter valid phone number"),
+        password: Yup.string()
+            .required("Password is required")
+            .min(6, "Password must be at least 6 characters"),
+        confirmPassword: Yup.string()
+            .required("Confirm password is required")
+            .oneOf([Yup.ref("password"), null], "Passwords must match"),
+    });
+
+    // Handle Form Submit
+    const handleSubmit = async () => {
+        if (!otpVerified) {
+            toast.error("Please verify the user  email before creating the user.");
+            return;
+        }
+
+        const { fullName, businessName, email, phone, password, photo } = formData;
+        const payload = new FormData();
+        payload.append("fullName", fullName);
+        payload.append("businessName", businessName);
+        payload.append("email", email);
+        payload.append("phone", phone);
+        payload.append("password", password);
+        if (photo) {
+            payload.append("photo", photo);
+        }
+
+        try {
+            const response = await dispatch(register(payload)).unwrap();
+            if (response.statusCode === 200) {
+                toast.success("Registration successful!");
+                window.location.href = "/users/usersList";
+            }
+        } catch (error: any) {
+            console.error("Register error:", error);
+            toast.error(error?.message || "An error occurred during registration.");
+        }
+    };
+
+    // Handle Send OTP
+    const handleSendOtp = async () => {
+        const payload = { email: formData.email };
+        try {
+            const response = await dispatch(sendOtp(payload)).unwrap();
+            console.log("OTP response:", response);
+
+            if (response.status === 200) {
+                setEmailVerify(true);
+                toast.success("OTP sent successfully! Please check your email.");
+            } else if (response.statusCode === 400) {
+                toast.error(response.message);
+            } else {
+                toast.error(response.message || "Failed to send OTP.");
+            }
+        } catch (error: any) {
+            console.log("Full error object:", error);
+
+            const errorMessage = error.message || "Submission error. Please try again.";
+            console.log('error Message', errorMessage)
+
+            if (errorMessage.includes("email")) {
+                toast.error(errorMessage);
+            } else if (errorMessage.includes("phone")) {
+                toast.error(errorMessage);
+            } else {
+                toast.error(errorMessage);
+            }
+        }
+    };
+
+    // Handle OTP Verify
+    const handleOtpVerify = async () => {
+        if (!formData.otp) {
+            toast.error("OTP cannot be empty.");
+            return;
+        }
+
+        try {
+            const response = await dispatch(
+                verifyOtp({ email: formData.email, otp: formData.otp })
+            ).unwrap();
+            if (response.statusCode === 200) {
+                setOtpVerified(true);
+                setEmailVerify(false);
+                toast.success("OTP verified successfully!");
+            }
+        } catch (error: any) {
+            console.error("OTP verify error:", error);
+            toast.error(error?.message || "Invalid OTP. Please try again.");
+        }
+    };
+
+    return (
+        <div className="card-bg-container-create-user lg-card-bg-container">
+            {isloading && <Loader />}
+            <div className="card-inner-content registration-form-card">
+                <Formik
+                    initialValues={formData}
+                    enableReinitialize
+                    validationSchema={validationSchema}
+                    onSubmit={handleSubmit}
+                >
+                    {({ validateForm, setTouched }) => (
+                        <Form>
+                            {!emailVerify && (
+                                <>
+                                    <ImageUpload
+                                        name="photo"
+                                        label="Click to upload"
+                                    //   onChange={(file) => setFormData({ ...formData, photo: file })
+                                    // }
+                                    />
+
+                                    <Row>
+                                        <Col md={6}>
+                                            <InputField
+                                                label="Full Name"
+                                                placeholder="Enter Full Name"
+                                                id="fullName"
+                                                type="text"
+                                                name="fullName"
+                                                value={formData.fullName}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, fullName: e.target.value })
+                                                }
+                                                required
+                                            />
+                                        </Col>
+                                        <Col md={6}>
+                                            <InputField
+                                                label="Business Name"
+                                                placeholder="Enter Business Name "
+                                                id="businessName"
+                                                type="text"
+                                                name="businessname"
+                                                value={formData.businessName}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, businessName: e.target.value })
+                                                }
+                                                required
+                                            />
+                                        </Col>
+                                        <Col md={6}>
+                                            <InputField
+                                                label="Email"
+                                                placeholder="Enter Email"
+                                                id="email"
+                                                type="email"
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={(e) => {
+                                                    const newEmail = e.target.value;
+                                                    setFormData((prevFormData) => ({
+                                                        ...prevFormData,
+                                                        email: newEmail,
+                                                        otp: "", // Clear OTP as well
+                                                    }));
+
+                                                    // If email changes after OTP verified, reset verification
+                                                    if (otpVerified) {
+                                                        setOtpVerified(false);
+                                                    }
+                                                    if (emailVerify) {
+                                                        setEmailVerify(false);
+                                                    }
+                                                }}
+                                                EndImage={otpVerified ? verifiedIcon : null}
+                                                className="email-with-verified-icon"
+                                                required
+                                            />
+                                        </Col>
+
+                                        <Col md={6}>
+                                            <InputFieldWithCountryCode
+                                                label="Phone number"
+                                                placeholder="Enter Phone number"
+                                                id="phone"
+                                                type="text"
+                                                name="phone"
+                                                value={formData.phone}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, phone: e.target.value })
+                                                }
+                                                className="country-code-select-with-number"
+                                                required
+                                            />
+                                        </Col>
+
+                                        <Col md={6}>
+                                            <InputField
+                                                label="Password"
+                                                placeholder="Enter Password"
+                                                id="password"
+                                                type="password"
+                                                name="password"
+                                                value={formData.password}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, password: e.target.value })
+                                                }
+                                                required
+                                            />
+                                        </Col>
+
+                                        <Col md={6}>
+                                            <InputField
+                                                label="Confirm Password"
+                                                placeholder="Enter Confirm Password"
+                                                id="confirmPassword"
+                                                type="password"
+                                                name="confirmPassword"
+                                                value={formData.confirmPassword}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        confirmPassword: e.target.value,
+                                                    })
+                                                }
+                                                required
+                                            />
+                                        </Col>
+
+                                        {!otpVerified ? (
+                                            <button
+                                                type="button"
+                                                className="login-button mt-4"
+                                                onClick={async () => {
+                                                    const errors = await validateForm();
+                                                    if (Object.keys(errors).length === 0) {
+                                                        await handleSendOtp();
+                                                    } else {
+                                                        setTouched({
+                                                            fullName: true,
+                                                            email: true,
+                                                            phone: true,
+                                                            password: true,
+                                                            confirmPassword: true,
+                                                        });
+                                                    }
+                                                }}
+                                            >
+                                                Create User
+                                            </button>
+                                        ) : (
+                                            <button type="submit" className="login-button mt-4">
+                                                Create User
+                                            </button>
+                                        )}
+                                    </Row>
+                                </>
+                            )}
+
+                            {/* OTP Modal */}
+                            {emailVerify && (
+                                <div className="email-verify-modal">
+                                    <div className="login-header">
+                                        <h2>Confirm your Email</h2>
+                                    </div>
+
+                                    <InputField
+                                        label="Enter OTP"
+                                        placeholder="Enter OTP"
+                                        id="otp"
+                                        type="text"
+                                        name="otp"
+                                        value={formData.otp}
+                                        onChange={(e) => {
+                                            const onlyNumbers = e.target.value.replace(/\D/g, "");
+                                            setFormData({ ...formData, otp: onlyNumbers });
+                                        }}
+                                    />
+
+                                    <button
+                                        type="button"
+                                        className="login-button mt-4"
+                                        onClick={handleOtpVerify}
+                                    >
+                                        Verify OTP
+                                    </button>
+                                </div>
+                            )}
+                        </Form>
+                    )}
+                </Formik>
+            </div>
+        </div>
+    );
+};
+
+export default CreateUser;

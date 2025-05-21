@@ -49,15 +49,19 @@ function generateComponentsMap() {
     modulesRouter.push(routes);
   }
 
-  // Generate the code for the componentsMap and dynamic imports
-  let defaultRoot ="@/modules/auth/containers/login/index";
+  // Default route fallback
+  let defaultRoot = "@/modules/auth/containers/login/index";
+
+  // Start building the components map string with loader import
   let componentsMapString =
-    "import dynamic from 'next/dynamic'; export const componentsMap = {\n";
- modulesRouter.forEach((moduleObj) => {
+    "import dynamic from 'next/dynamic';\nimport Loader from '@/components/common/loader';\n\nexport const componentsMap = {\n";
+
+  modulesRouter.forEach((moduleObj) => {
     const { module, components } = moduleObj;
     if (components && components.length > 0) {
       componentsMapString += `  "${module}": {\n`;
       components.forEach((component, index) => {
+        // Handle dynamic route segments
         if (
           components[index + 1]?.name.startsWith("[") &&
           components[index + 1]?.name.endsWith("]")
@@ -66,25 +70,26 @@ function generateComponentsMap() {
             components[index + 1].name
           }": dynamic(() => import("${
             components[index + 1].path
-          }"), { ssr: false, loading: () => <div>Loading...</div> }), \n`;
+          }"), { ssr: false, loading: () => <Loader /> }), \n`;
         } else if (
           component.name.startsWith("[") &&
           component.name.endsWith("]")
         ) {
+          // Skip standalone dynamic segment component
           return;
         } else {
-          componentsMapString += `    "${component.name}": dynamic(() => import("${component.path}"), { ssr: false, loading: () => <div>Loading...</div> }), \n`;
+          componentsMapString += `    "${component.name}": dynamic(() => import("${component.path}"), { ssr: false, loading: () => <Loader /> }), \n`;
         }
       });
       componentsMapString += `  },\n`;
     }
   });
 
-  componentsMapString += `    "/": dynamic(() => import("${defaultRoot}"), { ssr: false, loading: () => <div>Loading...</div> }), \n`;
+  componentsMapString += `  "/": dynamic(() => import("${defaultRoot}"), { ssr: false, loading: () => <Loader /> }), \n`;
 
   componentsMapString += "};\n";
 
-  // Write the generated code to a file
+  // Write to file
   fs.writeFileSync(OUTPUT_FILE, componentsMapString);
 }
 

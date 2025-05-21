@@ -7,6 +7,8 @@ import {
 import router from "next/router";
 import Loader from "@/components/common/loader";
 import Notification from "@/components/common/Notification";
+import ConfirmationPopup from "@/components/common/ConfirmationPopUp";
+
 const ConstantsList = () => {
   const dispatch = useDispatch<any>();
   const { constantsList, loading, error, totalPages } = useSelector(
@@ -15,31 +17,31 @@ const ConstantsList = () => {
 
   const [page, setPage] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
+
   const limit = 10;
 
   useEffect(() => {
     dispatch(fetchConstants({ page, limit }));
   }, [dispatch, page]);
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this constant?")) {
-      try {
-        await dispatch(deleteConstant(id)).unwrap();
-        dispatch(fetchConstants({ page, limit }));
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 3000);
-      } catch (err: any) {
-        console.error("Delete failed:", err);
-        const message =
-          "Cannot delete!!. This constant is already in use in Leads table";
-        alert(message);
-      }
+  const handleDelete = async () => {
+    if (!selectedId) return;
+    try {
+      await dispatch(deleteConstant(selectedId)).unwrap();
+      dispatch(fetchConstants({ page, limit }));
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    } catch (err: any) {
+      console.error("Delete failed:", err);
+      setErrorMessage("Cannot delete! This constant is already in use in Leads table.");
+      setTimeout(() => setErrorMessage(""), 3000);
+    } finally {
+      setSelectedId(null);
     }
   };
-
-  if (loading) {
-    return <Loader />;
-  }
 
   return (
     <div className="container mt-4">
@@ -77,7 +79,10 @@ const ConstantsList = () => {
                   <td>{constant.label}</td>
                   <td>
                     <button
-                      onClick={() => handleDelete(constant.id)}
+                      onClick={() => {
+                        setSelectedId(constant.id);
+                        setShowConfirm(true);
+                      }}
                       className="btn btn-danger"
                     >
                       Delete
@@ -149,6 +154,7 @@ const ConstantsList = () => {
           )}
         </>
       )}
+
       {showSuccess && (
         <Notification
           title="Deleted"
@@ -157,6 +163,27 @@ const ConstantsList = () => {
           position="bottom-center"
         />
       )}
+
+      {errorMessage && (
+        <Notification
+          title="Delete Failed"
+          message={errorMessage}
+          type="error"
+          position="bottom-center"
+        />
+      )}
+
+      <ConfirmationPopup
+        visible={showConfirm}
+        onAccept={() => {
+          handleDelete();
+          setShowConfirm(false);
+        }}
+        onReject={() => setShowConfirm(false)}
+        message="Are you sure you want to delete this constant?"
+        header="Delete Confirmation"
+        type="delete"
+      />
     </div>
   );
 };

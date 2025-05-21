@@ -12,6 +12,7 @@ const swaggerUi = require("swagger-ui-express");
 const { generateSwaggerJSONFromRouter } = require("./config/swagger");
 const { exec } = require("child_process");
 const app = express();
+const path = require("path");
 
 const port = process.env.PORT || 3000;
 
@@ -54,6 +55,7 @@ app.use((req, res, next) => {
   });
   next();
 });
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.get("/", (req, res) => {
   logger.info("Hello, Node.js is running");
@@ -98,7 +100,7 @@ app.use(
 
 // Error handling middleware
 app.use(errorHandler);
-app.set('trust proxy', 1); 
+app.set('trust proxy', 1);
 
 app.listen(port, () => {
   logger.info(`Server running at http://localhost:${port}`);

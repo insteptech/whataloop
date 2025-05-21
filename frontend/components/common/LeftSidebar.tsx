@@ -1,14 +1,26 @@
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
-// import Logo from "../../public/whataLoop-logo.svg";
-import { HomeIcon, ProfileIcon, Logo, SubscriptionIcon } from "./Icon";
+import React, { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { setRole } from "@/modules/auth/redux/slices/authSlice";
+import { getDecodedToken } from "@/utils/auth";
+
+import { HomeIcon, ProfileIcon, Logo, SubscriptionIcon } from "./Icon";
+import UsersIcon from "../../public/group.png";
 
 function LeftSidebar({ Width }: any) {
   const pathname = usePathname();
+  const dispatch = useDispatch();
 
-  console.log("Width::", Width);
+  useEffect(() => {
+    const { role }: any = getDecodedToken();
+    if (role) {
+      dispatch(setRole(role));
+    }
+  }, [dispatch]);
+
+  const role = useSelector((state: any) => state.authReducer.role);
 
   const navLinks = [
     {
@@ -26,16 +38,21 @@ function LeftSidebar({ Width }: any) {
       label: "Subscription",
       icon: <SubscriptionIcon />,
     },
-    {
-      href: "/users/usersList",
-      label: "Users",
-      icon: "",
-    },
-    {
-      href: "constants/constantsList",
-      label: "Constants",
-      icon: "",
-    },
+    ...(role === "admin"
+      ? [
+        {
+          href: "/users/usersList",
+          label: "Users",
+          icon: <Image src={UsersIcon} alt="Users Icon" width={24} height={24} />,
+        },
+        {
+          href: "constants/constantsList",
+          label: "Constants",
+          icon: "",
+        },
+      ]
+      : []),
+
   ];
 
   return (
@@ -57,15 +74,15 @@ function LeftSidebar({ Width }: any) {
           ))}
         </ul>
       </div>
-      <div className="side-bar-footer">
+      {/* <div className="side-bar-footer">
         <div className="user-profile">
           <div className="avatar">U</div>
           <div className="user-info">
-            <div className="name">User </div>
-            <div className="role">Admin</div>
+            <div className="name">User</div>
+            <div className="role">{role}</div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -77,7 +77,7 @@ exports.authenticate = async (req, res, next) => {
 
               let userDetail = await findUser({ id: req.decoded.id }, next);
               if (userDetail) {
-                req.user = userDetail; // ✅ FIXED HERE
+                req.user = userDetail; 
                 next();
               } else {
                 return next(new CustomError("Invalid Token", 401));

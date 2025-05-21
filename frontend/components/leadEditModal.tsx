@@ -15,9 +15,7 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ show, onClose, lead, onSa
     name: "",
     email: "",
     phone: "",
-    status: "",
-    source: "",
-    tag: "",
+
   });
 
   useEffect(() => {
@@ -26,9 +24,7 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ show, onClose, lead, onSa
         name: lead.name || "",
         email: lead.email || "",
         phone: lead.phone || "",
-        status: lead.statusDetail?.label || "",
-        source: lead.sourceDetail?.label|| "",
-        tag: lead.tagDetail?.label || "",
+
       });
     }
   }, [lead]);
@@ -39,15 +35,15 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ show, onClose, lead, onSa
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
- const handleSave = () => {
-  if (lead && lead.id) {
-    dispatch(updateLead({ id: lead.id, data: formData }) as any)
-      .then(() => {
-        onSave({ ...lead, ...formData });
-        onClose();
-      });
-  }
-};
+  const handleSave = () => {
+    if (lead && lead.id) {
+      dispatch(updateLead({ id: lead.id, data: formData }) as any)
+        .then(() => {
+          onSave({ ...lead, ...formData });
+          onClose();
+        });
+    }
+  };
   const nonEditableFields = ["status", "source", "tag"];
 
   return (

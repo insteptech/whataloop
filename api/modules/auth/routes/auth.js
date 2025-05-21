@@ -4,6 +4,8 @@ const {
   authenticate,
   authorize,
 } = require("../../../middlewares/authenticate");
+const upload = require('../../../middlewares/multer');
+
 
 const router = express.Router();
 // router.get("/", authenticate, authController.listUsers);
@@ -24,7 +26,9 @@ router.post("/login", authController.login);
 router.get("/users", authenticate, authController.listUsers);
 router.get('/profile', authenticate, authController.getMe);
 router.get("/:id", authenticate, authController.getUserDetails);
-router.put("/updateprofile", authenticate, authController.updateUserProfile);
+router.put("/updateprofileself", authenticate, authController.updateUserProfile);
+router.delete("/deleteuser/:id", authenticate, authController.deleteUser)
+router.put('/updateprofilebyadmin/:id', authenticate, authController.updateProfileByAdmin)
 
 router.put(
   "/complete",

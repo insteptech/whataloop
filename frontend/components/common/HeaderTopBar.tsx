@@ -10,6 +10,8 @@ import {
 } from "@/components/common/Icon";
 import ChatModal from "@/components/common/ChatModal";
 import { fetchProfile } from "@/modules/userprofile/redux/actions/profileAction";
+import { logout } from "@/modules/auth/redux/slices/authSlice"; // adjust path as per your structure
+
 
 type Props = {
   profileOpen: boolean;
@@ -105,9 +107,8 @@ const HeaderTopBar: FC<Props> = ({
                 </button>
 
                 <ul
-                  className={`dropdown-menu dropdown-menu-end ${
-                    profileOpen ? "open-profile-menu" : ""
-                  }`}
+                  className={`dropdown-menu dropdown-menu-end ${profileOpen ? "open-profile-menu" : ""
+                    }`}
                 >
                   <li>
                     <button
@@ -125,9 +126,11 @@ const HeaderTopBar: FC<Props> = ({
                     <button
                       className="dropdown-item d-flex align-items-center text-danger"
                       onClick={() => {
-                        localStorage.removeItem("auth_token");
-                        toggleProfile();
                         router.push("/auth/login");
+                        localStorage.removeItem("auth_token");
+                        dispatch(logout());
+                        toggleProfile();
+
                       }}
                     >
                       <LogOutIcon />

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import {
@@ -6,7 +6,6 @@ import {
   deleteLead,
   updateLead,
 } from "../../redux/action/leadAction";
-import { Col, Row } from "react-bootstrap";
 import ChatModal from "@/components/common/ChatModal";
 import Loader from "@/components/common/loader";
 import EditLeadModal from "@/components/leadEditModal";
@@ -15,14 +14,23 @@ import DeleteIcon from "../../../../public/delete.png";
 import EditIcon from "../../../../public/edit.png";
 import Image from "next/image";
 import CustomTooltip from "@/components/common/Tooltip";
+import { ConfirmDialog } from 'primereact/confirmdialog';
+import { Toast } from 'primereact/toast';
+import 'primereact/resources/themes/lara-light-indigo/theme.css';
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
 
 const LeadsList = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const toast = useRef<any>(null);
 
   const { leads, total, loading } = useSelector(
     (state: any) => state.leadReducer
   );
+
+  const role = useSelector((state: any) => state.authReducer.role);
+  console.log("Auth from Redux:", role);
 
   const queryPage = router.query.page as string;
   const currentPage = parseInt(queryPage || "1");
@@ -32,9 +40,10 @@ const LeadsList = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [showChatModal, setShowChatModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedLead, setSelectedLead] = useState<any>(null);
+  const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
+  const [leadToDelete, setLeadToDelete] = useState<string | null>(null);
 
   const [notification, setNotification] = useState<{
     show: boolean;
@@ -77,9 +86,10 @@ const LeadsList = () => {
         search: debouncedSearch,
         sort: sortColumn,
         order: sortOrder,
+        role: role
       }) as any
     );
-  }, [dispatch, currentPage, debouncedSearch, sortColumn, sortOrder]);
+  }, [dispatch, currentPage, debouncedSearch, sortColumn, role, sortOrder]);
 
   const totalPages = Math.ceil(total / itemsPerPage);
 
@@ -91,30 +101,52 @@ const LeadsList = () => {
   };
 
   const handleDeleteLead = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this lead?")) {
-      dispatch(deleteLead(id) as any).then((action) => {
-        if (deleteLead.fulfilled.match(action)) {
-          dispatch(
-            getLeads({
-              page: currentPage,
-              limit: itemsPerPage,
-              search: debouncedSearch,
-              sort: sortColumn,
-              order: sortOrder,
-            }) as any
-          );
+    setLeadToDelete(id);
+    setDeleteConfirmationVisible(true);
+  };
 
-          if (!notification.show) {
-            setNotification({
-              show: true,
-              title: "Lead Deleted",
-              message: "The lead has been deleted successfully.",
-              type: "success",
-            });
-          }
+  const confirmDelete = () => {
+    if (!leadToDelete) return;
+
+    dispatch(deleteLead(leadToDelete) as any).then((action) => {
+      if (deleteLead.fulfilled.match(action)) {
+        dispatch(
+          getLeads({
+            page: currentPage,
+            limit: itemsPerPage,
+            search: debouncedSearch,
+            sort: sortColumn,
+            order: sortOrder,
+            role: role
+          }) as any
+        );
+
+        if (!notification.show) {
+          setNotification({
+            show: true,
+            title: "Lead Deleted",
+            message: "The lead has been deleted successfully.",
+            type: "success",
+          });
         }
-      });
-    }
+
+        toast.current?.show({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Lead deleted successfully',
+          life: 3000,
+        });
+      }
+    });
+
+    setDeleteConfirmationVisible(false);
+    setLeadToDelete(null);
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmationVisible(false);
+    setLeadToDelete(null);
+
   };
 
   const handleUpdateLead = (updatedLead: any) => {
@@ -127,6 +159,7 @@ const LeadsList = () => {
             search: debouncedSearch,
             sort: sortColumn,
             order: sortOrder,
+            role: role
           }) as any
         );
 
@@ -148,6 +181,18 @@ const LeadsList = () => {
 
   return (
     <div className="lead-list-container">
+      <Toast ref={toast} />
+      <ConfirmDialog
+        visible={deleteConfirmationVisible}
+        onHide={cancelDelete}
+        message="Are you sure you want to delete this lead?"
+        header="Delete Confirmation"
+        icon="pi pi-exclamation-triangle"
+        acceptClassName="p-button-danger"
+        accept={confirmDelete}
+        reject={cancelDelete}
+      />
+
       <div className="lead-list-header">
         <h2>Leads</h2>
         <div className="lead-count">{total} leads found</div>
@@ -183,11 +228,10 @@ const LeadsList = () => {
                 "source",
                 "tag",
                 "last_contacted",
-                "chat",
                 "action",
               ].map((col, idx) => (
                 <th key={idx} className={`th-${col.replace("_", "-")}`}>
-                  {col !== "chat" && col !== "action" ? (
+                  {col !== "action" ? (
                     <button
                       className="sort-btn"
                       onClick={() => handleSortClick(col)}
@@ -208,27 +252,15 @@ const LeadsList = () => {
                 <tr key={lead.id} className="lead-row">
                   <td className="td-name" data-label="Name">
                     <div>
-                      <CustomTooltip
-                        message={lead.name}
-                        className="lead-name"
-                      />
-                      <CustomTooltip
-                        message={lead.notes}
-                        className="lead-notes"
-                      />
+                      <CustomTooltip message={lead.name} className="lead-name" />
+                      <CustomTooltip message={lead.notes} className="lead-notes" />
                     </div>
                   </td>
                   <td className="td-email" data-label="Email">
-                    <CustomTooltip
-                      message={lead.email}
-                      className="lead-email"
-                    />
+                    <CustomTooltip message={lead.email} className="lead-email" />
                   </td>
                   <td className="td-phone" data-label="Phone">
-                    <CustomTooltip
-                      message={lead.phone}
-                      className="lead-phone"
-                    />
+                    <CustomTooltip message={lead.phone} className="lead-phone" />
                   </td>
                   <td className="td-status" data-label="Status">
                     <CustomTooltip
@@ -252,14 +284,6 @@ const LeadsList = () => {
                       message={lead.last_contacted || "Not selected"}
                       className="lead-date"
                     />
-                  </td>
-                  <td className="td-chat" data-label="Chat">
-                    <button
-                      className="btn btn-outline-secondary btn-sm chat-btn"
-                      onClick={() => setShowChatModal(true)}
-                    >
-                      Chat
-                    </button>
                   </td>
                   <td className="td-action" data-label="Action">
                     <div className="action-buttons">
@@ -358,8 +382,6 @@ const LeadsList = () => {
           </button>
         </div>
       )}
-
-      <ChatModal show={showChatModal} onClose={() => setShowChatModal(false)} />
 
       <EditLeadModal
         show={showEditModal}

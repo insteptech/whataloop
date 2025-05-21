@@ -2,22 +2,39 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 
 import api from "@/axios/axiosInterceptor";
 
-export const postLeads = createAsyncThunk("postLeads", async (payload: any) => {
-    try{
-        const response = await api.post("/lead", payload);
-        console.log("kk", response, response.status);
-        return response;
-    } catch(error){
-        return error.response.data
+export const postLeads = createAsyncThunk(
+  "postLeads",
+  async (payload: any, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/lead", payload);
+      return response.data;
+    } catch (error: any) {
+      // Use rejectWithValue to properly format the error
+      return rejectWithValue(error.response?.data || { message: error.message });
     }
-})
+  }
+);
 
 export const getLeads = createAsyncThunk(
-   "getLeads",
+  "getLeads",
   async (
-    { page, limit, search, sort, order }: { page: number; limit: number; search?: string; sort?: string; order?: string },
+    {
+      page,
+      limit,
+      search,
+      sort,
+      order,
+      role,
+    }: {
+      page: number;
+      limit: number;
+      search?: string;
+      sort?: string;
+      order?: string;
+      role?: string;
+    },
     { rejectWithValue }
-  )=> {
+  ) => {
     try {
       const queryParams = new URLSearchParams({
         page: page.toString(),
@@ -27,6 +44,7 @@ export const getLeads = createAsyncThunk(
       if (search) queryParams.append("search", search);
       if (sort) queryParams.append("sort", sort);
       if (order) queryParams.append("order", order);
+      if (role) queryParams.append("role", role); 
 
       const response = await api.get(`/lead?${queryParams.toString()}`);
       console.log("Response", response);
@@ -39,7 +57,8 @@ export const getLeads = createAsyncThunk(
       return rejectWithValue(error.response?.data || error.message);
     }
   }
-); 
+);
+
 
 
   
@@ -55,7 +74,7 @@ export const getLeads = createAsyncThunk(
 
   export const deleteLead = createAsyncThunk(
     "deleteLead",
-    async (id: string, { rejectWithValue, getState }) => {
+    async (id: string, { rejectWithValue }) => {
       try {
         const response = await api.delete(`/lead/${id}`);
         return { id, message: response.data?.message || "Deleted successfully" };
@@ -65,11 +84,6 @@ export const getLeads = createAsyncThunk(
     }
   );
   
-
- interface UpdateLeadArgs {
-  id: string;
-  formData: any;
-}
 
 export const updateLead = createAsyncThunk(
   "updateLead",
@@ -82,5 +96,3 @@ export const updateLead = createAsyncThunk(
     }
   }
 );
-
-  

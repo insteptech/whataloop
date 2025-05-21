@@ -22,8 +22,8 @@ export default function Page({ slug }: PageProps) {
   const slugArray = Array.isArray(slug)
     ? slug.filter(Boolean)
     : slug
-    ? [slug]
-    : [];
+      ? [slug]
+      : [];
   let modulePath = slugArray[0] || "/";
   let subModulesPath = slugArray.slice(1).join("/") || "/";
 
@@ -67,19 +67,17 @@ export default function Page({ slug }: PageProps) {
         <Row className="w-100">
           <Col
             md={2}
-            className={` padding-right-0 left-sidebar-sticky ${
-              sideBarWidth ? "siddebar-hide-width" : "siddebar-mobile-width"
-            }`}
+            className={` padding-right-0 left-sidebar-sticky ${sideBarWidth ? "siddebar-hide-width" : "siddebar-mobile-width"
+              }`}
           >
             <LeftSidebar Width={sideBarWidth} />
           </Col>
           <Col
             md={10}
-            className={`padding-left-0  padding-right-0 ${
-              sideBarWidth
+            className={`padding-left-0  padding-right-0 ${sideBarWidth
                 ? "right-sidebar-width"
                 : "right-sidebar-mobile-width"
-            }`}
+              }`}
           >
             {" "}
             <Row>

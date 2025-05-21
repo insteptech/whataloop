@@ -11,6 +11,7 @@ import SelectField from "@/components/common/SelectField";
 import TextAreaField from "@/components/common/TextareaField";
 import Notification from "@/components/common/Notification";
 import { getConstantType, postLeads } from "../../redux/action/leadAction";
+import InputFieldWithCountryCode from "@/components/common/InputFieldWithCountryCode";
 
 const LeadsForm = () => {
   const [tagOptions, setTagOptions] = useState([]);
@@ -76,12 +77,9 @@ const LeadsForm = () => {
   });
 
   const handleSubmit = async (values: typeof initialValues, { resetForm }) => {
-    const tagLabel =
-      tagOptions.find((opt) => opt.value === values.tag)?.label || "";
-    const statusLabel =
-      statusOptions.find((opt) => opt.value === values.status)?.label || "";
-    const sourceLabel =
-      sourceOptions.find((opt) => opt.value === values.source)?.label || "";
+    const tagLabel = tagOptions.find((opt) => opt.value === values.tag)?.label || "";
+    const statusLabel = statusOptions.find((opt) => opt.value === values.status)?.label || "";
+    const sourceLabel = sourceOptions.find((opt) => opt.value === values.source)?.label || "";
 
     const payload = {
       ...values,
@@ -94,11 +92,20 @@ const LeadsForm = () => {
     try {
       const response = await dispatch(postLeads(payload)).unwrap();
       console.log("Lead created successfully:", response);
-      resetForm("");
-      setSuccessNotification(true); 
-    } catch (error) {
-      console.error("Form submission failed:", error);
-      toast.error(error?.message || "Submission error. Please try again.");
+      resetForm();
+      setSuccessNotification(true);
+    } catch (error: any) {
+      console.log("Full error object:", error);
+
+      const errorMessage = error.message || "Submission error. Please try again.";
+
+      if (errorMessage.includes("email")) {
+        toast.error(errorMessage);
+      } else if (errorMessage.includes("phone")) {
+        toast.error(errorMessage);
+      } else {
+        toast.error(errorMessage);
+      }
     }
   };
 
@@ -129,7 +136,7 @@ const LeadsForm = () => {
         >
           {({ values, handleChange, setFieldValue }) => (
             <Form>
-            
+
               <div className="form-section">
                 <div className="section-title">
                   <FiInfo size={18} />
@@ -147,13 +154,16 @@ const LeadsForm = () => {
                     />
                   </Col>
                   <Col md={6}>
-                    <InputField
-                      label="Phone"
-                      name="phone"
+                    <InputFieldWithCountryCode
+                      label="Phone number"
+                      placeholder="Enter Phone number"
                       id="phone"
-                      placeholder="Enter Phone"
+                      type="text"
+                      name="phone"
                       value={values.phone}
                       onChange={handleChange}
+                      className="country-code-select-with-number leads-country-code"
+                      required
                     />
                   </Col>
                   <Col md={6}>

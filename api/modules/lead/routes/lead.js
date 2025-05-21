@@ -13,4 +13,6 @@ router.post('/', authenticate, validateCreateLead, leadController.create);
 router.get('/', authenticate, leadController.getAll);
 router.put('/:id', authenticate, validateUpdateLead, leadController.update);
 router.delete('/:id', authenticate, leadController.remove);
+// router.put('updateleadbyadmin/:id', authenticate, validateUpdateLead, leadController.updateLeadByAdmin)
+
 module.exports = router;

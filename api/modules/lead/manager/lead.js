@@ -50,8 +50,9 @@ exports.getLeads = async (userId, query) => {
   return await leadService.getAll(userId, query);
 };
 
-exports.updateLead = async (leadId, userId, data) => {
-  return await leadService.update(leadId, data, userId);
+exports.updateLead = async (leadId, userId, data, role) => {
+  console.log("Role from manager", role)
+  return await leadService.update(leadId, userId, data, role);
 };
 
 exports.deleteLead = async (leadId) => {
