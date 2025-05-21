@@ -55,9 +55,9 @@ const LoginWithOTP = () => {
     }
   };
 
-  const handleCheckboxClick = () => {
-    setRememberMe(!rememberMe);
-  };
+  // const handleCheckboxClick = () => {
+  //   setRememberMe(!rememberMe);
+  // };
 
   return (
 

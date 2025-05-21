@@ -58,9 +58,9 @@ function LeftSidebar({ Width }: any) {
   return (
     <div className="left-sidebar-container">
       <div className="side-bar-header">
-        <Link href="/">
-          <Logo />
-        </Link>
+
+        <Logo />
+
       </div>
       <div className="side-bar-body">
         <ul>

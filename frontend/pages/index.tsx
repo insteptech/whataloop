@@ -75,8 +75,8 @@ export default function Page({ slug }: PageProps) {
           <Col
             md={10}
             className={`padding-left-0  padding-right-0 ${sideBarWidth
-                ? "right-sidebar-width"
-                : "right-sidebar-mobile-width"
+              ? "right-sidebar-width"
+              : "right-sidebar-mobile-width"
               }`}
           >
             {" "}

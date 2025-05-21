@@ -48,27 +48,31 @@ export const verifyOtp = createAsyncThunk("verifyOtp", async (payload: any) => {
 
 export const register = createAsyncThunk(
   "register",
-  async (payload: FormData, thunkAPI) => {
+  async (payload: any, thunkAPI) => {
     try {
-      const response = await api.post("/auth/signup", payload, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      console.log('payload:--------', payload);
+      const data = {
+        fullName: payload.fullName,
+            email:payload.email,
+            phone:payload.phone,
+            password:payload.password
+      }
+      const response = await api.post("/auth/signup", data);
+console.log('response:-----',response?.data?.statusCode);
 
-      const userData = response.data;
 
-      if (userData?.statusCode === 200) {
+      if (response?.data?.statusCode === 200) {
         const onboardingPayload = {
-          businessName: payload.get("businessName") as string,
-          whatsappNumber: payload.get("phone") as string,
-          userId: userData?.data?.id || userData?.user?.id,
+          businessName: payload.businessName,
+          whatsappNumber: payload.phone,
+          // userId: userData?.data?.id || userData?.user?.id,
         };
-
+        console.log('onboardingPayload:----', onboardingPayload);
+        
         await api.post("/onboarding/onboard", onboardingPayload);
       }
 
-      return userData;
+      // return userData;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
         error.response?.data || { message: "An error occurred" }

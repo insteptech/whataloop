@@ -39,11 +39,15 @@ const SignUp = () => {
       .required("Business name is required")
       .min(2, "Too short!")
       .max(20, "Too long!"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
+    email: Yup.string()
+      .required("Email is required")
+      .matches(
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        "Invalid email format"
+      ),
     phone: Yup.string()
       .required("Mobile number is required")
-      .matches(/^[0-9]+$/, "Only numbers allowed")
-      .min(10, "Enter valid phone number"),
+      .matches(/^[6-9]\d{9}$/, "Enter valid 10-digit mobile number"),
     password: Yup.string()
       .required("Password is required")
       .min(6, "Password must be at least 6 characters"),
@@ -52,44 +56,48 @@ const SignUp = () => {
       .oneOf([Yup.ref("password"), null], "Passwords must match"),
   });
 
+
   // Handle Form Submit
- const handleSubmit = async () => {
-  if (!otpVerified) {
-    toast.error("Please verify your email before signing up.");
-    return;
-  }
-
-  const { fullName, businessName, email, phone, password } = formData;
-
-  // Create FormData object
-  const payload = new FormData();
-  payload.append("fullName", fullName);
-  payload.append("businessName", businessName);
-  payload.append("email", email);
-  payload.append("phone", phone);
-  payload.append("password", password);
-
-  // Only append photo if it exists
-  if (formData.photo) {
-    payload.append("photo", formData.photo); // 'photo' should match backend field name
-  }
-
-  try {
-    const response = await dispatch(register(payload)).unwrap();
-    if (response.statusCode === 200) {
-      toast.success("Registration successful!");
-      window.location.href = "/";
+  const handleSubmit = async () => {
+    if (!otpVerified) {
+      toast.error("Please verify your email before signing up.");
+      return;
     }
-  } catch (error: any) {
-    console.error("Register error:", error);
-    toast.error(error?.message || "An error occurred during registration.");
-    if (error?.message?.includes("Email already exists")) {
-      toast.error("This email is already registered.");
-    } else if (error?.message?.includes("Phone already exists")) {
-      toast.error("This phone number is already registered.");
+
+    const { fullName, businessName, email, phone, password } = formData;
+    console.log("formData:-----", formData);
+
+    const payload = {
+      fullName,
+      businessName,
+      email,
+      phone,
+      password,
+    };
+
+    try {
+      console.log('payload:-------- 1', payload);
+
+      const response = await dispatch(register(payload)).unwrap();
+
+      if (response.statusCode === 200) {
+        toast.success("Registration successful!");
+        window.location.href = "/";
+      }
+    } catch (error: any) {
+      console.error("Register error:", error);
+      const errorMsg = error?.message || "An error occurred during registration.";
+
+      if (errorMsg.includes("Email already exists")) {
+        toast.error("This email is already registered.");
+      } else if (errorMsg.includes("Phone already exists")) {
+        toast.error("This phone number is already registered.");
+      } else {
+        toast.error(errorMsg);
+      }
     }
-  }
-};
+  };
+
 
   // Handle Send OTP
   const handleSendOtp = async () => {
@@ -159,8 +167,8 @@ const SignUp = () => {
                   <ImageUpload
                     name="photo"
                     label="Click to upload"
-                    onChange={(file) => setFormData({ ...formData, photo: file })
-                    }
+                  // // onChange={(file) => setFormData({ ...formData, photo: file })
+                  // }
                   />
 
                   <Row>

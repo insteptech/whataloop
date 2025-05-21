@@ -23,6 +23,7 @@ const CreateUser = () => {
         businessName: "",
         email: "",
         phone: "",
+        // countryCode: "+91",
         password: "",
         confirmPassword: "",
         photo: null,
@@ -36,14 +37,18 @@ const CreateUser = () => {
             .min(2, "Too short!")
             .max(20, "Too long!"),
         businessName: Yup.string()
-            .required("Business name is Required")
+            .required("Business name is required")
             .min(2, "Too short!")
             .max(20, "Too long!"),
-        email: Yup.string().email("Invalid email").required("Email is required"),
+        email: Yup.string()
+            .required("Email is required")
+            .matches(
+                /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                "Invalid email format"
+            ),
         phone: Yup.string()
             .required("Mobile number is required")
-            .matches(/^[0-9]+$/, "Only numbers allowed")
-            .min(10, "Enter valid phone number"),
+            .matches(/^[6-9]\d{9}$/, "Enter valid 10-digit mobile number"),
         password: Yup.string()
             .required("Password is required")
             .min(6, "Password must be at least 6 characters"),
@@ -60,16 +65,13 @@ const CreateUser = () => {
         }
 
         const { fullName, businessName, email, phone, password, photo } = formData;
-        const payload = new FormData();
-        payload.append("fullName", fullName);
-        payload.append("businessName", businessName);
-        payload.append("email", email);
-        payload.append("phone", phone);
-        payload.append("password", password);
-        if (photo) {
-            payload.append("photo", photo);
-        }
-
+        const payload = {
+            fullName,
+            businessName,
+            email,
+            phone,
+            password,
+        };
         try {
             const response = await dispatch(register(payload)).unwrap();
             if (response.statusCode === 200) {
