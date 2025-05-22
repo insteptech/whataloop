@@ -60,7 +60,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         }
 
         if (!isAuthenticated()) {
-          router.push("/");
+          router.push("/auth/login");
           return;
         }
         else {

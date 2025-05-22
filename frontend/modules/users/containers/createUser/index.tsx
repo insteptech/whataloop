@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import InputField from "@/components/common/InputField";
@@ -6,29 +6,16 @@ import { Col, Row } from "react-bootstrap";
 import ImageUpload from "@/components/common/ImageUpload";
 import verifiedIcon from "../../../../public/verified.png";
 import InputFieldWithCountryCode from "@/components/common/InputFieldWithCountryCode";
-import { register, sendOtp, verifyOtp } from '../../../auth/redux/actions/authAction'
+import { register, sendOtp, verifyOtp } from "../../../auth/redux/actions/authAction";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import Loader from "@/components/common/loader";
 
 const CreateUser = () => {
-    const dispatch = useDispatch<any>();
-
-    const [emailVerify, setEmailVerify] = useState(false);
+    const dispatch = useDispatch();
     const isloading = useSelector((state: any) => state?.authReducer?.loading);
+    const [emailVerify, setEmailVerify] = useState(false);
     const [otpVerified, setOtpVerified] = useState(false);
-
-    const [formData, setFormData] = useState({
-        fullName: "",
-        businessName: "",
-        email: "",
-        phone: "",
-        // countryCode: "+91",
-        password: "",
-        confirmPassword: "",
-        photo: null,
-        otp: "",
-    });
 
     // Validation Schema
     const validationSchema = Yup.object().shape({
@@ -47,50 +34,23 @@ const CreateUser = () => {
                 "Invalid email format"
             ),
         phone: Yup.string()
-            .required("Mobile number is required")
-            .matches(/^[6-9]\d{9}$/, "Enter valid 10-digit mobile number"),
+            .required("Phone is required")
+            .matches(/^\+?[0-9]{10,}$/, "Phone number is not valid")
+            .min(10, "Phone number too short"),
         password: Yup.string()
             .required("Password is required")
             .min(6, "Password must be at least 6 characters"),
         confirmPassword: Yup.string()
             .required("Confirm password is required")
             .oneOf([Yup.ref("password"), null], "Passwords must match"),
+        otp: Yup.string(),
     });
 
-    // Handle Form Submit
-    const handleSubmit = async () => {
-        if (!otpVerified) {
-            toast.error("Please verify the user  email before creating the user.");
-            return;
-        }
-
-        const { fullName, businessName, email, phone, password, photo } = formData;
-        const payload = {
-            fullName,
-            businessName,
-            email,
-            phone,
-            password,
-        };
-        try {
-            const response = await dispatch(register(payload)).unwrap();
-            if (response.statusCode === 200) {
-                toast.success("Registration successful!");
-                window.location.href = "/users/usersList";
-            }
-        } catch (error: any) {
-            console.error("Register error:", error);
-            toast.error(error?.message || "An error occurred during registration.");
-        }
-    };
-
     // Handle Send OTP
-    const handleSendOtp = async () => {
-        const payload = { email: formData.email };
+    const handleSendOtp = async (values) => {
+        const payload = { email: values.email };
         try {
-            const response = await dispatch(sendOtp(payload)).unwrap();
-            console.log("OTP response:", response);
-
+            const response = await dispatch(sendOtp(payload) as any).unwrap();
             if (response.status === 200) {
                 setEmailVerify(true);
                 toast.success("OTP sent successfully! Please check your email.");
@@ -100,11 +60,7 @@ const CreateUser = () => {
                 toast.error(response.message || "Failed to send OTP.");
             }
         } catch (error: any) {
-            console.log("Full error object:", error);
-
             const errorMessage = error.message || "Submission error. Please try again.";
-            console.log('error Message', errorMessage)
-
             if (errorMessage.includes("email")) {
                 toast.error(errorMessage);
             } else if (errorMessage.includes("phone")) {
@@ -116,15 +72,14 @@ const CreateUser = () => {
     };
 
     // Handle OTP Verify
-    const handleOtpVerify = async () => {
-        if (!formData.otp) {
+    const handleOtpVerify = async (values, setTouched) => {
+        if (!values.otp) {
             toast.error("OTP cannot be empty.");
             return;
         }
-
         try {
             const response = await dispatch(
-                verifyOtp({ email: formData.email, otp: formData.otp })
+                verifyOtp({ email: values.email, otp: values.otp }) as any
             ).unwrap();
             if (response.statusCode === 200) {
                 setOtpVerified(true);
@@ -132,8 +87,36 @@ const CreateUser = () => {
                 toast.success("OTP verified successfully!");
             }
         } catch (error: any) {
-            console.error("OTP verify error:", error);
             toast.error(error?.message || "Invalid OTP. Please try again.");
+        }
+    };
+
+    // Handle Form Submit
+    const handleSubmit = async (values) => {
+        if (!otpVerified) {
+            toast.error("Please verify the user email before creating the user.");
+            return;
+        }
+
+        const { fullName, businessName, email, phone, password } = values;
+
+        const payload = {
+            fullName,
+            businessName,
+            email,
+            phone,
+            password,
+        };
+
+        try {
+            const response = await dispatch(register(payload) as any).unwrap();
+            if (response.statusCode === 200) {
+                toast.success("Registration successful!");
+                window.location.href = "/users/usersList";
+            }
+        } catch (error: any) {
+            console.error("Register error:", error);
+            toast.error(error?.message || "An error occurred during registration.");
         }
     };
 
@@ -142,22 +125,28 @@ const CreateUser = () => {
             {isloading && <Loader />}
             <div className="card-inner-content registration-form-card">
                 <Formik
-                    initialValues={formData}
-                    enableReinitialize
+                    initialValues={{
+                        fullName: "",
+                        businessName: "",
+                        email: "",
+                        phone: "",
+                        password: "",
+                        confirmPassword: "",
+                        photo: null,
+                        otp: "",
+                    }}
                     validationSchema={validationSchema}
                     onSubmit={handleSubmit}
                 >
-                    {({ validateForm, setTouched }) => (
+                    {({ values, handleChange, setFieldValue, validateForm, setTouched }) => (
                         <Form>
-                            {!emailVerify && (
+                            {!emailVerify ? (
                                 <>
                                     <ImageUpload
                                         name="photo"
                                         label="Click to upload"
-                                    //   onChange={(file) => setFormData({ ...formData, photo: file })
-                                    // }
+                                    // onChange={(file) => setFieldValue("photo", file)}
                                     />
-
                                     <Row>
                                         <Col md={6}>
                                             <InputField
@@ -166,24 +155,20 @@ const CreateUser = () => {
                                                 id="fullName"
                                                 type="text"
                                                 name="fullName"
-                                                value={formData.fullName}
-                                                onChange={(e) =>
-                                                    setFormData({ ...formData, fullName: e.target.value })
-                                                }
+                                                value={values.fullName}
+                                                onChange={handleChange}
                                                 required
                                             />
                                         </Col>
                                         <Col md={6}>
                                             <InputField
                                                 label="Business Name"
-                                                placeholder="Enter Business Name "
+                                                placeholder="Enter Business Name"
                                                 id="businessName"
                                                 type="text"
-                                                name="businessname"
-                                                value={formData.businessName}
-                                                onChange={(e) =>
-                                                    setFormData({ ...formData, businessName: e.target.value })
-                                                }
+                                                name="businessName"
+                                                value={values.businessName}
+                                                onChange={handleChange}
                                                 required
                                             />
                                         </Col>
@@ -194,29 +179,19 @@ const CreateUser = () => {
                                                 id="email"
                                                 type="email"
                                                 name="email"
-                                                value={formData.email}
+                                                value={values.email}
                                                 onChange={(e) => {
                                                     const newEmail = e.target.value;
-                                                    setFormData((prevFormData) => ({
-                                                        ...prevFormData,
-                                                        email: newEmail,
-                                                        otp: "", // Clear OTP as well
-                                                    }));
-
-                                                    // If email changes after OTP verified, reset verification
-                                                    if (otpVerified) {
-                                                        setOtpVerified(false);
-                                                    }
-                                                    if (emailVerify) {
-                                                        setEmailVerify(false);
-                                                    }
+                                                    setFieldValue("email", newEmail);
+                                                    setFieldValue("otp", "");
+                                                    if (otpVerified) setOtpVerified(false);
+                                                    if (emailVerify) setEmailVerify(false);
                                                 }}
                                                 EndImage={otpVerified ? verifiedIcon : null}
                                                 className="email-with-verified-icon"
                                                 required
                                             />
                                         </Col>
-
                                         <Col md={6}>
                                             <InputFieldWithCountryCode
                                                 label="Phone number"
@@ -224,15 +199,12 @@ const CreateUser = () => {
                                                 id="phone"
                                                 type="text"
                                                 name="phone"
-                                                value={formData.phone}
-                                                onChange={(e) =>
-                                                    setFormData({ ...formData, phone: e.target.value })
-                                                }
+                                                value={values.phone}
+                                                onChange={handleChange}
                                                 className="country-code-select-with-number"
                                                 required
                                             />
                                         </Col>
-
                                         <Col md={6}>
                                             <InputField
                                                 label="Password"
@@ -240,14 +212,11 @@ const CreateUser = () => {
                                                 id="password"
                                                 type="password"
                                                 name="password"
-                                                value={formData.password}
-                                                onChange={(e) =>
-                                                    setFormData({ ...formData, password: e.target.value })
-                                                }
+                                                value={values.password}
+                                                onChange={handleChange}
                                                 required
                                             />
                                         </Col>
-
                                         <Col md={6}>
                                             <InputField
                                                 label="Confirm Password"
@@ -255,17 +224,11 @@ const CreateUser = () => {
                                                 id="confirmPassword"
                                                 type="password"
                                                 name="confirmPassword"
-                                                value={formData.confirmPassword}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        confirmPassword: e.target.value,
-                                                    })
-                                                }
+                                                value={values.confirmPassword}
+                                                onChange={handleChange}
                                                 required
                                             />
                                         </Col>
-
                                         {!otpVerified ? (
                                             <button
                                                 type="button"
@@ -273,7 +236,7 @@ const CreateUser = () => {
                                                 onClick={async () => {
                                                     const errors = await validateForm();
                                                     if (Object.keys(errors).length === 0) {
-                                                        await handleSendOtp();
+                                                        await handleSendOtp(values);
                                                     } else {
                                                         setTouched({
                                                             fullName: true,
@@ -294,32 +257,27 @@ const CreateUser = () => {
                                         )}
                                     </Row>
                                 </>
-                            )}
-
-                            {/* OTP Modal */}
-                            {emailVerify && (
+                            ) : (
                                 <div className="email-verify-modal">
                                     <div className="login-header">
                                         <h2>Confirm your Email</h2>
                                     </div>
-
                                     <InputField
                                         label="Enter OTP"
                                         placeholder="Enter OTP"
                                         id="otp"
                                         type="text"
                                         name="otp"
-                                        value={formData.otp}
+                                        value={values.otp}
                                         onChange={(e) => {
                                             const onlyNumbers = e.target.value.replace(/\D/g, "");
-                                            setFormData({ ...formData, otp: onlyNumbers });
+                                            setFieldValue("otp", onlyNumbers);
                                         }}
                                     />
-
                                     <button
                                         type="button"
                                         className="login-button mt-4"
-                                        onClick={handleOtpVerify}
+                                        onClick={() => handleOtpVerify(values, setTouched)}
                                     >
                                         Verify OTP
                                     </button>

@@ -95,7 +95,7 @@ function DashboardPage() {
               <div className="card-body">
                 <h6 className="mb-2 f-w-400 text-muted">Total Order</h6>
                 <h4 className="mb-3">
-                  18,800{" "}
+                 98
                   <span className="badge bg-light-warning border border-warning">
                     <i className="ti ti-trending-down"></i> 27.4%
                   </span>
