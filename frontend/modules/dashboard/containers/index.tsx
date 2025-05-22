@@ -4,7 +4,7 @@ import Chart from "react-apexcharts";
 import { FaCircle } from "react-icons/fa";
 import { TbGift, TbMessageCircle, TbSettings } from "react-icons/tb";
 import IncomeOverview from "./IncomeOverview";
-import AnalyticsReport from "./AnalyticsReport";
+// import AnalyticsReport from "./AnalyticsReport";
 import UniqueVisitorChart from "./UniqueVisitorChart";
 import { useDispatch, useSelector } from "react-redux";
 import { getLeads } from "@/modules/leads/redux/action/leadAction";
@@ -70,9 +70,9 @@ function DashboardPage() {
               <div className="card-body">
                 <h6 className="mb-2 f-w-400 text-muted">Total Leads Generated</h6>
                 <h4 className="mb-3">{leadsTotal || 0}</h4>
-                <p className="mb-0 text-muted text-sm">
-                  You made an extra <span className="text-primary">35,000</span> this year
-                </p>
+                {/* <p className="mb-0 text-muted text-sm">
+                  Lorem ipsum dolor, sit amet consectetur adipisicing.
+                </p> */}
               </div>
             </div>
           </div>
@@ -83,9 +83,9 @@ function DashboardPage() {
                 <div className="card-body">
                   <h6 className="mb-2 f-w-400 text-muted">Total Users</h6>
                   <h4 className="mb-3">{users?.count || 0}</h4>
-                  <p className="mb-0 text-muted text-sm">
-                    You made an extra <span className="text-success">8,900</span> this year
-                  </p>
+                  {/* <p className="mb-0 text-muted text-sm">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolore.
+                  </p> */}
                 </div>
               </div>
             </div>
@@ -95,15 +95,14 @@ function DashboardPage() {
               <div className="card-body">
                 <h6 className="mb-2 f-w-400 text-muted">Total Order</h6>
                 <h4 className="mb-3">
-                 98
-                  <span className="badge bg-light-warning border border-warning">
+                  00
+                  {/* <span className="badge bg-light-warning border border-warning">
                     <i className="ti ti-trending-down"></i> 27.4%
-                  </span>
+                  </span> */}
                 </h4>
-                <p className="mb-0 text-muted text-sm">
-                  You made an extra <span className="text-warning">1,943</span>{" "}
-                  this year
-                </p>
+                {/* <p className="mb-0 text-muted text-sm">
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                </p> */}
               </div>
             </div>
           </div>
@@ -112,15 +111,14 @@ function DashboardPage() {
               <div className="card-body">
                 <h6 className="mb-2 f-w-400 text-muted">Total Sales</h6>
                 <h4 className="mb-3">
-                  $35,078{" "}
-                  <span className="badge bg-light-danger border border-danger">
+                  00
+                  {/* <span className="badge bg-light-danger border border-danger">
                     <i className="ti ti-trending-down"></i> 27.4%
-                  </span>
+                  </span> */}
                 </h4>
-                <p className="mb-0 text-muted text-sm">
-                  You made an extra <span className="text-danger">$20,395</span>{" "}
-                  this year
-                </p>
+                {/* <p className="mb-0 text-muted text-sm">
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                </p> */}
               </div>
             </div>
           </div>
@@ -202,12 +200,12 @@ function DashboardPage() {
                         </div>
                       </div>
                       <div className="flex-grow-1 ms-3">
-                        <h6 className="mb-1">Order #002434</h6>
-                        <p className="mb-0 text-muted">Today, 2:00 AM</p>
+                        <h6 className="mb-1">Lorem ipsum dolor sit.</h6>
+                        <p className="mb-0 text-muted">Lorem ipsum dolor sit.</p>
                       </div>
                       <div className="flex-shrink-0 text-end">
-                        <h6 className="mb-1">+ $1,430</h6>
-                        <p className="mb-0 text-muted">78%</p>
+                        <h6 className="mb-1">000</h6>
+                        <p className="mb-0 text-muted">0%</p>
                       </div>
                     </div>
                   </a>
@@ -222,12 +220,12 @@ function DashboardPage() {
                         </div>
                       </div>
                       <div className="flex-grow-1 ms-3">
-                        <h6 className="mb-1">Order #984947</h6>
-                        <p className="mb-0 text-muted">5 August, 1:45 PM</p>
+                        <h6 className="mb-1">Lorem, ipsum dolor.</h6>
+                        <p className="mb-0 text-muted">Lorem ipsum dolor sit.</p>
                       </div>
                       <div className="flex-shrink-0 text-end">
-                        <h6 className="mb-1">- $302</h6>
-                        <p className="mb-0 text-muted">8%</p>
+                        <h6 className="mb-1">00</h6>
+                        <p className="mb-0 text-muted">0%</p>
                       </div>
                     </div>
                   </a>
@@ -242,12 +240,12 @@ function DashboardPage() {
                         </div>
                       </div>
                       <div className="flex-grow-1 ms-3">
-                        <h6 className="mb-1">Order #988784</h6>
-                        <p className="mb-0 text-muted">7 hours ago</p>
+                        <h6 className="mb-1">Lorem, ipsum dolor.</h6>
+                        <p className="mb-0 text-muted">Lorem ipsum dolor sit.</p>
                       </div>
                       <div className="flex-shrink-0 text-end">
-                        <h6 className="mb-1">- $682</h6>
-                        <p className="mb-0 text-muted">16%</p>
+                        <h6 className="mb-1">00</h6>
+                        <p className="mb-0 text-muted">0%</p>
                       </div>
                     </div>
                   </a>

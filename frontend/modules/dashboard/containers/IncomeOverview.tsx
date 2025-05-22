@@ -80,7 +80,7 @@ const IncomeOverview = () => {
         <div className="card">
           <div className="card-body">
             <h6 className="mb-2 f-w-400 text-muted">This Week Statistics</h6>
-            <h3 className="mb-3">$7,650</h3>
+            {/* <h3 className="mb-3">$7,650</h3> */}
             <div id="income-overview-chart" style={{ minHeight: "380px" }}>
               <Chart
                 options={chartOptions}
