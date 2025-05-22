@@ -4,7 +4,7 @@ const { getAllModels } = require("../../../middlewares/loadModels");
 const WHATSAPP_API_URL = 'https://graph.facebook.com/v19.0';
 const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
-const WEB_HOOK_URL = 'https://rnfpk-2401-4900-1c2b-eb98-69b0-d690-e2a8-5ed8.a.free.pinggy.link/api/v1/whatsapp';
+const WEB_HOOK_URL = 'https://rnopv-2401-4900-1c6e-26e2-a053-51a5-a0e0-2356.a.free.pinggy.link/api/v1/whatsapp';
 
 const APP_ID = process.env.WHATSAPP_APP_ID;
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
