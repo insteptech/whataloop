@@ -72,8 +72,8 @@ const LeadsForm = () => {
     phone: Yup.string()
       .required("Phone is required")
       .matches(/^\+?[0-9]{10,}$/, "Phone number is not valid")
-      .min(10, "Phone number too short"),
-
+      .min(12, "Phone number too short")
+      .max(15, "Phone number is too long"),
     email: Yup.string()
       .required("Email is required")
       .email("Invalid email format")

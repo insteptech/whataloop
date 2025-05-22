@@ -36,7 +36,8 @@ const CreateUser = () => {
         phone: Yup.string()
             .required("Phone is required")
             .matches(/^\+?[0-9]{10,}$/, "Phone number is not valid")
-            .min(10, "Phone number too short"),
+            .min(10, "Phone number too short")
+            .max(15, "Phone number is too long"),
         password: Yup.string()
             .required("Password is required")
             .min(6, "Password must be at least 6 characters"),
