@@ -31,7 +31,6 @@ export const updateProfile = createAsyncThunk<
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("Profile update response:", response.data);
       return response.data;
     } catch (error: any) {
       console.error("Profile update error:", error);

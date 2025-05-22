@@ -5,7 +5,6 @@ import api from "@/axios/axiosInterceptor";
 export const postConstant = createAsyncThunk("postConstant", async (payload: any, { rejectWithValue }) => {
   try {
     const response = await api.post("/constant/constant", payload);
-    console.log("Constant Created:", response);
     return response.data;
   } catch (error: any) {
     console.error("Constant Error:", error.response?.data || error.message);
@@ -18,7 +17,6 @@ export const fetchConstants = createAsyncThunk(
   async ({ page, limit }: { page: number; limit: number }, { rejectWithValue }) => {
     try {
       const response = await api.get(`/constant/types?page=${page}&limit=${limit}`);
-      console.log("Response:", response.data, response.status);
       return {
         constantsList: response.data.data.constantType.rows, 
         total: response.data.data.constantType.count,
@@ -34,7 +32,6 @@ export const deleteConstant = createAsyncThunk(
   async (id: string, { rejectWithValue }) => {
     try {
       const response = await api.delete(`/constant/constantdelete/${id}`);
-      console.log("Constant Deleted:", response.data);
       return { id, message: response.data.message };
     } catch (error: any) {
       console.error("Delete Constant Error:", error.response?.data || error.message);

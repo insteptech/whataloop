@@ -1,6 +1,5 @@
 import { useField, useFormikContext } from "formik";
-import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const countries = [
   { code: "+1", name: "US" },
@@ -15,8 +14,6 @@ const InputFieldWithCountryCode = ({
   disabled,
   required,
   className,
-  value,
-  onChange,
   ...props
 }: any) => {
   const [field, meta, helpers] = useField(props);
@@ -24,11 +21,25 @@ const InputFieldWithCountryCode = ({
   const isError = (meta.touched || submitCount > 0) && Boolean(meta.error);
 
   const [countryCode, setCountryCode] = useState("+1");
+  const [displayNumber, setDisplayNumber] = useState("");
 
-  // Update phone number with country code prefix
+  useEffect(() => {
+    const currentValue = field.value || "";
+
+    // Escape special characters in country code
+    const escapedCountryCode = countryCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // Remove country code from the start of the phone number
+    const cleanedValue = currentValue.replace(new RegExp(`^${escapedCountryCode}`), "");
+
+    setDisplayNumber(cleanedValue);
+  }, [field.value, countryCode]);
+
+  // Handle input change (user types the number)
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    helpers.setValue(`${countryCode}${newValue.replace(/^\+?\d*/, "")}`);
+    const inputValue = e.target.value.replace(/\D/g, ""); // Remove non-digits
+    setDisplayNumber(inputValue);
+    helpers.setValue(`${countryCode}${inputValue}`);
   };
 
   return (
@@ -43,7 +54,11 @@ const InputFieldWithCountryCode = ({
         <select
           className="country-code-select"
           value={countryCode}
-          onChange={(e) => setCountryCode(e.target.value)}
+          onChange={(e) => {
+            const newCode = e.target.value;
+            setCountryCode(newCode);
+            helpers.setValue(`${newCode}${displayNumber}`);
+          }}
           disabled={disabled}
         >
           {countries.map((country) => (
@@ -54,11 +69,11 @@ const InputFieldWithCountryCode = ({
         </select>
 
         <input
+          type="text"
           {...field}
-          {...props}
-          value={value}
-          onChange={onChange ? onChange : field.onChange}
-          className={` ${disabled ? "input-disabled" : ""}`}
+          value={displayNumber}
+          onChange={handlePhoneChange}
+          placeholder={props.placeholder}
           disabled={disabled}
         />
       </div>

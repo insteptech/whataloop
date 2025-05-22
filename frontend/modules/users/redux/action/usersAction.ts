@@ -30,7 +30,6 @@ export const getUsers = createAsyncThunk(
       if (search) queryParams.append("search", search); 
 
       const response = await api.get(`/auth/users?${queryParams.toString()}`);
-      console.log("Response", response.data, response.status);
 
       const { rows, totalRecords } = response.data.data;
 
@@ -51,7 +50,6 @@ export const deleteUser = createAsyncThunk(
   ) => {
     try {
       const response = await api.delete(`/auth/deleteuser/${userId}`);
-      console.log("Delete response:", response.data);
 
       if (response.status === 200) {
         return {

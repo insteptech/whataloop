@@ -12,6 +12,8 @@ import TextAreaField from "@/components/common/TextareaField";
 import Notification from "@/components/common/Notification";
 import { getConstantType, postLeads } from "../../redux/action/leadAction";
 import InputFieldWithCountryCode from "@/components/common/InputFieldWithCountryCode";
+import { useRouter } from "next/router";
+
 
 const LeadsForm = () => {
   const [tagOptions, setTagOptions] = useState([]);
@@ -20,6 +22,8 @@ const LeadsForm = () => {
   const [successNotification, setSuccessNotification] = useState(false);
 
   const dispatch = useDispatch<any>();
+  const router = useRouter();
+
 
   useEffect(() => {
     const fetchConstants = async () => {
@@ -64,11 +68,20 @@ const LeadsForm = () => {
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
+
     phone: Yup.string()
-      .matches(/^[0-9]+$/, "Only numbers allowed")
-      .min(10, "Phone number too short")
-      .required("Phone is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
+      .required("Phone is required")
+      .matches(/^\+?[0-9]{10,}$/, "Phone number is not valid")
+      .min(10, "Phone number too short"),
+
+    email: Yup.string()
+      .required("Email is required")
+      .email("Invalid email format")
+      .matches(
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        "Invalid email format"
+      ),
+
     tag: Yup.string().required("Tag is required"),
     status: Yup.string().required("Status is required"),
     source: Yup.string().required("Source is required"),
@@ -94,6 +107,8 @@ const LeadsForm = () => {
       console.log("Lead created successfully:", response);
       resetForm();
       setSuccessNotification(true);
+      router.push("/leads/leadsList");
+
     } catch (error: any) {
       console.log("Full error object:", error);
 

@@ -66,11 +66,9 @@ function generateComponentsMap() {
           components[index + 1]?.name.startsWith("[") &&
           components[index + 1]?.name.endsWith("]")
         ) {
-          componentsMapString += `    "${component.name}/${
-            components[index + 1].name
-          }": dynamic(() => import("${
-            components[index + 1].path
-          }"), { ssr: false, loading: () => <Loader /> }), \n`;
+          componentsMapString += `    "${component.name}/${components[index + 1].name
+            }": dynamic(() => import("${components[index + 1].path
+            }"), { ssr: false, loading: () => <Loader /> }), \n`;
         } else if (
           component.name.startsWith("[") &&
           component.name.endsWith("]")

@@ -47,7 +47,7 @@ export const getLeads = createAsyncThunk(
       if (role) queryParams.append("role", role); 
 
       const response = await api.get(`/lead?${queryParams.toString()}`);
-      console.log("Response", response);
+     
 
       return {
         leads: response.data.rows,

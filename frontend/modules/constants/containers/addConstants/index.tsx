@@ -4,10 +4,13 @@ import { postConstant } from "../../redux/action/constantAction";
 import Notification from "@/components/common/Notification";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useRouter } from "next/router";
+
 
 const AddConstants = () => {
-  const dispatch = useDispatch<any>(); 
+  const dispatch = useDispatch<any>();
   const [showSuccess, setShowSuccess] = useState(false);
+  const router = useRouter();
 
   const formik = useFormik({
     initialValues: {
@@ -26,6 +29,7 @@ const AddConstants = () => {
         .then(() => {
           setShowSuccess(true);
           resetForm();
+          router.push('/constants/constantsList')
         })
         .catch((err) => {
           alert("Failed to add constant: " + err);

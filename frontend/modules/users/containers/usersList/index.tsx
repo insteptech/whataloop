@@ -22,7 +22,7 @@ const UsersList = () => {
 
   const queryPage = router.query.page as string;
   const currentPage = parseInt(queryPage || "1");
-  const itemsPerPage = 3;
+  const itemsPerPage = 10;
 
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");

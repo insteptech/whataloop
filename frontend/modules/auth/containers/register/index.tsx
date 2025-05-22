@@ -39,15 +39,18 @@ const SignUp = () => {
       .required("Business name is required")
       .min(2, "Too short!")
       .max(20, "Too long!"),
+    phone: Yup.string()
+      .required("Phone is required")
+      .matches(/^\+?[0-9]{10,}$/, "Phone number is not valid")
+      .min(10, "Phone number too short"),
+
     email: Yup.string()
       .required("Email is required")
+      .email("Invalid email format")
       .matches(
         /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
         "Invalid email format"
       ),
-    phone: Yup.string()
-      .required("Mobile number is required")
-      .matches(/^[6-9]\d{9}$/, "Enter valid 10-digit mobile number"),
     password: Yup.string()
       .required("Password is required")
       .min(6, "Password must be at least 6 characters"),
@@ -79,7 +82,7 @@ const SignUp = () => {
 
       const response = await dispatch(register(payload)).unwrap();
       console.log("Register response:", response);
-      
+
       if (response?.statusCode === 200) {
         toast.success("Registration successful!");
         window.location.href = "/";

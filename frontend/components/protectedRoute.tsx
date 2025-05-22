@@ -63,6 +63,9 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
           router.push("/");
           return;
         }
+        else {
+          router.push('/dashboard/containers')
+        }
 
         if (userPermissions && userPermissions.length > 0) {
           if (!isRoutePermission()) {
