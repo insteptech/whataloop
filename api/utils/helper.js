@@ -45,4 +45,11 @@ const generateToken = (payload) => {
   });
 };
 
-module.exports = { sendResponse, verifyToken, sendOtp, generateToken };
+const sanitizePhoneNumber = (phone) => {
+  if (phone.startsWith('+')) {
+    return phone.slice(1);
+  }
+  return phone;
+}
+
+module.exports = { sendResponse, verifyToken, sendOtp, generateToken, sanitizePhoneNumber };

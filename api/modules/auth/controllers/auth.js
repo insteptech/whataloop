@@ -185,7 +185,6 @@ exports.signup = async (req, res, next) => {
       return next(new CustomError(unsupportedDBType, 400));
     }
     const schema = buildSchema(signupInput);
-    console.log('req:------', req.body);
 
     const { error } = schema.validate(req.body);
     if (error) return next(new CustomError(error.details[0].message, 400));

@@ -1,4 +1,5 @@
 const onboardingManager = require('./../manager/onboarding');
+const { sanitizePhoneNumber } = require('../../../utils/helper');
 
 exports.onboardNewUser = async (req, res) => {
     try {
@@ -16,7 +17,7 @@ exports.onboardNewUser = async (req, res) => {
         }
 
         // Call the manager to handle the onboarding process
-        const result = await onboardingManager.onboardNewUser(businessName, whatsappNumber);
+        const result = await onboardingManager.onboardNewUser(businessName, sanitizePhoneNumber(whatsappNumber));
 
         return res.status(200).json({
             success: true,
