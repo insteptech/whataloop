@@ -52,7 +52,16 @@ function LeftSidebar({ Width }: any) {
         },
       ]
       : []),
-
+    {
+      href: "/messages/messagesAndReplies",
+      label: "Messages",
+      icon: "",
+    },
+    {
+      href: "/autoreplies/autoReplies",
+      label: "Auto Replies",
+      icon: "",
+    },
   ];
 
   return (

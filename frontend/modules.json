@@ -22,5 +22,11 @@
     },
     {
       "name": "users"
+    },
+    {
+      "name": "messages"
+    },
+    {
+      "name": "autoreplies"
     }
   ]

@@ -33,6 +33,12 @@ export const componentsMap = {
     "usersList": dynamic(() => import("@/modules/users/containers/usersList/index"), { ssr: false, loading: () => <Loader /> }), 
     "createUser": dynamic(() => import("@/modules/users/containers/createUser/index"), { ssr: false, loading: () => <Loader /> }), 
   },
+  "messages": {
+    "messagesAndReplies": dynamic(() => import("@/modules/messages/containers/messagesAndReplies/index"), { ssr: false, loading: () => <Loader /> }), 
+  },
+  "autoreplies": {
+    "autoReplies": dynamic(() => import("@/modules/autoreplies/containers/autoReplies/index"), { ssr: false, loading: () => <Loader /> }), 
+  },
   "main": {
     "403": dynamic(() => import("@/containers/403"), { ssr: false, loading: () => <Loader /> }), 
     "dashboard": dynamic(() => import("@/containers/dashboard/index"), { ssr: false, loading: () => <Loader /> }), 
