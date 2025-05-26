@@ -51,7 +51,6 @@ exports.getLeads = async (userId, query) => {
 };
 
 exports.updateLead = async (leadId, userId, data, role) => {
-  console.log("Role from manager", role)
   return await leadService.update(leadId, userId, data, role);
 };
 

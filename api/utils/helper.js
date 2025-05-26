@@ -52,4 +52,14 @@ const sanitizePhoneNumber = (phone) => {
   return phone;
 }
 
-module.exports = { sendResponse, verifyToken, sendOtp, generateToken, sanitizePhoneNumber };
+const getUserIdFromToken = (token) => {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded.id; // or decoded.id depending on your payload
+  } catch (err) {
+    console.error('Invalid token:', err);
+    return null;
+  }
+};
+
+module.exports = { sendResponse, verifyToken, sendOtp, generateToken, sanitizePhoneNumber, getUserIdFromToken };

@@ -49,6 +49,8 @@ Replace [model-name] with your model name.
 
 ```bash
 npx sequelize-cli model:generate --name model-name  --attributes column-name:data-type
+npx sequelize-cli seed:generate --name seed-subscriptions
+
 ```
 
 Replace model-name and column-name with your name.\

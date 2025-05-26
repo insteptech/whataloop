@@ -23,7 +23,6 @@ modules.forEach((element) => {
       const {
         routeParams,
       } = require(`../modules/${element.name}/routes/fields.js`);
-      // console.log(routeParams, "fieldsDir");
       fields = [...fields, ...routeParams];
     }
   } else {

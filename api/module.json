@@ -7,5 +7,12 @@
     {"name": "lead"},
     {"name": "webhook"},
     {"name": "whatsapp"},
-    {"name": "onboarding"}
+    {"name": "onboarding"},
+    {"name": "subscriptions"},
+    {"name": "reminders"},
+    {"name": "replies"},
+    {"name": "business"},
+    {"name": "businessSubscription"},
+    {"name": "subscriptionPlan"},
+    {"name": "thirdPartyIntegration"}
 ]

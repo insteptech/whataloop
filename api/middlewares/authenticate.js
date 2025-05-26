@@ -125,7 +125,6 @@ exports.authorize = async (req, res, next) => {
           token = val.replace(/"/g, "");
           if (token) {
             verifyToken(token, async function (err, decoded) {
-              console.log(err, "err");
               if (err) {
                 return next(
                   new CustomError(`You are not authenticated! ${err}`, 400)

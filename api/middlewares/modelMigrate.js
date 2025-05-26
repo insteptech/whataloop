@@ -13,7 +13,6 @@ const modules = require("../module.json");
     modules.forEach((element) => {
       const basePath = path.join(__dirname, `../modules/`);
       const moduleDir = path.join(basePath, `${element.name}`);
-      console.log(moduleDir);
       if (fs.existsSync(moduleDir)) {
         migrationFolders.push(
           path.resolve(basePath, `${element.name}/migrations`)

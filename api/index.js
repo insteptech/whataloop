@@ -13,6 +13,9 @@ const { generateSwaggerJSONFromRouter } = require("./config/swagger");
 const { exec } = require("child_process");
 const app = express();
 const path = require("path");
+const accessLogger = require('./modules/log/middlewares/accessLogger');
+const errorLogger = require('./modules/log/middlewares/errorLogger');
+
 
 const port = process.env.PORT || 3000;
 
@@ -101,6 +104,10 @@ app.use(
 // Error handling middleware
 app.use(errorHandler);
 app.set('trust proxy', 1);
+
+// app.use(errorLogger);
+// app.use(accessLogger);
+
 
 app.listen(port, () => {
   logger.info(`Server running at http://localhost:${port}`);

@@ -2,12 +2,12 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('UserSubscriptions', {
+    await queryInterface.createTable('Subscriptions', {
       id: {
-        type: Sequelize.UUID,
-        primaryKey: true,
-        defaultValue: Sequelize.literal('gen_random_uuid()'),
         allowNull: false,
+        primaryKey: true,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.literal('gen_random_uuid()')
       },
       user_id: {
         type: Sequelize.UUID,
@@ -19,37 +19,34 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       stripe_subscription_id: {
-        type: Sequelize.STRING(100),
+        type: Sequelize.STRING(100)
       },
       plan: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: 'Subscriptions',
-          key: 'id',
-        },
+        type: Sequelize.STRING(20)
       },
       status: {
-        type: Sequelize.ENUM("active", "canceled", "trialing"),
-        defaultValue: "trialing",
+        type: Sequelize.STRING(30)
       },
       started_at: {
-        type: Sequelize.DATE,
+        type: Sequelize.DATE
       },
       ended_at: {
-        type: Sequelize.DATE,
+        type: Sequelize.DATE
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('NOW()')
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
-      },
+        defaultValue: Sequelize.literal('NOW()')
+      }
     });
   },
+
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('UserSubscriptions');
+    await queryInterface.dropTable('Subscriptions');
   }
 };
