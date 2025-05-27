@@ -8,7 +8,6 @@
     {"name": "webhook"},
     {"name": "whatsapp"},
     {"name": "onboarding"},
-    {"name": "subscriptions"},
     {"name": "reminders"},
     {"name": "replies"},
     {"name": "business"},
