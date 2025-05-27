@@ -90,7 +90,7 @@ export const updateLead = createAsyncThunk(
   async ({ id, data }: { id: string; data: any }, { rejectWithValue }) => {
     try {
       const response = await api.put(`/lead/${id}`, data);
-      return response.data; 
+      return response.data.updatedLead;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }

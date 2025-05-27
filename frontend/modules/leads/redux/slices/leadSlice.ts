@@ -72,15 +72,21 @@ const leadSlice = createSlice({
         state.loading = true;
         state.error = "";
       })
-    .addCase(updateLead.fulfilled, (state, action) => {
+  .addCase(updateLead.fulfilled, (state, action) => {
   state.loading = false;
-  const updatedLead = action.payload?.updatedLead;
-  if (updatedLead) {
-    state.leads = state.leads.map(lead => 
-      lead.id === updatedLead.id ? updatedLead : lead
-    );
+  console.log('Update lead fulfilled:', action.payload);
+  // Check if payload exists and has the expected structure
+  if (action.payload) {
+    const updatedLead = action.payload;
+    
+    // Find and replace the lead in the array
+    const index = state.leads.findIndex(lead => lead.id === updatedLead.id);
+    if (index !== -1) {
+      state.leads[index] = updatedLead;
+    }
+    
+    state.message = "Lead updated successfully";
   }
-  state.message = action.payload?.message || "Lead updated successfully";
 })
       .addCase(updateLead.rejected, (state, action) => {
         state.loading = false;

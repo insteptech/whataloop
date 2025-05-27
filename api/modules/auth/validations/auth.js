@@ -39,4 +39,5 @@ exports.signupInput = [
   { key: "fullName", type: "string", required: true },
   { key: "password", type: "string", required: true },
   { key: "photo_url", type: "string", required: false },
+  { key: "photo_url", type: "string", required: false }
 ];

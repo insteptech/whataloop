@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useFormik } from "formik";
@@ -10,6 +9,7 @@ import {
 import Loader from "@/components/common/loader";
 import Notification from "@/components/common/Notification";
 import ConfirmationPopup from "@/components/common/ConfirmationPopUp";
+import Image from "next/image";
 
 // Validation Schema
 const validationSchema = Yup.object({
@@ -24,12 +24,17 @@ const UserProfilePage: React.FC = () => {
   );
 
   const token = useMemo(() => localStorage.getItem("auth_token"), []);
+  const BACKEND_URL = 'http://localhost:3000';
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [pendingValues, setPendingValues] = useState<{ fullName: string } | null>(
     null
+  );
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    user?.photo_url ? `${BACKEND_URL}${user.photo_url}` : "/default-avatar.png"
   );
 
   // Fetch profile if not loaded yet
@@ -38,6 +43,13 @@ const UserProfilePage: React.FC = () => {
       dispatch(fetchProfile(token));
     }
   }, [dispatch, token, user?.fullName]);
+
+  // Update image preview when user changes
+  useEffect(() => {
+    if (user?.photo_url && !image) {
+      setImagePreview(`${BACKEND_URL}${user.photo_url}`);
+    }
+  }, [user?.photo_url, image]);
 
   // Cleanup notification flags on unmount
   useEffect(() => {
@@ -63,14 +75,24 @@ const UserProfilePage: React.FC = () => {
 
   // Handle confirm update
   const handleConfirmUpdate = async () => {
-    if (!token || !pendingValues) return;
+    if (!token || (!pendingValues && !image)) return;
 
     try {
       setShowSuccess(false);
       setShowError(false);
 
+      const formData = new FormData();
+
+      if (pendingValues) {
+        formData.append("fullName", pendingValues.fullName);
+      }
+
+      if (image) {
+        formData.append("photo", image);
+      }
+
       const result = await dispatch(
-        updateProfile({ data: pendingValues, token })
+        updateProfile({ data: formData, token })
       );
 
       if (updateProfile.fulfilled.match(result)) {
@@ -84,6 +106,7 @@ const UserProfilePage: React.FC = () => {
     } finally {
       setShowConfirm(false);
       setPendingValues(null);
+      setImage(null);
     }
   };
 
@@ -100,11 +123,32 @@ const UserProfilePage: React.FC = () => {
 
         <div className="profile-card__content">
           <div className="profile-card__sidebar">
-            <img
-              src={user.photo_url || "/default-avatar.png"}
-              alt="Profile"
-              className="profile-avatar"
-            />
+            <div className="avatar-wrapper">
+              <Image
+                src={imagePreview || "/default-avatar.png"}
+                alt="Profile"
+                width={120}
+                height={120}
+                className="profile-avatar"
+              />
+              <label htmlFor="image-upload" className="change-photo-btn">
+                Change Photo
+              </label>
+              <input
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setImage(file);
+                    setImagePreview(URL.createObjectURL(file));
+                  }
+                }}
+                style={{ display: "none" }}
+              />
+            </div>
+
             <div className="user-info">
               <div className="user-info__name">
                 {user.fullName || "User Name"}
@@ -172,12 +216,11 @@ const UserProfilePage: React.FC = () => {
               <button
                 type="submit"
                 className="submit-btn"
-                disabled={formik.isSubmitting || !formik.dirty}
+                disabled={formik.isSubmitting && !formik.dirty && !image}
               >
                 {formik.isSubmitting ? "Updating..." : "Update Profile"}
               </button>
             </form>
-
           </div>
         </div>
       </div>

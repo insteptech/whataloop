@@ -1,203 +1,165 @@
-import React, { useEffect, useState, useRef } from "react";
+'use client';
+
+import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
+import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+
 import {
   getLeads,
-  deleteLead,
   updateLead,
+  deleteLead,
 } from "../../redux/action/leadAction";
-import ChatModal from "@/components/common/ChatModal";
-import Loader from "@/components/common/loader";
+import { fetchConstants } from "@/modules/constants/redux/action/constantAction";
 import EditLeadModal from "@/components/leadEditModal";
-import Notification from "@/components/common/Notification";
-import DeleteIcon from "../../../../public/delete.png";
-import EditIcon from "../../../../public/edit.png";
-import Image from "next/image";
-import CustomTooltip from "@/components/common/Tooltip";
-import { ConfirmDialog } from 'primereact/confirmdialog';
-import { Toast } from 'primereact/toast';
-import 'primereact/resources/themes/lara-light-indigo/theme.css';
-import 'primereact/resources/primereact.min.css';
-import 'primeicons/primeicons.css';
 
 const LeadsList = () => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const toast = useRef<any>(null);
 
-  const { leads, total, loading } = useSelector(
-    (state: any) => state.leadReducer
-  );
-
+  const { leads, loading } = useSelector((state: any) => state.leadReducer);
+  const { constantsList } = useSelector((state: any) => state.constantReducer);
   const role = useSelector((state: any) => state.authReducer.role);
-  console.log("Auth from Redux:", role);
-
-  const queryPage = router.query.page as string;
-  const currentPage = parseInt(queryPage || "1");
-  const itemsPerPage = 10;
 
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [sortColumn, setSortColumn] = useState("");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedLead, setSelectedLead] = useState<any>(null);
-  const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
-  const [leadToDelete, setLeadToDelete] = useState<string | null>(null);
 
-  const [notification, setNotification] = useState<{
-    show: boolean;
-    title: string;
-    message: string;
-    type: "success" | "error";
-  }>({ show: false, title: "", message: "", type: "success" });
+  // Extract status columns dynamically
+  const statusColumns = useMemo(() => {
+    if (!constantsList || !Array.isArray(constantsList)) return [];
+    return constantsList.filter((ct: any) => ct.type === "status");
+  }, [constantsList]);
 
-  const handleSortClick = (column: string) => {
-    if (sortColumn === column) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortColumn(column);
-      setSortOrder("asc");
+  // Group leads by status
+  const groupLeadsByStatus = () => {
+    const grouped: { [key: string]: any[] } = {};
+
+    // Initialize all status groups
+    statusColumns.forEach(col => {
+      grouped[col.label] = [];
+    });
+
+    // Unassigned fallback
+    grouped["Unassigned"] = [];
+
+    // Group leads
+    if (leads && Array.isArray(leads)) {
+      leads.forEach((lead: any) => {
+        const statusLabel = lead.statusDetail?.label || "Unassigned";
+        if (!grouped[statusLabel]) grouped[statusLabel] = [];
+        grouped[statusLabel].push(lead);
+      });
     }
+
+    return grouped;
   };
 
-  const renderSortIcon = (column: string) => {
-    if (sortColumn !== column) return "↕";
-    return sortOrder === "asc" ? "▲" : "▼";
-  };
+  const [groupedLeads, setGroupedLeads] = useState(groupLeadsByStatus());
 
+  useEffect(() => {
+    setGroupedLeads(groupLeadsByStatus());
+  }, [leads, constantsList]);
+
+  // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchInput.trim());
-      router.push({
-        pathname: router.asPath.split("?")[0],
-        query: { page: "1" },
-      });
-    }, 1000);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [searchInput]);
 
+  // Fetch leads and constants on mount
   useEffect(() => {
-    dispatch(
-      getLeads({
-        page: currentPage,
-        limit: itemsPerPage,
-        search: debouncedSearch,
-        sort: sortColumn,
-        order: sortOrder,
-        role: role
-      }) as any
-    );
-  }, [dispatch, currentPage, debouncedSearch, sortColumn, role, sortOrder]);
+    dispatch(fetchConstants({ page: 1, limit: 100 }) as any); // Load constants
+    dispatch(getLeads({
+      page: 1,
+      limit: 100,
+      search: debouncedSearch,
+      sort: "",
+      order: "desc",
+      role: role
+    }) as any);
+  }, [dispatch, debouncedSearch, role]);
 
-  const totalPages = Math.ceil(total / itemsPerPage);
+  // Handle drag end
+  const onDragEnd = (result: DropResult) => {
+    const { source, destination, draggableId } = result;
 
-  const handlePageChange = (page: number) => {
-    router.push({
-      pathname: router.pathname,
-      query: { ...router.query, page: page.toString() },
-    });
+    if (!destination) return;
+
+    if (
+      source.droppableId === destination.droppableId &&
+      source.index === destination.index
+    ) {
+      return;
+    }
+
+    const newGroupedLeads = JSON.parse(JSON.stringify(groupedLeads));
+    const sourceStatus = source.droppableId;
+    const destStatus = destination.droppableId;
+
+    const sourceLeads = [...newGroupedLeads[sourceStatus]];
+    const destLeads = [...newGroupedLeads[destStatus]];
+
+    const [movedLead] = sourceLeads.splice(source.index, 1);
+
+    if (sourceStatus === destStatus) {
+      sourceLeads.splice(destination.index, 0, movedLead);
+      newGroupedLeads[sourceStatus] = sourceLeads;
+    } else {
+      destLeads.splice(destination.index, 0, movedLead);
+      newGroupedLeads[sourceStatus] = sourceLeads;
+      newGroupedLeads[destStatus] = destLeads;
+    }
+
+    setGroupedLeads(newGroupedLeads);
+
+    if (sourceStatus !== destStatus) {
+      const newStatus = statusColumns.find((col: any) => col.label === destStatus);
+      if (!newStatus) return;
+
+      dispatch(updateLead({
+        id: movedLead.id,
+        data: { status: newStatus.id }
+      }) as any).then(() => {
+        dispatch(getLeads({
+          page: 1,
+          limit: 100,
+          search: debouncedSearch,
+          sort: "",
+          order: "desc",
+          role: role
+        }) as any);
+      });
+    }
   };
 
-  const handleDeleteLead = (id: string) => {
-    setLeadToDelete(id);
-    setDeleteConfirmationVisible(true);
+  const handleDelete = (leadId: string) => {
+    if (confirm("Are you sure you want to delete this lead?")) {
+      dispatch(deleteLead(leadId) as any).then(() => {
+        dispatch(getLeads({
+          page: 1,
+          limit: 100,
+          search: debouncedSearch,
+          sort: "",
+          order: "desc",
+          role: role
+        }) as any);
+      });
+    }
   };
-
-  const confirmDelete = () => {
-    if (!leadToDelete) return;
-
-    dispatch(deleteLead(leadToDelete) as any).then((action) => {
-      if (deleteLead.fulfilled.match(action)) {
-        dispatch(
-          getLeads({
-            page: currentPage,
-            limit: itemsPerPage,
-            search: debouncedSearch,
-            sort: sortColumn,
-            order: sortOrder,
-            role: role
-          }) as any
-        );
-
-        if (!notification.show) {
-          setNotification({
-            show: true,
-            title: "Lead Deleted",
-            message: "The lead has been deleted successfully.",
-            type: "success",
-          });
-        }
-
-        toast.current?.show({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Lead deleted successfully',
-          life: 3000,
-        });
-      }
-    });
-
-    setDeleteConfirmationVisible(false);
-    setLeadToDelete(null);
-  };
-
-  const cancelDelete = () => {
-    setDeleteConfirmationVisible(false);
-    setLeadToDelete(null);
-
-  };
-
-  const handleUpdateLead = (updatedLead: any) => {
-    dispatch(updateLead(updatedLead) as any).then((action) => {
-      if (updateLead.fulfilled.match(action)) {
-        dispatch(
-          getLeads({
-            page: currentPage,
-            limit: itemsPerPage,
-            search: debouncedSearch,
-            sort: sortColumn,
-            order: sortOrder,
-            role: role
-          }) as any
-        );
-
-        if (!notification.show) {
-          setNotification({
-            show: true,
-            title: "Lead Updated",
-            message: "The lead information has been updated successfully.",
-            type: "success",
-          });
-        }
-      }
-    });
-  };
-
-  if (loading) {
-    return <Loader />;
-  }
 
   return (
     <div className="lead-list-container">
-      <Toast ref={toast} />
-      <ConfirmDialog
-        visible={deleteConfirmationVisible}
-        onHide={cancelDelete}
-        message="Are you sure you want to delete this lead?"
-        header="Delete Confirmation"
-        icon="pi pi-exclamation-triangle"
-        acceptClassName="p-button-danger"
-        accept={confirmDelete}
-        reject={cancelDelete}
-      />
-
+      {/* Header */}
       <div className="lead-list-header">
         <h2>Leads</h2>
-        <div className="lead-count">{total} leads found</div>
       </div>
 
+      {/* Search & Create */}
       <div className="row search-and-create-lead-button">
         <div className="col-md-4">
           <form onSubmit={(e) => e.preventDefault()}>
@@ -216,189 +178,91 @@ const LeadsList = () => {
         </div>
       </div>
 
-      <div className="leads-table-container">
-        <table className="leads-table">
-          <thead>
-            <tr>
-              {[
-                "name",
-                "email",
-                "phone",
-                "status",
-                "source",
-                "tag",
-                "last_contacted",
-                "action",
-              ].map((col, idx) => (
-                <th key={idx} className={`th-${col.replace("_", "-")}`}>
-                  {col !== "action" ? (
-                    <button
-                      className="sort-btn"
-                      onClick={() => handleSortClick(col)}
-                    >
-                      {col.replace("_", " ").toUpperCase()}{" "}
-                      {renderSortIcon(col)}
-                    </button>
-                  ) : (
-                    col.toUpperCase()
-                  )}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {leads?.length > 0 ? (
-              leads.map((lead: any) => (
-                <tr key={lead.id} className="lead-row">
-                  <td className="td-name" data-label="Name">
-                    <div>
-                      <CustomTooltip message={lead.name} className="lead-name" />
-                      <CustomTooltip message={lead.notes} className="lead-notes" />
-                    </div>
-                  </td>
-                  <td className="td-email" data-label="Email">
-                    <CustomTooltip message={lead.email} className="lead-email" />
-                  </td>
-                  <td className="td-phone" data-label="Phone">
-                    <CustomTooltip message={lead.phone} className="lead-phone" />
-                  </td>
-                  <td className="td-status" data-label="Status">
-                    <CustomTooltip
-                      message={lead.statusDetail?.label || "N/A"}
-                      className="lead-status"
-                    />
-                  </td>
-                  <td className="td-source" data-label="Source">
-                    <CustomTooltip
-                      message={lead.sourceDetail?.label || "N/A"}
-                      className="lead-source"
-                    />
-                  </td>
-                  <td className="td-tag" data-label="Tag">
-                    <span className={`lead-tag ${lead.tagDetail?.label}`}>
-                      {lead.tagDetail?.label || "No Tag"}
-                    </span>
-                  </td>
-                  <td className="td-last-contacted" data-label="Last Contacted">
-                    <CustomTooltip
-                      message={lead.last_contacted || "Not selected"}
-                      className="lead-date"
-                    />
-                  </td>
-                  <td className="td-action" data-label="Action">
-                    <div className="action-buttons">
-                      <button
-                        onClick={() => {
-                          setSelectedLead(lead);
-                          setShowEditModal(true);
-                        }}
-                      >
-                        <Image
-                          src={EditIcon}
-                          width={24}
-                          height={24}
-                          alt="edit lead"
-                        />
-                      </button>
-                      <button onClick={() => handleDeleteLead(lead.id)}>
-                        <Image
-                          src={DeleteIcon}
-                          width={24}
-                          height={24}
-                          alt="delete lead"
-                        />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={9} className="no-leads-message">
-                  No users found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      {/* Kanban */}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="kanban-board">
+          {statusColumns.length > 0 ? (
+            statusColumns.map((column: any) => (
+              <Droppable droppableId={column.label} key={column.id} direction="vertical">
+                {(provided, snapshot) => (
+                  <div
+                    className={`kanban-column ${snapshot.isDraggingOver ? 'dragged-over' : ''}`}
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                  >
+                    <h4>{column.label}</h4>
 
-      {totalPages > 0 && (
-        <div className="pagination mt-4">
-          <button
-            onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
-            disabled={currentPage === 1}
-            className="pagination-button"
-          >
-            Previous
-          </button>
+                    {groupedLeads[column.label]?.map((lead: any, index: number) => (
+                      <Draggable draggableId={lead.id} index={index} key={lead.id}>
+                        {(provided, snapshot) => (
+                          <div
+                            className={`kanban-card ${snapshot.isDragging ? 'dragged' : ''}`}
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            <div
+                              onClick={() => {
+                                setSelectedLead(lead);
+                                setShowEditModal(true);
+                              }}
+                            >
+                              <strong>{lead.name}</strong>
+                              <p>{lead.notes || "—"}</p>
+                              <p>{lead.email}</p>
+                              <p>{lead.phone}</p>
+                              <p>{lead.sourceDetail?.label || "—"}</p>
+                              <p>{lead.tagDetail?.label || "—"}</p>
+                            </div>
 
-          {currentPage > 2 && (
-            <>
-              <button
-                onClick={() => handlePageChange(1)}
-                className="pagination-button"
-              >
-                1
-              </button>
-              <span className="pagination-ellipsis">...</span>
-            </>
+                            <button
+                              className="btn btn-danger btn-sm mt-2"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(lead.id);
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            ))
+          ) : (
+            <p>Loading status columns...</p>
           )}
-
-          <button className="pagination-button active" disabled>
-            {currentPage}
-          </button>
-
-          {currentPage < totalPages - 1 && (
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              className="pagination-button"
-            >
-              {currentPage + 1}
-            </button>
-          )}
-
-          {currentPage < totalPages - 2 && (
-            <span className="pagination-ellipsis">...</span>
-          )}
-
-          {currentPage !== totalPages && (
-            <button
-              onClick={() => handlePageChange(totalPages)}
-              className="pagination-button"
-            >
-              {totalPages}
-            </button>
-          )}
-
-          <button
-            onClick={() =>
-              handlePageChange(Math.min(currentPage + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className="pagination-button"
-          >
-            Next
-          </button>
         </div>
-      )}
+      </DragDropContext>
 
+      {/* Modal */}
       <EditLeadModal
         show={showEditModal}
-        onClose={() => setShowEditModal(false)}
+        onClose={() => {
+          setShowEditModal(false);
+          setSelectedLead(null);
+        }}
         lead={selectedLead}
-        onSave={handleUpdateLead}
+        onSave={(updatedLeadData) => {
+          dispatch(updateLead({
+            id: updatedLeadData.id,
+            data: updatedLeadData
+          }) as any);
+          setShowEditModal(false);
+          dispatch(getLeads({
+            page: 1,
+            limit: 100,
+            search: debouncedSearch,
+            sort: "",
+            order: "desc",
+            role: role
+          }) as any);
+        }}
       />
-
-      {notification.show && (
-        <Notification
-          title={notification.title}
-          message={notification.message}
-          type={notification.type}
-          position="bottom-center"
-          onClose={() => setNotification({ ...notification, show: false })}
-        />
-      )}
     </div>
   );
 };

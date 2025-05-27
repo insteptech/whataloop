@@ -1105,3 +1105,10 @@ $dark: #212529;
 .p-button:hover {
     transform: scale(1.05);
 }
+
+.header-top-bar-sticky{
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: white;
+}

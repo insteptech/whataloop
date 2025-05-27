@@ -607,3 +607,35 @@
     width: 20% !important;
   }
 }
+.kanban-board {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.kanban-column {
+  min-width: 425px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 10px;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
+}
+
+.kanban-card {
+  background: white;
+  margin-bottom: 12px; 
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  cursor: grab;
+  transition: background-color 0.2s ease;
+}
+.kanban-card button {
+  width: 60%;
+  margin-top: 10px;
+  padding: 4px;
+  font-size: 14px;
+}
+ 

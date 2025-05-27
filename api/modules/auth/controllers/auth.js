@@ -185,11 +185,12 @@ exports.signup = async (req, res, next) => {
       return next(new CustomError(unsupportedDBType, 400));
     }
     const schema = buildSchema(signupInput);
-
-    const { error } = schema.validate(req.body);
+    // Validate other fields using Joi schema (excluding file)
+    const { error } = schema.validate(req.body); // Validate req.body, which contains non-file fields
     if (error) return next(new CustomError(error.details[0].message, 400));
 
-    const result = await authManager.signup(req, res, next);
+    // Pass the file path to the manager along with other body data
+    const result = await authManager.signup(req.body, req.file, res, next); // Pass req.file
     return result;
   } catch (error) {
     return next(new CustomError(error.message, 500));

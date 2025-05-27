@@ -20,7 +20,7 @@ export const fetchProfile = createAsyncThunk<any, string>(
 
 export const updateProfile = createAsyncThunk<
   any,
-  { data: any; token: string },
+  { data: FormData; token: string },
   { rejectValue: any }
 >(
   "auth/updateProfileSelf",
@@ -29,6 +29,7 @@ export const updateProfile = createAsyncThunk<
       const response = await api.put("/auth/updateprofileself", data, {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
         },
       });
       return response.data;

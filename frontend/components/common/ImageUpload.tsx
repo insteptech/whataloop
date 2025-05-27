@@ -3,26 +3,28 @@ import { ErrorMessage } from "formik";
 import Image from "next/image";
 import UploadIcon from "../../public/camera.png";
 
+
 interface ImageUploadProps {
   name: string;
   label?: string;
-  onChange?: (file: File) => void;
+  onChange?: (file: File | null) => void;
+  file?: File | null; 
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ name, label, onChange }) => {
+const ImageUpload: React.FC<ImageUploadProps> = ({ name, label, onChange, file }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState(UploadIcon.src);
-  const [isUploaded, setIsUploaded] = useState(false);
+  const [preview, setPreview] = useState<string>(
+    file instanceof File ? URL.createObjectURL(file) : UploadIcon.src
+  );
+  const [isUploaded, setIsUploaded] = useState<boolean>(file instanceof File);
 
   const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0];
-      console.log(file, "file file");
-
-      setPreview(URL.createObjectURL(file));
+      const selectedFile = event.target.files[0];
+      setPreview(URL.createObjectURL(selectedFile));
       setIsUploaded(true);
       if (onChange) {
-        onChange(file); // Pass file to parent
+        onChange(selectedFile);
       }
     }
   };
@@ -34,7 +36,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ name, label, onChange }) => {
       <div className="col-md-4 text-center">
         <label htmlFor={name} style={{ cursor: "pointer" }}>
           <div className={`image-container ${overlayClass}`}>
-            <Image
+            <img
               src={preview}
               alt="Profile"
               width={70}
@@ -44,7 +46,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ name, label, onChange }) => {
                 height: overlayClass ? "70px" : "100%",
                 borderRadius: overlayClass ? "0px" : "100%",
               }}
-              priority
             />
           </div>
         </label>
@@ -62,5 +63,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ name, label, onChange }) => {
     </div>
   );
 };
+
 
 export default ImageUpload;

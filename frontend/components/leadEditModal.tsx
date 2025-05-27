@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Modal, Button, Form } from "react-bootstrap";
-import { updateLead } from "@/modules/leads/redux/action/leadAction";
-import SelectField from "@/components/common/SelectField"; // Import SelectField
+import { Modal, Button, Row, Col } from "react-bootstrap";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { FaEdit } from "react-icons/fa";
+
+import SelectField from "@/components/common/SelectField";
+import InputField from "@/components/common/InputField";
+import TextAreaField from "@/components/common/TextareaField";
+import InputFieldWithCountryCode from "@/components/common/InputFieldWithCountryCode";
 import { getConstantType } from "@/modules/leads/redux/action/leadAction";
 
 interface EditLeadModalProps {
@@ -13,148 +20,196 @@ interface EditLeadModalProps {
 }
 
 const EditLeadModal: React.FC<EditLeadModalProps> = ({ show, onClose, lead, onSave }) => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    tag: "",
-    status: "",
-    source: "",
-    notes: ""
-  });
-
   const [tagOptions, setTagOptions] = useState([]);
-  const [statusOptions, setStatusOptions] = useState([]);
   const [sourceOptions, setSourceOptions] = useState([]);
+  const [isEditable, setIsEditable] = useState(false);
 
   const dispatch = useDispatch();
-  const { constants } = useSelector((state: any) => state.leadReducer);
 
   useEffect(() => {
     const fetchConstants = async () => {
       try {
-        const response = await (dispatch(getConstantType() as any)).unwrap();
-        const constants = response?.data?.constantType?.rows || [];
+        const response = await dispatch(getConstantType() as any);
+        const constants = response.payload?.data?.constantType?.rows || [];
+
         setTagOptions(
-          constants.filter((item) => item.type === "tag").map(({ label, id }) => ({ label, value: id }))
+          constants
+            .filter((item: any) => item.type === "tag")
+            .map(({ label, id }: any) => ({ label, value: id }))
         );
-        setStatusOptions(
-          constants.filter((item) => item.type === "status").map(({ label, id }) => ({ label, value: id }))
-        );
+
         setSourceOptions(
-          constants.filter((item) => item.type === "source").map(({ label, id }) => ({ label, value: id }))
+          constants
+            .filter((item: any) => item.type === "source")
+            .map(({ label, id }: any) => ({ label, value: id }))
         );
       } catch (err) {
         console.error("Failed to load constants", err);
+        toast.error("Failed to load dropdown options");
       }
     };
+
     fetchConstants();
   }, [dispatch]);
 
-  useEffect(() => {
-    if (lead) {
-      setFormData({
-        name: lead.name || "",
-        email: lead.email || "",
-        phone: lead.phone || "",
-        tag: lead.tag,
-        status: lead.status,
-        source: lead.source,
-        notes: lead.notes
-      });
-    }
-  }, [lead]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const initialValues = {
+    name: lead?.name || "",
+    email: lead?.email || "",
+    phone: lead?.phone || "",
+    tag: lead?.tag || "",
+    source: lead?.source || "",
+    notes: lead?.notes || "",
   };
 
-  const handleSave = () => {
-    if (lead && lead.id) {
-      dispatch(updateLead({ id: lead.id, data: formData }) as any).then(() => {
-        onSave({ ...lead, ...formData });
-        onClose();
-      });
-    }
+  const validationSchema = Yup.object().shape({
+    name: Yup.string().required("Name is required"),
+    phone: Yup.string()
+      .required("Phone is required")
+      .matches(/^\+?[0-9]{10,}$/, "Phone number is not valid")
+      .min(12, "Phone number too short")
+      .max(15, "Phone number is too long"),
+    email: Yup.string()
+      .required("Email is required")
+      .email("Invalid email format")
+      .matches(
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        "Invalid email format"
+      ),
+    tag: Yup.string().required("Tag is required"),
+    source: Yup.string().required("Source is required"),
+    notes: Yup.string(),
+  });
+
+const handleSubmit = (values: typeof initialValues) => {
+  const updatedData = {
+    ...values,
+    id: lead.id // Ensure ID is always included
+  };
+  onSave(updatedData); // This should trigger updateLead action
+  handleClose();
+};
+
+  // Reset editable state and call parent's onClose
+  const handleClose = () => {
+    setIsEditable(false);
+    onClose();
   };
 
   return (
-    <Modal show={show} onHide={onClose}>
+    <Modal show={show} onHide={handleClose} centered backdrop="static">
       <Modal.Header closeButton>
         <Modal.Title>Edit Lead</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
-        <Form>
-          <Form.Group className="mb-3">
-            <Form.Label>Name</Form.Label>
-            <Form.Control type="text" name="name" value={formData.name} onChange={handleChange} />
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Notes</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              name="notes"
-              value={formData.notes || ""}
-              onChange={handleChange}
-              placeholder="Enter notes here..."
-            />
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Email</Form.Label>
-            <Form.Control type="email" name="email" value={formData.email} onChange={handleChange} />
-          </Form.Group>
+      <Formik
+        enableReinitialize
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ values, handleChange, setFieldValue }) => (
+          <Form>
+            <Modal.Body>
+              <Button
+                variant="link"
+                onClick={() => setIsEditable((prev) => !prev)}
+                style={{
+                  marginLeft: "auto",
+                  fontSize: "1.4rem",
+                  color: "#007bff",
+                  display: "flex",
+                  alignItems: "center",
+                  width: "end",
+                }}
+              >
+                <FaEdit />
+              </Button>
+              <Row>
+                <Col md={6}>
+                  <InputField
+                    label="Name"
+                    name="name"
+                    id="name"
+                    placeholder="Enter Name"
+                    value={values.name}
+                    onChange={handleChange}
+                    disabled={!isEditable}
+                  />
+                </Col>
+                <Col md={6}>
+                  <InputFieldWithCountryCode
+                    label="Phone Number"
+                    name="phone"
+                    id="phone"
+                    placeholder="Enter Phone Number"
+                    value={values.phone}
+                    onChange={handleChange}
+                    className="country-code-select-with-number leads-country-code"
+                    required
+                    disabled={!isEditable}
+                  />
+                </Col>
+                <Col md={6}>
+                  <InputField
+                    label="Email"
+                    name="email"
+                    id="email"
+                    placeholder="Enter Email"
+                    value={values.email}
+                    onChange={handleChange}
+                    type="email"
+                    disabled={!isEditable}
+                  />
+                </Col>
+                <Col md={6}>
+                  <SelectField
+                    name="tag"
+                    label="Tag"
+                    options={tagOptions}
+                    value={values.tag}
+                    onChange={(e) => setFieldValue("tag", e.target.value)}
+                    required
+                    disabled={!isEditable}
+                  />
+                </Col>
+                <Col md={6}>
+                  <SelectField
+                    name="source"
+                    label="Source"
+                    options={sourceOptions}
+                    value={values.source}
+                    onChange={(e) => setFieldValue("source", e.target.value)}
+                    required
+                    disabled={!isEditable}
+                  />
+                </Col>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Phone</Form.Label>
-            <Form.Control type="text" name="phone" value={formData.phone} onChange={handleChange} />
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Tag</Form.Label>
-            <Form.Select name="tag" value={formData.tag} onChange={handleChange}>
-              <option value="">Select Tag</option>
-              {tagOptions.map((opt: any) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Status</Form.Label>
-            <Form.Select name="status" value={formData.status} onChange={handleChange}>
-              <option value="">Select Status</option>
-              {statusOptions.map((opt: any) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Source</Form.Label>
-            <Form.Select name="source" value={formData.source} onChange={handleChange}>
-              <option value="">Select Source</option>
-              {sourceOptions.map((opt: any) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
-        </Form>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button variant="primary" onClick={handleSave}>
-          Save Changes
-        </Button>
-      </Modal.Footer>
+                {(isEditable || values.notes) && (
+                  <Col md={12}>
+                    <TextAreaField
+                      label="Notes"
+                      id="notes"
+                      name="notes"
+                      value={values.notes}
+                      onChange={handleChange}
+                      disabled={!isEditable}
+                    />
+                  </Col>
+                )}
+              </Row>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleClose}>
+                Cancel
+              </Button>
+              {isEditable && (
+                <Button variant="primary" type="submit">
+                  Save Changes
+                </Button>
+              )}
+            </Modal.Footer>
+          </Form>
+        )}
+      </Formik>
     </Modal>
   );
 };

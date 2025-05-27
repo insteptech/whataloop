@@ -47,26 +47,35 @@ export const register = createAsyncThunk(
   "register",
   async (payload: any, thunkAPI) => {
     try {
-      const data = {
-        fullName: payload.fullName,
-            email:payload.email,
-            phone:payload.phone,
-            password:payload.password
+      // Create FormData to handle file uploads
+      const formData = new FormData();
+      formData.append("fullName", payload.fullName);
+      formData.append("email", payload.email);
+      formData.append("phone", payload.phone);
+      formData.append("password", payload.password);
+
+      // Append the photo if available
+      if (payload.photo) {
+        formData.append("photo", payload.photo); // Ensure this matches backend field name
       }
-      const response = await api.post("/auth/signup", data);
 
+      // Register the user
+      const response = await api.post("/auth/signup", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data", // Important for file uploads
+        },
+      });
 
+      // Handle onboarding if needed
       if (response?.data?.statusCode === 200) {
         const onboardingPayload = {
           businessName: payload.businessName,
           whatsappNumber: payload.phone,
-          // userId: userData?.data?.id || userData?.user?.id,
         };
-        
         await api.post("/onboarding/onboard", onboardingPayload);
       }
+
       return response.data;
-      // return userData;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
         error.response?.data || { message: "An error occurred" }

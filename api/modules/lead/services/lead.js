@@ -166,7 +166,7 @@ const create = async (data) => {
         throw new Error("Lead with this phone number already exists");
       }
     }
-    
+
     const existingLead = await Lead.findOne({ where: { phone: data.phone } });
     if (existingLead) {
       throw new Error("Lead with this phone number already exists");
@@ -187,7 +187,7 @@ const getAll = async (userId, query) => {
     search,
     tag,
     status,
-    sort = 'createdAt',
+    sort = 'updatedAt',
     order = 'DESC',
     page = 1,
     limit = 10,
@@ -234,23 +234,26 @@ const getAll = async (userId, query) => {
 };
 
 
-const update = async (id, userId,data, role) => {
+const update = async (id, userId, data, role) => {
   const { Lead } = await getAllModels(process.env.DB_TYPE);
-  if (!Lead) {
-    throw new Error("Lead model not found");
+
+  const where = { id };
+  if (role !== 'admin') {
+    where.user_id = userId; // Only filter by user if not admin
   }
 
-  const lead = await Lead.findOne({ where: { id } });
-  if (!lead) {
-    throw new Error("Lead not found");
+  const [affectedCount, affectedRows] = await Lead.update(data, {
+    where,
+    returning: true
+  });
+
+  if (affectedCount === 0) {
+    throw new Error("Lead not found or no changes made");
   }
 
-  if (role !== 'admin' && lead.user_id !== userId) {
-    throw new Error("Unauthorized: You do not have permission to update this lead");
-  }
-
-  return await lead.update(data);
+  return affectedRows[0];
 };
+
 
 const remove = async (id) => {
   const { Lead } = await getAllModels(process.env.DB_TYPE);

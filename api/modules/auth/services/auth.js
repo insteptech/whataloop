@@ -303,6 +303,9 @@ const signup = async (requestBody) => {
   }
 
   const { User, UserRole, sequelize } = await getAllModels(process.env.DB_TYPE);
+  if (!User) {
+    throw { message: "User model not found" };
+  }
   const transaction = await sequelize.transaction();
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(requestBody.password, salt);
@@ -312,16 +315,18 @@ const signup = async (requestBody) => {
     requestBody["uuid"] = uuidv4();
     requestBody.password = hashedPassword;
     requestBody["isActive"] = true;
+    // The photo_url will now be directly available in requestBody from the manager
+    // requestBody.photo_url = requestBody.photo_url || null; // Ensure it's set, though manager handles it
 
     // Create user
-    const user = await User.create(requestBody, { transaction });
+    const user = await User.create(requestBody, { transaction }); // photo_url is now part of requestBody
 
     // Create UserRole with roleId = 2 and userId = newly created user's id
     await UserRole.create(
       {
-        userId: user.id,       // link to the user
-        roleId: 2,             // default role ID
-        createdAt: new Date(), // timestamp, if your table requires it
+        userId: user.id,
+        roleId: 2,
+        createdAt: new Date(),
       },
       { transaction }
     );

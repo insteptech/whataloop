@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import InputField from "@/components/common/InputField";
@@ -9,8 +9,8 @@ import InputFieldWithCountryCode from "@/components/common/InputFieldWithCountry
 import { register, sendOtp, verifyOtp } from "../../redux/actions/authAction";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-
 import Loader from "@/components/common/loader";
+
 const SignUp = () => {
   const dispatch = useDispatch();
   const isloading = useSelector((state: any) => state?.authReducer?.loading);
@@ -31,7 +31,7 @@ const SignUp = () => {
       .required("Phone is required")
       .matches(/^\+?[0-9]{10,}$/, "Phone number is not valid")
       .min(12, "Phone number too short")
-      .max(15, "Phone number is too long"),
+      .max(15, "Phone number is too long!"),
     email: Yup.string()
       .required("Email is required")
       .email("Invalid email format")
@@ -95,17 +95,15 @@ const SignUp = () => {
       toast.error("Please verify your email before signing up.");
       return;
     }
-
-    const { fullName, businessName, email, phone, password } = values;
-
+    const { fullName, businessName, email, phone, password, photo } = values;
     const payload = {
       fullName,
       businessName,
       email,
       phone,
       password,
+      photo,
     };
-
     try {
       const response = await dispatch(register(payload) as any).unwrap();
       if (response?.statusCode === 200) {
@@ -149,7 +147,8 @@ const SignUp = () => {
                   <ImageUpload
                     name="photo"
                     label="Click to upload"
-                  // onChange={(file) => setFieldValue("photo", file)}
+                    onChange={(file) => setFieldValue("photo", file)}
+                    file={values.photo}
                   />
                   <Row>
                     <Col md={6}>
@@ -187,7 +186,7 @@ const SignUp = () => {
                         onChange={(e) => {
                           const newEmail = e.target.value;
                           setFieldValue("email", newEmail);
-                          setFieldValue("otp", ""); // Clear OTP
+                          setFieldValue("otp", "");
                           if (otpVerified) setOtpVerified(false);
                           if (emailVerify) setEmailVerify(false);
                         }}

@@ -61,13 +61,18 @@ exports.getAll = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const updatedLead = await leadManager.updateLead(req.params.id, req.user.id, req.body);
+    const role = req.decoded.role;
+    const updatedLead = await leadManager.updateLead(
+      req.params.id,
+      req.user.id,
+      req.body,
+      role
+    );
     res.status(200).json({ updatedLead, message: "Lead updated successfully" });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
-
 exports.remove = async (req, res) => {
   try {
     await leadManager.deleteLead(req.params.id);

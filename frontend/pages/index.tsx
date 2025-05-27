@@ -81,7 +81,7 @@ export default function Page({ slug }: PageProps) {
           >
             {" "}
             <Row>
-              <Col md={12}>
+              <Col md={12} className="header-top-bar-sticky">
                 <HeaderTopBar
                   profileOpen={profile}
                   toggleProfile={OpenProfileDropDown}

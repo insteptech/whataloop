@@ -143,8 +143,16 @@ exports.login = async (req, res, next) => {
   }
 };
 
-exports.signup = async (req, res) => {
-  const { phone, email, fullName, password } = req.body;
+exports.signup = async (reqBody, file, res) => { // Accept reqBody and file
+  const { phone, email, fullName, password } = reqBody;
+  let photo_url = null;
+
+  if (file) {
+    // Assuming your `multer` configuration saves to `./uploads/profile-pictures/`
+    // The `filename` in multer storage should be used here.
+    // Adjust this path based on how you want to serve the static files.
+    photo_url = `/uploads/profile-pictures/${file.filename}`;
+  }
 
   // Check if user already exists with the same email
   let user = await authService.findUser({ email: email.toLowerCase() });
@@ -164,6 +172,7 @@ exports.signup = async (req, res) => {
     email,
     fullName,
     password,
+    photo_url, // Pass the photo_url to the service
   });
 
   return sendResponse(res, 200, true, "User successfully created", {
@@ -171,5 +180,6 @@ exports.signup = async (req, res) => {
     phone: user.phone,
     email: user.email,
     fullName: user.fullName,
+    photo_url: user.photo_url, // Include photo_url in the response
   });
 };
