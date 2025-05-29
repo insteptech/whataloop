@@ -283,7 +283,13 @@ const login = async (email, password, id) => {
 const signup = async (requestBody) => {
 const { User, UserRole, SubscriptionPlan, sequelize } = await getAllModels(process.env.DB_TYPE);
 
+if (!User) {
+    throw { message: "User model not found" };
+  }
   const transaction = await sequelize.transaction();
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(requestBody.password, salt);
+
   try {
     // 1. Find the Free plan (ensure the plan exists!)
     const freePlan = await SubscriptionPlan.findOne({
@@ -312,6 +318,7 @@ const { User, UserRole, SubscriptionPlan, sequelize } = await getAllModels(proce
     requestBody.stripe_customer_id = stripeCustomer.id;
     requestBody.stripe_subscription_id = stripeSubscription.id; // Add this field in your user model/migration if not present
 
+    requestBody.password = hashedPassword;
     // 5. Create user
     const user = await User.create(requestBody, { transaction });
 
