@@ -1,61 +1,59 @@
 'use strict';
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Reminders', {
+    await queryInterface.createTable('reminders', {
       id: {
-        allowNull: false,
-        primaryKey: true,
         type: Sequelize.UUID,
-        defaultValue: Sequelize.literal('gen_random_uuid()')
+        defaultValue: Sequelize.literal('gen_random_uuid()'),
+        primaryKey: true,
+        allowNull: false,
       },
       user_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'Users',
+          model: 'users',
           key: 'id',
         },
         onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
       },
       lead_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'Leads',
-          key: 'id'
+          model: 'leads',
+          key: 'id',
         },
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
       },
-      message: {
-        type: Sequelize.TEXT
-      },
-      due_at: {
+      remind_at: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
+      },
+      note: {
+        type: Sequelize.TEXT,
+        allowNull: true,
       },
       status: {
-        type: Sequelize.STRING(20),
-        defaultValue: 'pending'
-      },
-      sent_notification: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false
+        type: Sequelize.ENUM('pending', 'done', 'snoozed'),
+        defaultValue: 'pending',
       },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('NOW()')
+        defaultValue: Sequelize.literal('NOW()'),
       },
       updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('NOW()')
-      }
+        defaultValue: Sequelize.literal('NOW()'),
+      },
     });
   },
-
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Reminders');
-  }
+  async down(queryInterface) {
+    await queryInterface.dropTable('reminders');
+    await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_reminders_status";');
+  },
 };

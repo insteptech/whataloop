@@ -1,13 +1,12 @@
 'use strict';
-
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('SubscriptionPlans', {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('subscriptionplans', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal('gen_random_uuid()'),
-        allowNull: false,
         primaryKey: true,
+        allowNull: false,
       },
       name: {
         type: Sequelize.STRING,
@@ -33,6 +32,14 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
+      stripe_product_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      stripe_price_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -45,8 +52,7 @@ module.exports = {
       },
     });
   },
-
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('SubscriptionPlans');
-  }
+  async down(queryInterface) {
+    await queryInterface.dropTable('subscriptionplans');
+  },
 };

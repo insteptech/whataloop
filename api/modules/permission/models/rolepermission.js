@@ -1,51 +1,58 @@
-"use strict";
-const { Model } = require("sequelize");
+'use strict';
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class RolePermission extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
-      if (models.Permission) {
-        RolePermission.belongsTo(models.Permission, {
-          foreignKey: "permissionId",
-          as: "permission",
-        });
-      }
-      if (models.Role) {
-        RolePermission.belongsTo(models.Role, {
-          foreignKey: "roleId",
-          as: "role",
-        });
-      }
+      RolePermission.belongsTo(models.Role, {
+        foreignKey: 'role_id',
+        as: 'role',
+      });
+      RolePermission.belongsTo(models.Permission, {
+        foreignKey: 'permission_id',
+        as: 'permission',
+      });
     }
   }
-  RolePermission.init(
-    {
-      permissionId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: "Permission",
-          key: "id",
-        },
-      },
-      roleId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: "Role",
-          key: "id",
-        },
-      },
+  RolePermission.init({
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
     },
-    {
-      sequelize,
-      modelName: "RolePermission",
+    role_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'roles',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    },
+    permission_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'permissions',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
     }
-  );
+  }, {
+    sequelize,
+    modelName: 'RolePermission',
+    tableName: 'role_permissions',
+    underscored: true,
+    timestamps: true,
+  });
   return RolePermission;
 };

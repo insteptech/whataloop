@@ -1,46 +1,57 @@
 'use strict';
-const { Model, DataTypes } = require('sequelize');
-
-module.exports = (sequelize) => {
+const { Model } = require('sequelize');
+module.exports = (sequelize, DataTypes) => {
   class ThirdPartyIntegration extends Model {
     static associate(models) {
-      // Assuming belongs to Business or User
-      ThirdPartyIntegration.belongsTo(models.Business, { foreignKey: 'business_id', onDelete: 'CASCADE' });
+      ThirdPartyIntegration.belongsTo(models.Business, {
+        foreignKey: 'business_id',
+        as: 'business',
+      });
     }
   }
-
   ThirdPartyIntegration.init({
     id: {
       type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      defaultValue: sequelize.literal('gen_random_uuid()'),
       primaryKey: true,
     },
     business_id: {
       type: DataTypes.UUID,
       allowNull: false,
+      references: {
+        model: 'businesses',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
-    name: {
+    provider: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    api_key: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    config: {
+    integration_data: {
       type: DataTypes.JSONB,
       allowNull: true,
     },
-    enabled: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
-    }
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'active',
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
+    },
   }, {
     sequelize,
     modelName: 'ThirdPartyIntegration',
-    tableName: 'ThirdPartyIntegrations',
+    tableName: 'thirdpartyintegrations',
+    underscored: true,
     timestamps: true,
   });
-
   return ThirdPartyIntegration;
 };

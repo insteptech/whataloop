@@ -5,6 +5,7 @@ const otpStorage = new Map();
 const bcrypt = require("bcryptjs");
 const { generateToken } = require("../../../utils/helper");
 const User = require("../models/user");
+const stripe = require('../../../utils/stripe');
 
 const findUser = async (where) => {
   if (typeof where !== "object" || Array.isArray(where) || where === null || Object.keys(where).length === 0) {
@@ -60,17 +61,10 @@ const findById = async (id) => {
 
   return user;
 };
+
 const createUser = async (requestBody) => {
-  if (
-    typeof requestBody !== "object" ||
-    Object.keys(requestBody).length === 0
-  ) {
-    throw { message: "Invalid request body" };
-  }
-  const { User, UserRole, sequelize } = await getAllModels(process.env.DB_TYPE);
-  if (!User) {
-    throw { message: "User model not found" };
-  }
+  const { User, UserRole, SubscriptionPlan, sequelize } = await getAllModels(process.env.DB_TYPE);
+
   const transaction = await sequelize.transaction();
   try {
     requestBody["uuid"] = uuidv4();
@@ -83,6 +77,7 @@ const createUser = async (requestBody) => {
     throw error;
   }
 };
+
 
 const deleteUser = async (where) => {
   if (typeof where !== "object" || Object.keys(where).length === 0) {
@@ -105,7 +100,6 @@ const deleteUser = async (where) => {
   return { message: "User deleted successfully" };
 };
 
-
 const updateOtp = async (email, otp, expirationTime) => {
   try {
     if (process.env.USE_REDIS === "true") {
@@ -125,7 +119,6 @@ const updateOtp = async (email, otp, expirationTime) => {
 };
 
 const updateUserProfile = async (userId, updateData) => {
-
   const { User } = await getAllModels(process.env.DB_TYPE);
   const user = await User.findByPk(userId);
 
@@ -223,8 +216,6 @@ const fetchUsersWithPagination = async ({
   };
 };
 
-
-
 const profileComplete = async (requestBody, where) => {
   if (
     typeof requestBody !== "object" ||
@@ -255,21 +246,18 @@ const login = async (email, password, id) => {
     }
 
     const userRole = await UserRole.findOne({
-      where: { userId: user.id },
-      attributes: ["roleId"],
+      where: { user_id: user.id },
+      attributes: ["role_id"],
     });
-    console.log("User Roles", userRole.roleId);
     if (!userRole || userRole.length === 0) {
       throw { status: 401, message: "User has no roles assigned" };
     }
-    const roleId = userRole.roleId;
+    const roleId = userRole.role_id;
 
     const role = await Role.findOne({
       where: { id: roleId },
       attributes: ["name"],
     });
-    console.log("Roles Data", role.name);
-
 
     const token = generateToken({
       id: user.id,
@@ -283,7 +271,6 @@ const login = async (email, password, id) => {
         id: user.id,
         email: user.email,
         fullName: user.fullName,
-
       },
     };
   } catch (error) {
@@ -292,54 +279,55 @@ const login = async (email, password, id) => {
   }
 };
 
-
-
+// FIXED: use user_id and role_id
 const signup = async (requestBody) => {
-  if (
-    typeof requestBody !== "object" ||
-    Object.keys(requestBody).length === 0
-  ) {
-    throw { message: "Invalid request body" };
-  }
+const { User, UserRole, SubscriptionPlan, sequelize } = await getAllModels(process.env.DB_TYPE);
 
-  const { User, UserRole, sequelize } = await getAllModels(process.env.DB_TYPE);
-  if (!User) {
-    throw { message: "User model not found" };
-  }
   const transaction = await sequelize.transaction();
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(requestBody.password, salt);
-
   try {
-    requestBody.email = requestBody.email.toLowerCase();
-    requestBody["uuid"] = uuidv4();
-    requestBody.password = hashedPassword;
-    requestBody["isActive"] = true;
-    // The photo_url will now be directly available in requestBody from the manager
-    // requestBody.photo_url = requestBody.photo_url || null; // Ensure it's set, though manager handles it
+    // 1. Find the Free plan (ensure the plan exists!)
+    const freePlan = await SubscriptionPlan.findOne({
+      where: { name: "Free" },
+      transaction,
+    });
+    if (!freePlan) throw new Error("Default subscription plan not found");
 
-    // Create user
-    const user = await User.create(requestBody, { transaction }); // photo_url is now part of requestBody
+    // 2. Create Stripe customer
+    const stripeCustomer = await stripe.customers.create({
+      email: requestBody.email,
+      name: requestBody.fullName || requestBody.full_name || "",
+      phone: requestBody.phone,
+    });
 
-    // Create UserRole with roleId = 2 and userId = newly created user's id
+    // 3. ⭐️ Create Stripe Subscription for that customer ⭐️
+    // This step is what you are missing!
+    const stripeSubscription = await stripe.subscriptions.create({
+      customer: stripeCustomer.id,
+      items: [{ price: freePlan.stripe_price_id }],
+      // If you want, set trial_period_days or other subscription options here
+    });
+
+    // 4. Add Stripe/customer/subscription IDs and plan to user
+    requestBody.subscription_plan_id = freePlan.id;
+    requestBody.stripe_customer_id = stripeCustomer.id;
+    requestBody.stripe_subscription_id = stripeSubscription.id; // Add this field in your user model/migration if not present
+
+    // 5. Create user
+    const user = await User.create(requestBody, { transaction });
+
+    // 6. Assign default user role
     await UserRole.create(
-      {
-        userId: user.id,
-        roleId: 2,
-        createdAt: new Date(),
-      },
+      { user_id: user.id, role_id: 2, created_at: new Date(), updated_at: new Date() },
       { transaction }
     );
 
     await transaction.commit();
     return user;
-
   } catch (error) {
     await transaction.rollback();
     throw error;
   }
 };
-
 
 module.exports = {
   findUser,
@@ -353,5 +341,5 @@ module.exports = {
   profileComplete,
   login,
   signup,
-  findById
+  findById,
 };

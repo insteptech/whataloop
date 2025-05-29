@@ -1,8 +1,7 @@
 'use strict';
-
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('ThirdPartyIntegrations', {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('thirdpartyintegrations', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal('gen_random_uuid()'),
@@ -13,41 +12,38 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'Businesses', // Assuming your business table name
+          model: 'businesses',
           key: 'id',
         },
         onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
       },
-      name: {
+      provider: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      api_key: {
-        type: Sequelize.TEXT,
-        allowNull: true,
-      },
-      config: {
+      integration_data: {
         type: Sequelize.JSONB,
         allowNull: true,
       },
-      enabled: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: true,
+      status: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: 'active',
       },
-      createdAt: {
+      created_at: {
+        allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('NOW()'),
-        allowNull: false,
       },
-      updatedAt: {
+      updated_at: {
+        allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('NOW()'),
-        allowNull: false,
       },
     });
   },
-
-  down: async (queryInterface) => {
-    await queryInterface.dropTable('ThirdPartyIntegrations');
+  async down(queryInterface) {
+    await queryInterface.dropTable('thirdpartyintegrations');
   },
 };

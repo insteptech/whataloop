@@ -1,50 +1,58 @@
-"use strict";
-const { Model } = require("sequelize");
+'use strict';
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class UserRole extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      if (models.User) {
-        UserRole.belongsTo(models.User, {
-          foreignKey: "userId",
-          as: "user",
-        });
-      }
-      if (models.Role) {
-        UserRole.belongsTo(models.Role, {
-          foreignKey: "roleId",
-          as: "role",
-        });
-      }
+      UserRole.belongsTo(models.User, {
+        foreignKey: 'user_id',
+        as: 'user',
+      });
+      UserRole.belongsTo(models.Role, {
+        foreignKey: 'role_id',
+        as: 'role',
+      });
     }
   }
-  UserRole.init(
-    {
-      roleId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: "Role",
-          key: "id",
-        },
-      },
-      userId: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-          model: "User",
-          key: "id",
-        },
-      },
+  UserRole.init({
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
     },
-    {
-      sequelize,
-      modelName: "UserRole",
-    }
-  );
+    user_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'users', // lowercase!
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    },
+    role_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'roles', // lowercase!
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
+    },
+  }, {
+    sequelize,
+    modelName: 'UserRole',
+    tableName: 'user_roles',
+    underscored: true,
+    timestamps: true,
+  });
   return UserRole;
 };

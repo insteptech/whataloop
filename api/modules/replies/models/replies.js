@@ -1,19 +1,15 @@
 'use strict';
 const { Model } = require('sequelize');
-
 module.exports = (sequelize, DataTypes) => {
-  class Replies extends Model {
+  class Reply extends Model {
     static associate(models) {
-      // A reply belongs to a user
-      Replies.belongsTo(models.User, {
+      Reply.belongsTo(models.User, {
         foreignKey: 'user_id',
         as: 'user',
-        onDelete: 'CASCADE',
       });
     }
   }
-
-  Replies.init({
+  Reply.init({
     id: {
       type: DataTypes.UUID,
       defaultValue: sequelize.literal('gen_random_uuid()'),
@@ -23,21 +19,27 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'Users', // This should match your users table
+        model: 'users',
         key: 'id',
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     title: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     category: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     content: {
       type: DataTypes.TEXT,
+      allowNull: false,
     },
     variables: {
-      type: DataTypes.ARRAY(DataTypes.TEXT), // Sequelize supports TEXT[]
+      type: DataTypes.ARRAY(DataTypes.TEXT),
+      allowNull: true,
     },
     created_at: {
       type: DataTypes.DATE,
@@ -49,11 +51,10 @@ module.exports = (sequelize, DataTypes) => {
     },
   }, {
     sequelize,
-    modelName: 'Replies',
-    tableName: 'Replies',
+    modelName: 'Reply',
+    tableName: 'replies',
     underscored: true,
     timestamps: true,
   });
-
-  return Replies;
+  return Reply;
 };

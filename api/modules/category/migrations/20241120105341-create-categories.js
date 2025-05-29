@@ -1,31 +1,40 @@
-"use strict";
-/** @type {import('sequelize-cli').Migration} */
+'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Categories", {
+    await queryInterface.createTable('categories', {
       id: {
-        allowNull: false,
-        autoIncrement: true,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.literal('gen_random_uuid()'),
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        allowNull: false,
       },
-      name: { type: Sequelize.STRING, allowNull: false, unique: true },
-      parentId: {
-        type: Sequelize.INTEGER,
-        references: { model: "Categories", key: "id" },
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      parent_id: {
+        type: Sequelize.UUID,
         allowNull: true,
+        references: {
+          model: 'categories',
+          key: 'id',
+        },
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE',
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('NOW()'),
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('NOW()'),
       },
     });
   },
   async down(queryInterface) {
-    await queryInterface.dropTable("Categories");
+    await queryInterface.dropTable('categories');
   },
 };

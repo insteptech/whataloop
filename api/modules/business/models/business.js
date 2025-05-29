@@ -1,32 +1,26 @@
 'use strict';
 const { Model } = require('sequelize');
-
 module.exports = (sequelize, DataTypes) => {
   class Business extends Model {
     static associate(models) {
-      // Business belongs to User
       Business.belongsTo(models.User, {
         foreignKey: 'user_id',
-        as: 'owner',
-        onDelete: 'CASCADE',
+        as: 'user',
       });
-
-      // Business has many BusinessSubscriptions
       Business.hasMany(models.BusinessSubscription, {
         foreignKey: 'business_id',
         as: 'subscriptions',
-        onDelete: 'CASCADE',
       });
-
-      // Business has many ThirdPartyIntegrations
       Business.hasMany(models.ThirdPartyIntegration, {
         foreignKey: 'business_id',
         as: 'integrations',
-        onDelete: 'CASCADE',
+      });
+      Business.hasMany(models.Onboarding, {
+        foreignKey: 'business_id',
+        as: 'onboardings',
       });
     }
   }
-
   Business.init({
     id: {
       type: DataTypes.UUID,
@@ -37,16 +31,18 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'Users',
+        model: 'users',
         key: 'id',
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     description: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
     },
     website: {
       type: DataTypes.STRING,
@@ -61,14 +57,13 @@ module.exports = (sequelize, DataTypes) => {
     updated_at: {
       type: DataTypes.DATE,
       defaultValue: sequelize.literal('NOW()'),
-    },
+    }
   }, {
     sequelize,
     modelName: 'Business',
-    tableName: 'Businesses',
+    tableName: 'businesses',
     underscored: true,
     timestamps: true,
   });
-
   return Business;
 };

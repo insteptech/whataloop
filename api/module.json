@@ -1,4 +1,5 @@
 [
+    {"name": "subscriptionPlan"},
     {"name": "auth"}, 
     {"name": "role"}, 
     {"name": "permission"},
@@ -7,11 +8,10 @@
     {"name": "lead"},
     {"name": "webhook"},
     {"name": "whatsapp"},
+    {"name": "business"},
     {"name": "onboarding"},
     {"name": "reminders"},
     {"name": "replies"},
-    {"name": "business"},
     {"name": "businessSubscription"},
-    {"name": "subscriptionPlan"},
     {"name": "thirdPartyIntegration"}
 ]

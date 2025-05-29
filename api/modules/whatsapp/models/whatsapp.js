@@ -1,27 +1,32 @@
 'use strict';
 const { Model } = require('sequelize');
-
 module.exports = (sequelize, DataTypes) => {
-  class Whatsapp extends Model {
-    static associate(models) {
-      // optional: add associations later
-    }
-  }
-
-  Whatsapp.init({
+  class WhatsApp extends Model {}
+  WhatsApp.init({
     id: {
       type: DataTypes.UUID,
-      primaryKey: true,
       defaultValue: sequelize.literal('gen_random_uuid()'),
+      primaryKey: true,
     },
     raw_payload: {
-      type: DataTypes.JSONB, // ✅ Changed from TEXT to JSONB
+      type: DataTypes.JSONB,
       allowNull: false,
+      defaultValue: {},
     },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
+    }
   }, {
     sequelize,
-    modelName: 'Whatsapp',
+    modelName: 'WhatsApp',
+    tableName: 'whatsapps',
+    underscored: true,
+    timestamps: true,
   });
-
-  return Whatsapp;
+  return WhatsApp;
 };

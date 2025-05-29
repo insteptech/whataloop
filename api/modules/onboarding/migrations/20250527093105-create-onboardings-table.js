@@ -1,32 +1,26 @@
 'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('user_roles', {
+    await queryInterface.createTable('onboardings', {
       id: {
-        allowNull: false,
-        autoIncrement: true,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.literal('gen_random_uuid()'),
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        allowNull: false,
       },
-      user_id: {
+      business_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'users', // lowercase!
+          model: 'businesses',
           key: 'id',
         },
-        onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
       },
-      role_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'roles', // lowercase!
-          key: 'id',
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
+      data: {
+        type: Sequelize.JSONB,
+        allowNull: true,
       },
       created_at: {
         allowNull: false,
@@ -41,6 +35,6 @@ module.exports = {
     });
   },
   async down(queryInterface) {
-    await queryInterface.dropTable('user_roles');
+    await queryInterface.dropTable('onboardings');
   },
 };

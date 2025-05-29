@@ -1,12 +1,32 @@
 'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('leads', {
+    await queryInterface.createTable('business_subscriptions', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal('gen_random_uuid()'),
         primaryKey: true,
         allowNull: false,
+      },
+      business_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'businesses',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      },
+      plan_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'subscriptionplans',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
       },
       user_id: {
         type: Sequelize.UUID,
@@ -18,45 +38,17 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
-      tag: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: 'constants',
-          key: 'id',
-        },
+      start_date: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+      end_date: {
+        type: Sequelize.DATE,
+        allowNull: true,
       },
       status: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: 'constants',
-          key: 'id',
-        },
-      },
-      source: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: 'constants',
-          key: 'id',
-        },
-      },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      phone: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      email: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      notes: {
-        type: Sequelize.TEXT,
-        allowNull: true,
+        type: Sequelize.ENUM('active', 'inactive', 'canceled', 'trialing', 'expired'),
+        defaultValue: 'active',
       },
       created_at: {
         allowNull: false,
@@ -71,6 +63,7 @@ module.exports = {
     });
   },
   async down(queryInterface) {
-    await queryInterface.dropTable('leads');
+    await queryInterface.dropTable('business_subscriptions');
+    await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_business_subscriptions_status";');
   },
 };

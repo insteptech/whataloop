@@ -1,43 +1,39 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Constant extends Model {
-    static associate(models) {
-      // define association here
-    }
-  }
+  class Constant extends Model {}
   Constant.init({
-     id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        allowNull: false,
-        primaryKey: true,
-      },
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: sequelize.literal('gen_random_uuid()'),
+      primaryKey: true,
+    },
     type: {
       type: DataTypes.STRING,
+      allowNull: false,
     },
-     label: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      value: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      createdAt: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
-      },
-      updatedAt: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
-      }  
+    value: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    label: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
+    },
   }, {
     sequelize,
-    timestamps: true,
     modelName: 'Constant',
+    tableName: 'constants',
+    underscored: true,
+    timestamps: true,
   });
   return Constant;
 };

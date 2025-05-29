@@ -1,38 +1,50 @@
-"use strict";
-const { Model } = require("sequelize");
+'use strict';
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Role extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      if (models.User) {
-        Role.belongsToMany(models.User, {
-          through: models.UserRole, // Join table
-          foreignKey: "roleId", // Foreign key in the UserRole table
-          as: "users", // Alias for the users
-        });
-      }
-      if (models.Permission) {
-        Role.belongsToMany(models.Permission, {
-          through: models.RolePermission,
-          foreignKey: "roleId",
-          as: "permissions",
-        });
-      }
+      Role.belongsToMany(models.User, {
+        through: models.UserRole,
+        foreignKey: 'role_id',
+        otherKey: 'user_id',
+        as: 'users',
+      });
+      Role.belongsToMany(models.Permission, {
+        through: models.RolePermission,
+        foreignKey: 'role_id',
+        otherKey: 'permission_id',
+        as: 'permissions',
+      });
     }
   }
-  Role.init(
-    {
-      name: DataTypes.STRING,
-      description: DataTypes.STRING,
+  Role.init({
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
     },
-    {
-      sequelize,
-      modelName: "Role",
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    description: {
+      type: DataTypes.STRING,
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
     }
-  );
+  }, {
+    sequelize,
+    modelName: 'Role',
+    tableName: 'roles',
+    underscored: true,
+    timestamps: true,
+  });
   return Role;
 };

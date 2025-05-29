@@ -1,39 +1,58 @@
-"use strict";
-const { Model } = require("sequelize");
+'use strict';
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Permission extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // A permission can be associated with multiple roles
-      if (models.Role) {
-        Permission.belongsToMany(models.Role, {
-          through: models.RolePermission,
-          foreignKey: "permissionId",
-          as: "permissions",
-        });
-      }
+      Permission.belongsToMany(models.Role, {
+        through: models.RolePermission,
+        foreignKey: 'permission_id',
+        otherKey: 'role_id',
+        as: 'roles',
+      });
     }
   }
-  Permission.init(
-    {
-      name: DataTypes.STRING,
-      description: DataTypes.STRING,
-      route: DataTypes.STRING,
-      type: {
-        type: DataTypes.ENUM("backend", "frontend"),
-        allowNull: false,
-        defaultValue: "backend",
-      },
-      action: DataTypes.STRING,
+  Permission.init({
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
     },
-    {
-      sequelize,
-      modelName: "Permission",
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    route: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    type: {
+      type: DataTypes.ENUM('module', 'route', 'backend', 'frontend'), // Cover all you use
+      allowNull: false,
+      defaultValue: 'module',
+    },
+    action: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
     }
-  );
+  }, {
+    sequelize,
+    modelName: 'Permission',
+    tableName: 'permissions',
+    underscored: true,
+    timestamps: true,
+  });
   return Permission;
 };

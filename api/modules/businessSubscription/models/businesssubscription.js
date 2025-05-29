@@ -1,25 +1,24 @@
 'use strict';
 const { Model } = require('sequelize');
-
 module.exports = (sequelize, DataTypes) => {
   class BusinessSubscription extends Model {
     static associate(models) {
       BusinessSubscription.belongsTo(models.Business, {
         foreignKey: 'business_id',
         as: 'business',
-        onDelete: 'CASCADE',
       });
-
       BusinessSubscription.belongsTo(models.SubscriptionPlan, {
         foreignKey: 'plan_id',
-        as: 'subscription_plan',
-        onDelete: 'CASCADE',
+        as: 'subscriptionPlan',
+      });
+      BusinessSubscription.belongsTo(models.User, {
+        foreignKey: 'user_id',
+        as: 'user',
       });
     }
   }
-
   BusinessSubscription.init({
-    subscription_id: {
+    id: {
       type: DataTypes.UUID,
       defaultValue: sequelize.literal('gen_random_uuid()'),
       primaryKey: true,
@@ -28,25 +27,43 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'Businesses', // ✅ points to correct table
-        key: 'id',           // ✅ primary key in Businesses
+        model: 'businesses',
+        key: 'id',
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     plan_id: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'SubscriptionPlans', // ✅ points to correct table
-        key: 'id',                  // ✅ primary key in SubscriptionPlans
+        model: 'subscriptionplans',
+        key: 'id',
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    },
+    user_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     start_date: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
     },
     end_date: {
       type: DataTypes.DATE,
       allowNull: true,
+    },
+    status: {
+      type: DataTypes.ENUM('active', 'inactive', 'canceled', 'trialing', 'expired'),
+      defaultValue: 'active',
     },
     created_at: {
       type: DataTypes.DATE,
@@ -55,14 +72,13 @@ module.exports = (sequelize, DataTypes) => {
     updated_at: {
       type: DataTypes.DATE,
       defaultValue: sequelize.literal('NOW()'),
-    },
+    }
   }, {
     sequelize,
     modelName: 'BusinessSubscription',
-    tableName: 'BusinessSubscriptions',
+    tableName: 'business_subscriptions',
     underscored: true,
     timestamps: true,
   });
-
   return BusinessSubscription;
 };

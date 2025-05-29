@@ -1,8 +1,7 @@
 'use strict';
-
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Constants', {
+    await queryInterface.createTable('constants', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal('gen_random_uuid()'),
@@ -13,28 +12,27 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      label: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
       value: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      createdAt: {
-        type: Sequelize.DATE,
+      label: {
+        type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: Sequelize.fn('NOW'),
       },
-      updatedAt: {
-        type: Sequelize.DATE,
+      created_at: {
         allowNull: false,
-        defaultValue: Sequelize.fn('NOW'),
-      }
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('NOW()'),
+      },
+      updated_at: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('NOW()'),
+      },
     });
   },
-
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Constants');
-  }
+  async down(queryInterface) {
+    await queryInterface.dropTable('constants');
+  },
 };

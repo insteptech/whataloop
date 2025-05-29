@@ -1,34 +1,52 @@
-"use strict";
-const { Model } = require("sequelize");
+'use strict';
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Categories extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
+  class Category extends Model {
     static associate(models) {
-      // define association here
-
-      Categories.hasMany(models.Categories, {
-        foreignKey: "parentId",
-        as: "subcategories",
+      Category.belongsTo(models.Category, {
+        foreignKey: 'parent_id',
+        as: 'parent',
+      });
+      Category.hasMany(models.Category, {
+        foreignKey: 'parent_id',
+        as: 'subcategories',
       });
     }
   }
-  Categories.init(
-    {
-      name: DataTypes.STRING,
-      parentId: {
-        type: DataTypes.INTEGER,
-        references: { model: "Categories", key: "id" },
-        allowNull: true,
-      },
+  Category.init({
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: sequelize.literal('gen_random_uuid()'),
+      primaryKey: true,
     },
-    {
-      sequelize,
-      modelName: "Categories",
-    }
-  );
-  return Categories;
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    parent_id: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: 'categories',
+        key: 'id',
+      },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
+    },
+  }, {
+    sequelize,
+    modelName: 'Category',
+    tableName: 'categories',
+    underscored: true,
+    timestamps: true,
+  });
+  return Category;
 };

@@ -5,19 +5,20 @@ exports.onboardNewUser = async (req, res) => {
     try {
         const {
             businessName,
-            whatsappNumber
+            whatsappNumber,
+            business_id
         } = req.body;
 
         console.log("whatsApp number:", req.body);
 
-        if (!businessName || !whatsappNumber) {
+        if (!businessName || !whatsappNumber || !business_id) {
             return res.status(400).json({
                 error: "Business Name and WhatsApp Number are required"
             });
         }
 
         // Call the manager to handle the onboarding process
-        const result = await onboardingManager.onboardNewUser(businessName, sanitizePhoneNumber(whatsappNumber));
+        const result = await onboardingManager.onboardNewUser(businessName, sanitizePhoneNumber(whatsappNumber), business_id);
 
         return res.status(200).json({
             success: true,

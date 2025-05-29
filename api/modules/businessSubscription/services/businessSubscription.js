@@ -6,8 +6,8 @@ const create = async (data) => {
   if (BusinessSubscription === undefined) {
     throw new Error("BusinessSubscription model not found");
   }
-  if (!data.business_id || !data.plan_id || !data.start_date) {
-    throw new Error("Missing required fields: business_id, plan_id, start_date");
+  if (!data.plan_id || !data.start_date) {
+    throw new Error("Missing required fields: plan_id, start_date");
   }
 
   const planId = data.plan_id;

@@ -1,49 +1,44 @@
 'use strict';
-
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('WebhookMessages', {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('webhooks', {
       id: {
         type: Sequelize.UUID,
-        allowNull: false,
-        defaultValue: Sequelize.UUIDV4,
-        unique:true,
+        defaultValue: Sequelize.literal('gen_random_uuid()'),
         primaryKey: true,
-      },
-      content: {
-        type: Sequelize.TEXT,
         allowNull: false,
       },
-      sender: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      leadId: {
+      user_id: {
         type: Sequelize.UUID,
+        allowNull: false,
         references: {
-          model: 'Leads',
+          model: 'users',
           key: 'id',
         },
-        onDelete: 'SET NULL',
+        onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
-      messageType: {
+      event: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
-      createdAt: {
+      payload: {
+        type: Sequelize.JSONB,
+        allowNull: false,
+      },
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('NOW'),
+        defaultValue: Sequelize.literal('NOW()'),
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('NOW'),
+        defaultValue: Sequelize.literal('NOW()'),
       },
     });
   },
-
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('WebhookMessages');
+  async down(queryInterface) {
+    await queryInterface.dropTable('webhooks');
   },
 };

@@ -1,44 +1,52 @@
 'use strict';
-
 module.exports = {
-  up: async (queryInterface, DataTypes) => {
-    await queryInterface.createTable('Businesses', {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('businesses', {
       id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.literal('gen_random_uuid()'),
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.literal('gen_random_uuid()'),
         primaryKey: true,
+        allowNull: false,
       },
       user_id: {
-        type: DataTypes.UUID,
+        type: Sequelize.UUID,
         allowNull: false,
-        references: { model: 'Users', key: 'id' },
+        references: {
+          model: 'users',
+          key: 'id',
+        },
         onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
       },
       name: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       description: {
-        type: DataTypes.TEXT,
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       website: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       logo_url: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.literal('NOW()'),
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('NOW()'),
       },
       updated_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.literal('NOW()'),
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('NOW()'),
       },
     });
   },
-
-  down: async (queryInterface) => {
-    await queryInterface.dropTable('Businesses');
+  async down(queryInterface) {
+    await queryInterface.dropTable('businesses');
   },
 };

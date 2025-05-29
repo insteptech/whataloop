@@ -1,19 +1,52 @@
+'use strict';
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  const WebhookMessage = sequelize.define('WebhookMessage', {
+  class Webhook extends Model {
+    static associate(models) {
+      Webhook.belongsTo(models.User, {
+        foreignKey: 'user_id',
+        as: 'user',
+      });
+    }
+  }
+  Webhook.init({
     id: {
       type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true
+      defaultValue: sequelize.literal('gen_random_uuid()'),
+      primaryKey: true,
     },
-    content: DataTypes.TEXT,
-    sender: DataTypes.TEXT,
-    leadId: DataTypes.UUID,
-    messageType: DataTypes.TEXT
+    user_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    },
+    event: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    payload: {
+      type: DataTypes.JSONB,
+      allowNull: false,
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('NOW()'),
+    },
+  }, {
+    sequelize,
+    modelName: 'Webhook',
+    tableName: 'webhooks',
+    underscored: true,
+    timestamps: true,
   });
-
-  WebhookMessage.associate = function(models) {
-    WebhookMessage.belongsTo(models.Lead, { foreignKey: 'leadId' });
-  };
-
-  return WebhookMessage;
+  return Webhook;
 };

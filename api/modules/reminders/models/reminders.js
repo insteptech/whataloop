@@ -1,75 +1,70 @@
 'use strict';
 const { Model } = require('sequelize');
-
 module.exports = (sequelize, DataTypes) => {
-  class Reminders extends Model {
+  class Reminder extends Model {
     static associate(models) {
-      // A reminder belongs to a user and a lead
-      Reminders.belongsTo(models.User, {
+      Reminder.belongsTo(models.User, {
         foreignKey: 'user_id',
         as: 'user',
-        onDelete: 'CASCADE',
       });
-      Reminders.belongsTo(models.Lead, {
-        foreignKey: 'id',
+      Reminder.belongsTo(models.Lead, {
+        foreignKey: 'lead_id',
         as: 'lead',
-        onDelete: 'CASCADE',
       });
     }
   }
-
-  Reminders.init({
+  Reminder.init({
     id: {
       type: DataTypes.UUID,
       defaultValue: sequelize.literal('gen_random_uuid()'),
-      primaryKey: true
+      primaryKey: true,
     },
     user_id: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'Users',  // Ensure model name matches the Users table name
+        model: 'users',
         key: 'id',
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     lead_id: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'Leads',  // Ensure model name matches the Users table name
+        model: 'leads',
         key: 'id',
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
-    message: {
-      type: DataTypes.TEXT
-    },
-    due_at: {
+    remind_at: {
       type: DataTypes.DATE,
-      allowNull: false
+      allowNull: false,
+    },
+    note: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
     status: {
-      type: DataTypes.STRING(20),
-      defaultValue: 'pending'  // options: pending, done, missed
-    },
-    sent_notification: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
+      type: DataTypes.ENUM('pending', 'done', 'snoozed'),
+      defaultValue: 'pending',
     },
     created_at: {
       type: DataTypes.DATE,
-      defaultValue: sequelize.literal('NOW()')
+      defaultValue: sequelize.literal('NOW()'),
     },
     updated_at: {
       type: DataTypes.DATE,
-      defaultValue: sequelize.literal('NOW()')
-    }
+      defaultValue: sequelize.literal('NOW()'),
+    },
   }, {
     sequelize,
-    modelName: 'Reminders',
-    tableName: 'Reminders',
+    modelName: 'Reminder',
+    tableName: 'reminders',
     underscored: true,
-    timestamps: true
+    timestamps: true,
   });
-
-  return Reminders;
+  return Reminder;
 };

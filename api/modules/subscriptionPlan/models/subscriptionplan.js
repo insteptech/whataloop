@@ -1,6 +1,5 @@
 'use strict';
 const { Model } = require('sequelize');
-
 module.exports = (sequelize, DataTypes) => {
   class SubscriptionPlan extends Model {
     static associate(models) {
@@ -9,9 +8,12 @@ module.exports = (sequelize, DataTypes) => {
         as: 'businessSubscriptions',
         onDelete: 'CASCADE',
       });
+      SubscriptionPlan.hasMany(models.User, {
+        foreignKey: 'subscription_plan_id',
+        as: 'users',
+      });
     }
   }
-
   SubscriptionPlan.init({
     id: {
       type: DataTypes.UUID,
@@ -26,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DECIMAL,
       allowNull: false,
     },
-   features: {
+    features: {
       type: DataTypes.TEXT,
       allowNull: true,
       get() {
@@ -46,6 +48,12 @@ module.exports = (sequelize, DataTypes) => {
     max_messages_per_month: {
       type: DataTypes.INTEGER,
     },
+    stripe_product_id: {
+      type: DataTypes.STRING,
+    },
+    stripe_price_id: {
+      type: DataTypes.STRING,
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: sequelize.literal('NOW()'),
@@ -57,10 +65,9 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'SubscriptionPlan',
-    tableName: 'SubscriptionPlans',
+    tableName: 'subscriptionplans',
     underscored: true,
     timestamps: true,
   });
-
   return SubscriptionPlan;
 };

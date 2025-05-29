@@ -1,63 +1,48 @@
 'use strict';
 const { Model } = require('sequelize');
-
 module.exports = (sequelize, DataTypes) => {
   class Onboarding extends Model {
     static associate(models) {
-      // optional: define associations here
+      Onboarding.belongsTo(models.Business, {
+        foreignKey: 'business_id',
+        as: 'business',
+      });
     }
   }
-
   Onboarding.init({
     id: {
       type: DataTypes.UUID,
-      primaryKey: true,
       defaultValue: sequelize.literal('gen_random_uuid()'),
+      primaryKey: true,
     },
-    business_name: {
-      type: DataTypes.STRING,
+    business_id: {
+      type: DataTypes.UUID,
       allowNull: false,
+      references: {
+        model: 'businesses',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
-    whatsapp_number: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    profile_status: {
-      type: DataTypes.STRING,
-      defaultValue: 'inactive',
-    },
-    linked: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
-    waba_id: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    waba_phone_id: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    raw_payload: {
+    data: {
       type: DataTypes.JSONB,
       allowNull: true,
     },
-    createdAt: {
-      allowNull: false,
+    created_at: {
       type: DataTypes.DATE,
       defaultValue: sequelize.literal('NOW()'),
     },
-    updatedAt: {
-      allowNull: false,
+    updated_at: {
       type: DataTypes.DATE,
       defaultValue: sequelize.literal('NOW()'),
     },
   }, {
     sequelize,
     modelName: 'Onboarding',
-    tableName: 'Onboardings',
+    tableName: 'onboardings',
+    underscored: true,
+    timestamps: true,
   });
-
   return Onboarding;
 };

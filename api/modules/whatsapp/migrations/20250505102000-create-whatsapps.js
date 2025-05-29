@@ -1,30 +1,31 @@
 'use strict';
-
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Whatsapps', {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('whatsapps', {
       id: {
         type: Sequelize.UUID,
-        defaultValue: Sequelize.literal('gen_random_uuid()'), // Automatically generate UUID
-        allowNull: false,
+        defaultValue: Sequelize.literal('gen_random_uuid()'),
         primaryKey: true,
+        allowNull: false,
       },
       raw_payload: {
-        type: Sequelize.JSONB, // Use JSONB to store raw payload
-        allowNull: false, // Cannot be null
+        type: Sequelize.JSONB,
+        allowNull: false,
+        defaultValue: {},
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('NOW()'),
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
-      }
+        defaultValue: Sequelize.literal('NOW()'),
+      },
     });
   },
-
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Whatsapps');
-  }
+  async down(queryInterface) {
+    await queryInterface.dropTable('whatsapps');
+  },
 };

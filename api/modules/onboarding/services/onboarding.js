@@ -4,13 +4,13 @@ const { getAllModels } = require("../../../middlewares/loadModels");
 const WHATSAPP_API_URL = 'https://graph.facebook.com/v19.0';
 const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
-const WEB_HOOK_URL = 'https://rnboa-2401-4900-1c6e-26e2-a053-51a5-a0e0-2356.a.free.pinggy.link/api/v1/whatsapp';
+const WEB_HOOK_URL = 'https://rnpku-2401-4900-1c70-1032-6dbf-bac-24b7-73c8.a.free.pinggy.link/api/v1/whatsapp';
 
 const APP_ID = process.env.WHATSAPP_APP_ID;
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
 
 // 1. Create a business profile
-const createBusinessProfile = async (businessName, whatsappNumber) => {
+const createBusinessProfile = async (businessName, whatsappNumber, business_id) => {
   const { Onboarding } = await getAllModels(process.env.DB_TYPE);
   if (!Onboarding) {
     throw new Error("Onboarding model not found");
@@ -32,6 +32,7 @@ const createBusinessProfile = async (businessName, whatsappNumber) => {
     waba_id: wabaId,
     waba_phone_id: phoneNumberId,
     raw_payload: null, // or include business_name etc
+    business_id: business_id
   });
 
   return profile;
