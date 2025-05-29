@@ -1,5 +1,7 @@
+// modules/onboarding/models/onboarding.js
 'use strict';
 const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Onboarding extends Model {
     static associate(models) {
@@ -9,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
+
   Onboarding.init({
     id: {
       type: DataTypes.UUID,
@@ -24,6 +27,11 @@ module.exports = (sequelize, DataTypes) => {
       },
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
+    },
+    whatsapp_number: {   // << ADD THIS
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
     },
     data: {
       type: DataTypes.JSONB,
@@ -44,5 +52,6 @@ module.exports = (sequelize, DataTypes) => {
     underscored: true,
     timestamps: true,
   });
+
   return Onboarding;
 };
