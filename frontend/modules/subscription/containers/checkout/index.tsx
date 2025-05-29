@@ -1,6 +1,8 @@
 import Loader from "@/components/common/loader";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { subscribePlan } from "../../redux/actions/subscriptionAction";
+import { useDispatch } from "react-redux";
 
 interface Plan {
   id: string;
@@ -10,18 +12,21 @@ interface Plan {
   features: string[];
   cta: string;
   popular: boolean;
+  price_id?: string;
 }
 
 const CheckoutPage: React.FC = () => {
   const router = useRouter();
   const { plan: planId } = router.query;
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const dispatch = useDispatch() as any;;
 
   const plans: Plan[] = [
     {
       id: "free",
       name: "Free",
       price: "$0",
+      price_id: "price_free_001",
       period: "forever",
       features: [
         "Basic features",
@@ -38,6 +43,7 @@ const CheckoutPage: React.FC = () => {
       name: "Starter",
       price: "$9",
       period: "per month",
+      price_id: "price_starter_009",
       features: [
         "All Free features",
         "Priority support",
@@ -53,6 +59,7 @@ const CheckoutPage: React.FC = () => {
       name: "Pro",
       price: "$19",
       period: "per month",
+      price_id: "price_pro_019",
       features: [
         "All Starter features",
         "24/7 dedicated support",
@@ -84,6 +91,28 @@ const CheckoutPage: React.FC = () => {
       </div>
     );
   }
+
+  const handleSubscribe = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    try {
+      const response = await dispatch(
+        subscribePlan({
+          planId: selectedPlan.id,
+          priceId: selectedPlan.price_id,
+        })
+      ).unwrap();
+
+      if (response?.url) {
+        window.location.href = response.url;
+      } else {
+        throw new Error("Session URL not found");
+      }
+    } catch (error) {
+      console.error("Subscription failed", error);
+    }
+  };
+
 
   return (
     <div className={`container py-5 checkoutPage`}>
@@ -135,7 +164,7 @@ const CheckoutPage: React.FC = () => {
                 <div className="card-body">
                   <h2 className="paymentTitle">Payment Details</h2>
 
-                  <form className="paymentForm">
+                  <form className="paymentForm" onSubmit={handleSubscribe}>
                     <div className="mb-4">
                       <label htmlFor="email" className="formLabel">
                         Email Address

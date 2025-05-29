@@ -6,10 +6,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { setRole } from "@/modules/auth/redux/slices/authSlice";
 import { getDecodedToken } from "@/utils/auth";
 
-import { HomeIcon, ProfileIcon, Logo, SubscriptionIcon } from "./Icon";
+import { HomeIcon, ProfileIcon, Logo, SubscriptionIcon, HamburgerMenuIcon } from "./Icon";
 import UsersIcon from "../../public/group.png";
 
-function LeftSidebar({ Width }: any) {
+function LeftSidebar({ Width, toggleSidebar }: any) {
   const pathname = usePathname();
   const dispatch = useDispatch();
 
@@ -71,8 +71,17 @@ function LeftSidebar({ Width }: any) {
         <Logo />
 
       </div>
+
       <div className="side-bar-body">
+        <button
+          onClick={toggleSidebar}
+          className="set-side-bar-button"
+          aria-label="Toggle sidebar"
+        >
+          <HamburgerMenuIcon />
+        </button>
         <ul>
+          <h5>Main</h5>
           {navLinks.map(({ href, label, icon }) => (
             <li key={href}>
               <Link href={href} className={pathname === href ? "active" : ""}>

@@ -9,6 +9,7 @@ import { ToastContainer} from 'react-toastify';
 export default function App({ Component, pageProps }: AppProps) {
   const [store, setStore] = useState(null);
 
+
   useEffect(() => {
     (async () => {
       const dynamicStore = await createStore();
@@ -20,6 +21,7 @@ export default function App({ Component, pageProps }: AppProps) {
   }
   return (
     <Provider store={store}>
+     
       <ProtectedRoute>
       <ToastContainer
         position="top-right"  // Toast position

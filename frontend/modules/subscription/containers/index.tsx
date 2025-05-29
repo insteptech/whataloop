@@ -10,6 +10,7 @@ const SubscriptionTiers = () => {
       name: "Free",
       price: "$0",
       period: "forever",
+      price_id: "",
       features: [
         "Basic features",
         "Community support",
@@ -25,6 +26,7 @@ const SubscriptionTiers = () => {
       name: "Starter",
       price: "$9",
       period: "per month",
+      price_id: "",
       features: [
         "All Free features",
         "Priority support",
@@ -40,6 +42,7 @@ const SubscriptionTiers = () => {
       name: "Pro",
       price: "$19",
       period: "per month",
+      price_id: "",
       features: [
         "All Intermediate features",
         "24/7 dedicated support",

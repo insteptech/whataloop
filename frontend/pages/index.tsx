@@ -64,38 +64,45 @@ export default function Page({ slug }: PageProps) {
   return (
     <Layout>
       {isToken ? (
-        <Row className="w-100">
-          <Col
-            md={2}
-            className={` padding-right-0 left-sidebar-sticky ${sideBarWidth ? "siddebar-hide-width" : "siddebar-mobile-width"
-              }`}
-          >
-            <LeftSidebar Width={sideBarWidth} />
-          </Col>
-          <Col
-            md={10}
-            className={`padding-left-0  padding-right-0 ${sideBarWidth
+        <div className="bg-layer-main">
+          <Row className="w-100">
+            <Col
+              md={2}
+              lg={3}
+              className={`left-sidebar-sticky ${sideBarWidth ? "siddebar-hide-width" : "siddebar-mobile-width"
+                }`}
+            >
+              <LeftSidebar Width={sideBarWidth} 
+              toggleSidebar={() => setSideBarWidth(!sideBarWidth)}/>
+            </Col>
+            <Col
+              md={10}
+              lg={9}
+              className={` ${sideBarWidth
                 ? "right-sidebar-width"
                 : "right-sidebar-mobile-width"
-              }`}
-          >
-            {" "}
-            <Row>
-              <Col md={12} className="header-top-bar-sticky">
-                <HeaderTopBar
-                  profileOpen={profile}
-                  toggleProfile={OpenProfileDropDown}
-                  toggleSidebar={() => setSideBarWidth(!sideBarWidth)}
-                />
-              </Col>
+                }`}
+            >
+              {" "}
+              <div className="right-sidebar-container">
+                <Row>
+                  <Col md={12} className="header-top-bar-sticky">
+                    <HeaderTopBar
+                      profileOpen={profile}
+                      toggleProfile={OpenProfileDropDown}
+                      
+                    />
+                  </Col>
 
-              <Col md={12}>
-                {" "}
-                <Component />
-              </Col>
-            </Row>
-          </Col>
-        </Row>
+                  <Col md={12}>
+                    {" "}
+                    <Component />
+                  </Col>
+                </Row>
+              </div>
+            </Col>
+          </Row>
+        </div>
       ) : (
         <Component />
       )}

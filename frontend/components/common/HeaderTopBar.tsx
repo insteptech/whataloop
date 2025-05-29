@@ -22,7 +22,6 @@ type Props = {
 const HeaderTopBar: FC<Props> = ({
   profileOpen,
   toggleProfile,
-  toggleSidebar,
 }) => {
   const dispatch: any = useDispatch();
   const router = useRouter();
@@ -80,13 +79,6 @@ const HeaderTopBar: FC<Props> = ({
         <div className="row align-items-center">
           <div className="col-md-6">
             <div className="header-top-bar-left d-flex align-items-center gap-3">
-              <button
-                onClick={toggleSidebar}
-                className="set-side-bar-button bg-transparent border-0 me-3 p-0"
-                aria-label="Toggle sidebar"
-              >
-                <HamburgerMenuIcon />
-              </button>
             </div>
           </div>
 
