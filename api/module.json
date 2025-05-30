@@ -13,5 +13,6 @@
     {"name": "reminders"},
     {"name": "replies"},
     {"name": "businessSubscription"},
-    {"name": "thirdPartyIntegration"}
+    {"name": "thirdPartyIntegration"},
+    {"name": "message"}
 ]

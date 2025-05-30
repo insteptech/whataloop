@@ -1,5 +1,6 @@
 const { getAllModels } = require("../../../middlewares/loadModels");
 const axios = require('axios');
+const QRCode = require('qrcode');
 
 const WHATSAPP_API_URL = 'https://graph.facebook.com/v18.0';
 const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
@@ -86,12 +87,24 @@ const sendTextMessage = async (toPhone, messageText) => {
   }
 };
 
+const generateLeadLink = async (user, message = '', campaign = '') => {
+  // Use WhatsApp business number or user's phone
+  const number = user.whatsapp_number || user.phone;
+  if (!number) throw new Error('No WhatsApp number found for user.');
+  const text = message || 'Hi, I’m interested!';
+  const link = `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
+  const qr = await QRCode.toDataURL(link);
+  // Optional: Save to DB, add campaign analytics, etc.
+  return { link, qr };
+};
+
 
 
 module.exports = {
     handleIncomingMessage,
     createWhatsappEntry,
     saveRawPayload,
-    sendTextMessage
+    sendTextMessage,
+    generateLeadLink
   };
   

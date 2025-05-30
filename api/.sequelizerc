@@ -3,7 +3,7 @@ const path = require("path");
 
 module.exports = {
   config: path.resolve("./config/config.js"),
-  "models-path": path.resolve("./modules/onboarding/models"),
-  "migrations-path": path.resolve("./modules/onboarding/migrations"),
-  "seeders-path": path.resolve("./modules/onboarding/seeders"),
+  "models-path": path.resolve("./modules/message/models"),
+  "migrations-path": path.resolve("./modules/message/migrations"),
+  "seeders-path": path.resolve("./modules/message/seeders"),
 };

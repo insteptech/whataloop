@@ -87,3 +87,14 @@ exports.sendMessage = async (req, res) => {
     res.status(500).json({ error: 'Failed to send message.' });
   }
 };
+
+exports.generateLeadLink = async (req, res) => {
+  try {
+    const user = req.user; // From auth middleware
+    const { message, campaign } = req.query;
+    const result = await whatsappManager.generateLeadLink(user, message, campaign);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

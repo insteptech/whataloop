@@ -16,3 +16,8 @@ exports.handleIncomingPayload = async (payload) => {
 exports.sendMessage = async (phone, message) => {
   return await whatsappService.sendTextMessage(phone, message);
 };
+
+exports.generateLeadLink = async (user, message, campaign) => {
+  // You can add any business logic or checks here
+  return whatsappService.generateLeadLink(user, message, campaign);
+};

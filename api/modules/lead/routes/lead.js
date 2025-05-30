@@ -15,4 +15,6 @@ router.put('/:id', authenticate, validateUpdateLead, leadController.update);
 router.delete('/:id', authenticate, leadController.remove);
 // router.put('updateleadbyadmin/:id', authenticate, validateUpdateLead, leadController.updateLeadByAdmin)
 
+// router.get('/:leadId/chat-thread', authenticate, leadsController.getLeadChatThread);
+
 module.exports = router;

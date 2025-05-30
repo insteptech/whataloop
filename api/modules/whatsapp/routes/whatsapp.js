@@ -12,4 +12,6 @@ router.get('/', whatsappController.verifyWebhook);
 router.post('/', whatsappController.receiveMessage);
 router.post('/send', whatsappController.sendMessage);
 
+router.get('/generate-link', authenticate, whatsappController.generateLeadLink);
+
 module.exports = router;

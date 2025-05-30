@@ -36,7 +36,7 @@ exports.loginInput = [
 exports.signupInput = [
   { key: "phone", type: "string", required: true },
   { key: "email", type: "string", required: true },
-  { key: "fullName", type: "string", required: true },
+  { key: "full_name", type: "string", required: true },
   { key: "password", type: "string", required: true },
   { key: "photo_url", type: "string", required: false },
   { key: "photo_url", type: "string", required: false }
