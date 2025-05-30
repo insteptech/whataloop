@@ -208,16 +208,16 @@ const UsersList = () => {
               </div>
             )}
 
-            {users?.rows?.length > 0 && (
+            {users?.rows?.length > 0 && ( 
               <>
                 <div className="table-responsive">
                   <table className="table">
                     <thead>
                       <tr>
                         <th>S.no</th>
-                        <th className="sortable" onClick={() => handleSort("fullName")}>
+                        <th className="sortable" onClick={() => handleSort("full_name")}>
                           Name
-                          {sortBy === "fullName" && (
+                          {sortBy === "full_name" && (
                             <span className="sort-icon">{sortOrder === "ASC" ? "▲" : "▼"}</span>
                           )}
                         </th>
@@ -247,7 +247,7 @@ const UsersList = () => {
                       {users.rows.map((user: any, index: number) => (
                         <tr key={user.id}>
                           <td data-label="S.no">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                          <td data-label="Name">{user.fullName || " "}</td>
+                          <td data-label="Name">{user.full_name || " "}</td>
                           <td data-label="Email">{user.email || " "}</td>
                           <td data-label="Account Type">{user.account_type || "User"}</td>
                           <td data-label="Phone">{user.phone}</td>

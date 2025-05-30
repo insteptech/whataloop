@@ -10,7 +10,7 @@ export const fetchProfile = createAsyncThunk<any, string>(
           Authorization: `Bearer ${token}`,
         },
       });
-
+     
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Something went wrong");

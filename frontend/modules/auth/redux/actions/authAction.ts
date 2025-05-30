@@ -49,7 +49,7 @@ export const register = createAsyncThunk(
     try {
       // Create FormData to handle file uploads
       const formData = new FormData();
-      formData.append("fullName", payload.fullName);
+      formData.append("full_name", payload.full_name);
       formData.append("email", payload.email);
       formData.append("phone", payload.phone);
       formData.append("password", payload.password);
@@ -67,13 +67,13 @@ export const register = createAsyncThunk(
       });
 
       // Handle onboarding if needed
-      if (response?.data?.statusCode === 200) {
-        const onboardingPayload = {
-          businessName: payload.businessName,
-          whatsappNumber: payload.phone,
-        };
-        await api.post("/onboarding/onboard", onboardingPayload);
-      }
+      // if (response?.data?.statusCode === 200) {
+      //   const onboardingPayload = {
+      //     businessName: payload.businessName,
+      //     whatsappNumber: payload.phone,
+      //   };
+      //   await api.post("/onboarding/onboard", onboardingPayload);
+      // }
 
       return response.data;
     } catch (error: any) {

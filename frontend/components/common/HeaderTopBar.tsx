@@ -16,7 +16,7 @@ import { logout } from "@/modules/auth/redux/slices/authSlice"; // adjust path a
 type Props = {
   profileOpen: boolean;
   toggleProfile: () => void;
-  toggleSidebar: () => void;
+
 };
 
 const HeaderTopBar: FC<Props> = ({
@@ -93,7 +93,7 @@ const HeaderTopBar: FC<Props> = ({
                     <UserIcon />
                   </div>
                   <span className="d-none d-md-inline text-dark fw-medium">
-                    {user?.fullName || "User"}
+                    {user?.full_name || "User"}
                   </span>
                   <DownArrow />
                 </button>

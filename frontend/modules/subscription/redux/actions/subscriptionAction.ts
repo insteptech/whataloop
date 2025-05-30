@@ -23,3 +23,19 @@ export const subscribePlan = createAsyncThunk(
     }
   }
 );
+
+export const sendOtp = createAsyncThunk(
+  "auth/sendOtp",
+  async (payload: { whatsappNumber: number }, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/business/request-otp", payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error?.response?.data || "Failed to send OTP");
+    }
+  }
+);

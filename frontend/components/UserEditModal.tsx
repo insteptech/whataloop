@@ -26,7 +26,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
     setNotification
 }) => {
     const [formData, setFormData] = useState({
-        fullName: "",
+        full_name: "",
         email: "",
         phone: "",
     });
@@ -37,7 +37,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
     useEffect(() => {
         if (user) {
             setFormData({
-                fullName: user.fullName || "",
+                full_name: user.full_name || "",
                 email: user.email || "",
                 phone: user.phone || "",
             });
@@ -99,8 +99,8 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
                         <Form.Label>Full Name</Form.Label>
                         <Form.Control
                             type="text"
-                            name="fullName"
-                            value={formData.fullName}
+                            name="full_name"
+                            value={formData.full_name}
                             onChange={handleChange}
                         />
                     </Form.Group>

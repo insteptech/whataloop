@@ -72,8 +72,8 @@ export default function Page({ slug }: PageProps) {
               className={`left-sidebar-sticky ${sideBarWidth ? "siddebar-hide-width" : "siddebar-mobile-width"
                 }`}
             >
-              <LeftSidebar Width={sideBarWidth} 
-              toggleSidebar={() => setSideBarWidth(!sideBarWidth)}/>
+              <LeftSidebar Width={sideBarWidth}
+                toggleSidebar={() => setSideBarWidth(!sideBarWidth)} />
             </Col>
             <Col
               md={10}
@@ -90,7 +90,7 @@ export default function Page({ slug }: PageProps) {
                     <HeaderTopBar
                       profileOpen={profile}
                       toggleProfile={OpenProfileDropDown}
-                      
+
                     />
                   </Col>
 

@@ -73,6 +73,7 @@ exports.getUserDetails = async (req, res, next) => {
 
 exports.getMe = async (req, res) => {
   try {
+
     if (!req.user || !req.user.id) {
       return res.status(400).json({ message: 'User not authenticated properly' });
     }
@@ -104,6 +105,7 @@ exports.updateUserProfile = async (req, res, next) => {
 };
 
 exports.updateProfileByAdmin = async (req, res, next) => {
+  console.log("Update profile by admin request body:", req.body);
   try {
     if (!Object.keys(supportedDbTypes).includes(process.env.DB_TYPE)) {
       return next(new CustomError(unsupportedDBType, 400));
@@ -180,6 +182,7 @@ exports.login = async (req, res, next) => {
 };
 
 exports.signup = async (req, res, next) => {
+  console.log("Create User:", req.body);
   try {
     if (!Object.keys(supportedDbTypes).includes(process.env.DB_TYPE)) {
       return next(new CustomError(unsupportedDBType, 400));

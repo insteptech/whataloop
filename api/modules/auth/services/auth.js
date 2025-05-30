@@ -52,7 +52,7 @@ const findUser = async (where) => {
 const findById = async (id) => {
   const { User } = await getAllModels(process.env.DB_TYPE);
   const user = await User.findByPk(id, {
-    attributes: ['id', 'fullName', 'email', 'phone', 'photo_url', 'account_type', 'timezone'],
+    attributes: ['id', 'full_name', 'email', 'phone', 'photo_url', 'account_type', 'timezone'],
   });
 
   if (!user) {
@@ -91,10 +91,8 @@ const deleteUser = async (where) => {
     throw { message: "User not found" };
   }
 
-  // First delete related UserRoles
-  await UserRole.destroy({ where: { userId: user.id } });
+  await UserRole.destroy({ where: { user_id: user.id } });
 
-  // Then delete the user
   await User.destroy({ where: { id: user.id } });
 
   return { message: "User deleted successfully" };
@@ -121,6 +119,8 @@ const updateOtp = async (email, otp, expirationTime) => {
 const updateUserProfile = async (userId, updateData) => {
   const { User } = await getAllModels(process.env.DB_TYPE);
   const user = await User.findByPk(userId);
+  console.log('user', user);
+
 
   if (!user) {
     throw new Error('User not found');
@@ -193,7 +193,7 @@ const fetchUsersWithPagination = async ({
 
   if (search) {
     where[Op.or] = [
-      { fullName: { [Op.iLike]: `%${search}%` } },
+      { full_name: { [Op.iLike]: `%${search}%` } },
       { email: { [Op.iLike]: `%${search}%` } },
       { phone: { [Op.iLike]: `%${search}%` } },
     ];
@@ -281,9 +281,9 @@ const login = async (email, password, id) => {
 
 // FIXED: use user_id and role_id
 const signup = async (requestBody) => {
-const { User, UserRole, SubscriptionPlan, sequelize } = await getAllModels(process.env.DB_TYPE);
+  const { User, UserRole, SubscriptionPlan, sequelize } = await getAllModels(process.env.DB_TYPE);
 
-if (!User) {
+  if (!User) {
     throw { message: "User model not found" };
   }
   const transaction = await sequelize.transaction();

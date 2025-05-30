@@ -63,7 +63,7 @@ const UserProfilePage: React.FC = () => {
   // Formik setup
   const formik = useFormik({
     initialValues: {
-      fullName: user?.fullName || "",
+      fullName: user?.full_name || "",
     },
     enableReinitialize: true,
     validationSchema,
@@ -84,7 +84,7 @@ const UserProfilePage: React.FC = () => {
       const formData = new FormData();
 
       if (pendingValues) {
-        formData.append("fullName", pendingValues.fullName);
+        formData.append("full_name", pendingValues.fullName);
       }
 
       if (image) {
@@ -151,7 +151,7 @@ const UserProfilePage: React.FC = () => {
 
             <div className="user-info">
               <div className="user-info__name">
-                {user.fullName || "User Name"}
+                {user.full_name || "User Name"}
               </div>
               <div className="user-info__role">
                 {user.account_type || "Member"}

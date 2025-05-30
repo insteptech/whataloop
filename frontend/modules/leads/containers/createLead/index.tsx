@@ -15,7 +15,7 @@ import InputFieldWithCountryCode from "@/components/common/InputFieldWithCountry
 import { useRouter } from "next/router";
 
 
-const LeadsForm = () => {
+const LeadsForm = ( status: any) => {
     const [tagOptions, setTagOptions] = useState([]);
     const [statusOptions, setStatusOptions] = useState([]);
     const [sourceOptions, setSourceOptions] = useState([]);

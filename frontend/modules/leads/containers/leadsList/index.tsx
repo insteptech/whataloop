@@ -12,6 +12,7 @@ import {
 } from "../../redux/action/leadAction";
 import { fetchConstants } from "@/modules/constants/redux/action/constantAction";
 import EditLeadModal from "@/components/leadEditModal";
+import { AddLeadIcon } from "@/components/common/Icon";
 
 const LeadsList = () => {
   const dispatch = useDispatch();
@@ -190,8 +191,12 @@ const LeadsList = () => {
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                   >
-                    <h4>{column.label}</h4>
-
+                    <div className="d-flex justify-content-between align-items-center">
+                      <h4>{column.label}</h4>
+                      <button className="add-lead-button">
+                        <AddLeadIcon />
+                      </button>
+                    </div>
                     {groupedLeads[column.label]?.map((lead: any, index: number) => (
                       <Draggable draggableId={lead.id} index={index} key={lead.id}>
                         {(provided, snapshot) => (

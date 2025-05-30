@@ -19,14 +19,14 @@ const SignUp = () => {
 
   // Validation Schema
   const validationSchema = Yup.object().shape({
-    fullName: Yup.string()
+    full_name: Yup.string()
       .required("Full name is required")
       .min(2, "Too short!")
       .max(20, "Too long!"),
-    businessName: Yup.string()
-      .required("Business name is required")
-      .min(2, "Too short!")
-      .max(20, "Too long!"),
+    // businessName: Yup.string()
+    //   .required("Business name is required")
+    //   .min(2, "Too short!")
+    //   .max(20, "Too long!"),
     phone: Yup.string()
       .required("Phone is required")
       .matches(/^\+?[0-9]{10,}$/, "Phone number is not valid")
@@ -95,15 +95,18 @@ const SignUp = () => {
       toast.error("Please verify your email before signing up.");
       return;
     }
+
     const { fullName, businessName, email, phone, password, photo } = values;
+
     const payload = {
-      fullName,
+      full_name: fullName,
       businessName,
       email,
       phone,
       password,
       photo,
     };
+    console.log("Payload for registration:", payload);
     try {
       const response = await dispatch(register(payload) as any).unwrap();
       if (response?.statusCode === 200) {
@@ -128,7 +131,7 @@ const SignUp = () => {
       <div className="card-inner-content registration-form-card">
         <Formik
           initialValues={{
-            fullName: "",
+            full_name: "",
             businessName: "",
             email: "",
             phone: "",
@@ -155,15 +158,15 @@ const SignUp = () => {
                       <InputField
                         label="Full Name"
                         placeholder="Enter Full Name"
-                        id="fullName"
+                        id="full_name"
                         type="text"
-                        name="fullName"
-                        value={values.fullName}
+                        name="full_name"
+                        value={values.full_name}
                         onChange={handleChange}
                         required
                       />
                     </Col>
-                    <Col md={6}>
+                    {/* <Col md={6}>
                       <InputField
                         label="Business Name"
                         placeholder="Enter Business Name"
@@ -174,7 +177,7 @@ const SignUp = () => {
                         onChange={handleChange}
                         required
                       />
-                    </Col>
+                    </Col> */}
                     <Col md={6}>
                       <InputField
                         label="Email"

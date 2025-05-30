@@ -144,7 +144,9 @@ exports.login = async (req, res, next) => {
 };
 
 exports.signup = async (reqBody, file, res) => { // Accept reqBody and file
-  const { phone, email, fullName, password } = reqBody;
+  const { phone, email, full_name, password } = reqBody;
+  console.log("Signup request body:", reqBody);
+  
   let photo_url = null;
 
   if (file) {
@@ -170,7 +172,7 @@ exports.signup = async (reqBody, file, res) => { // Accept reqBody and file
   user = await authService.signup({
     phone,
     email,
-    fullName,
+    full_name,
     password,
     photo_url, // Pass the photo_url to the service
   });
@@ -179,7 +181,7 @@ exports.signup = async (reqBody, file, res) => { // Accept reqBody and file
     id: user.id,
     phone: user.phone,
     email: user.email,
-    fullName: user.fullName,
+    fullName: user.full_name,
     photo_url: user.photo_url, // Include photo_url in the response
   });
 };
