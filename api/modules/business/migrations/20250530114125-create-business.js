@@ -1,4 +1,5 @@
 'use strict';
+
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('businesses', {
@@ -21,6 +22,11 @@ module.exports = {
       name: {
         type: Sequelize.STRING,
         allowNull: false,
+      },
+      whatsapp_number: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
       },
       description: {
         type: Sequelize.STRING,
@@ -46,6 +52,7 @@ module.exports = {
       },
     });
   },
+
   async down(queryInterface) {
     await queryInterface.dropTable('businesses');
   },

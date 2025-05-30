@@ -8,4 +8,7 @@ router.get('/:id', businessController.getBusinessById);
 router.put('/:id', businessController.updateBusiness);
 router.delete('/:id', businessController.deleteBusiness);
 
+router.post('/request-otp', businessController.requestOtp);
+router.post('/verify-otp', businessController.verifyOtp);
+
 module.exports = router;

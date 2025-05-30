@@ -41,6 +41,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    whatsapp_number: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
     description: {
       type: DataTypes.STRING,
     },

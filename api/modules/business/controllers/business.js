@@ -24,3 +24,15 @@ exports.deleteBusiness = async (req, res) => {
   const result = await businessManager.deleteBusiness(req.params.id);
   res.json(result);
 };
+
+exports.requestOtp = async (req, res) => {
+  const { whatsapp_number } = req.body;
+  const result = await businessManager.requestOtp(whatsapp_number);
+  res.status(200).json(result);
+};
+
+exports.verifyOtp = async (req, res) => {
+  const { whatsapp_number, otp } = req.body;
+  const result = await businessManager.verifyOtp(whatsapp_number, otp);
+  res.status(200).json(result);
+};
