@@ -202,7 +202,6 @@ const getAll = async (userId, query) => {
 
   const where = {};
 
-
   if (role !== 'admin') {
     where.user_id = userId;
   }
@@ -221,9 +220,9 @@ const getAll = async (userId, query) => {
   const result = await Lead.findAndCountAll({
     where,
     include: [
-      { model: Constant, as: 'tagDetail', attributes: ['label'] },
-      { model: Constant, as: 'statusDetail', attributes: ['label'] },
-      { model: Constant, as: 'sourceDetail', attributes: ['label'] },
+      { model: Constant, as: 'tagConstant', attributes: ['label'] },
+      { model: Constant, as: 'statusConstant', attributes: ['label'] },
+      { model: Constant, as: 'sourceConstant', attributes: ['label'] },
     ],
     order: [[sort, order.toUpperCase()]],
     offset: (page - 1) * limit,

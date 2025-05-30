@@ -17,7 +17,7 @@ exports.createUserInput = [{ key: "email", type: "string", required: true }];
 // ];
 
 exports.updateUserProfileInput = [
-  { key: "fullName", type: "string", required: true },
+  { key: "full_name", type: "string", required: true },
   { key: "email", type: "string", required: false },
   { key: "phone", type: "string", required: false },
   { key: "profileImage", type: "string", required: false },
