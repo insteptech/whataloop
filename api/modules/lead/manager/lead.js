@@ -57,3 +57,8 @@ exports.updateLead = async (leadId, userId, data, role) => {
 exports.deleteLead = async (leadId) => {
   return await leadService.remove(leadId);
 };
+
+exports.getLeadThread = async (leadId, userId) => {
+  // Optionally add authorization/ownership check
+  return await leadService.getLeadThread(leadId, userId);
+};

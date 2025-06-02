@@ -2,7 +2,10 @@ const reminderManager = require('../manager/reminders');
 const { getUserIdFromToken } = require('../../../utils/helper');
 
 exports.createReminder = async (req, res) => {
-  const result = await reminderManager.createReminder(req.body, req.body.user_id);
+  const authHeader = req.headers.authorization;
+  const token = authHeader.split(' ')[1];
+  const userId = getUserIdFromToken(token);
+  const result = await reminderManager.createReminder(req.body, userId);
   res.status(result.status).json(result.data);
 };
 

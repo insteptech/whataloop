@@ -8,11 +8,11 @@ const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 
 // const handleIncomingMessage = async (data) => {
 
-//   const { Whatsapp } = await getAllModels(process.env.DB_TYPE);
-//    if(!Whatsapp) {
+//   const { WhatsApp } = await getAllModels(process.env.DB_TYPE);
+//    if(!WhatsApp) {
 //     throw new Error('WhatsApp model not found');
 //   }
-//   await Whatsapp.create({
+//   await WhatsApp.create({
 //     raw_payload: JSON.stringify(data),
 //   });
 // };
@@ -20,12 +20,12 @@ const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 const handleIncomingMessage = async (data) => {
   console.log('🔧 Processing WhatsApp Payload:', JSON.stringify(data, null, 2));
 
-  const { Whatsapp } = await getAllModels(process.env.DB_TYPE);
-  if (!Whatsapp) {
+  const { WhatsApp } = await getAllModels(process.env.DB_TYPE);
+  if (!WhatsApp) {
     throw new Error('WhatsApp model not found');
   }
 
-  await Whatsapp.create({
+  await WhatsApp.create({
     raw_payload: JSON.stringify(data),
   });
 
@@ -33,27 +33,27 @@ const handleIncomingMessage = async (data) => {
 };
 
 const createWhatsappEntry = async (payload) => {
-  const { Whatsapp } = await getAllModels(process.env.DB_TYPE);
-  if(!Whatsapp) {
+  const { WhatsApp } = await getAllModels(process.env.DB_TYPE);
+  if(!WhatsApp) {
     throw new Error('WhatsApp model not found');
   }
-  await Whatsapp.create({ raw_payload: JSON.stringify(payload) });
+  await WhatsApp.create({ raw_payload: JSON.stringify(payload) });
 };
 
 const saveRawPayload = async (payload) => {
-  const { Whatsapp } = await getAllModels(process.env.DB_TYPE);
-  if(!Whatsapp) {
+  const { WhatsApp } = await getAllModels(process.env.DB_TYPE);
+  if(!WhatsApp) {
     throw new Error('WhatsApp model not found');
   }
   
-  await Whatsapp.create({
+  await WhatsApp.create({
     raw_payload: payload,
   });
 };
 
 const sendTextMessage = async (toPhone, messageText) => {
-  const { Whatsapp } = await getAllModels(process.env.DB_TYPE);
-  if(!Whatsapp) {
+  const { WhatsApp } = await getAllModels(process.env.DB_TYPE);
+  if(!WhatsApp) {
    throw new Error('WhatsApp model not found');
   }
   if (!PHONE_NUMBER_ID || !ACCESS_TOKEN) {

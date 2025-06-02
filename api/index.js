@@ -15,12 +15,12 @@ const app = express();
 const path = require("path");
 const accessLogger = require('./modules/log/middlewares/accessLogger');
 const errorLogger = require('./modules/log/middlewares/errorLogger');
+const startReminderFollowupJob = require('./modules/jobs/reminderFollowupJob');
 
 
 const port = process.env.PORT || 3000;
 
 const apiVersion = process.env.API_VERSION ? process.env.API_VERSION : "v1";
-
 app.use(express.json());
 app.use(helmet());
 
@@ -30,7 +30,10 @@ app.use(helmet());
 //   credentials: true, // Allow credentials like cookies or Authorization headers
 // };
 
-app.use(cors());
+app.use(cors({
+  origin: '*',
+}))
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
@@ -91,6 +94,7 @@ app.get("/db-seed", function (err, res) {
 
 // load the modules based on module.json
 dynamicModuleLoader(app);
+startReminderFollowupJob();
 
 app.use(`/api/${apiVersion}`, routes);
 
