@@ -6,6 +6,11 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useDispatch } from "react-redux";
 import { sendOtp } from "../redux/actions/subscriptionAction";
+import { verifyOtp } from "../redux/actions/subscriptionAction";
+import { createBusiness } from "../redux/actions/subscriptionAction";
+import { useSelector } from "react-redux";
+
+
 
 
 const SubscriptionTiers = () => {
@@ -13,11 +18,14 @@ const SubscriptionTiers = () => {
   const [showModal, setShowModal] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [whatsappNumber, setWhatsappNumber] = useState("");
-  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]); // 6-digit OTP
+  const [whatsappForOtp, setWhatsappForOtp] = useState("");
 
   const router = useRouter();
   const dispatch = useDispatch();
+  const user = useSelector((state: any) => state.profileReducer.data);
+
+
   const plans = [
     {
       id: "free",
@@ -71,16 +79,15 @@ const SubscriptionTiers = () => {
   ];
 
   const handleSelectPlan = (planId) => {
-    console.log(`Selected Plan ID: ${planId}`);
     setSelectedPlan(planId);
     setShowModal(true);
   };
 
-
-  const handleSendOtp = async () => {
+  const handleSendOtp = async (number: string) => {
     try {
-      const resultAction = await dispatch(sendOtp({ whatsappNumber }) as any);
+      const resultAction = await dispatch(sendOtp(number) as any);
       if (sendOtp.fulfilled.match(resultAction)) {
+        setWhatsappForOtp(number);
         setShowModal(false);
         setShowOtpModal(true);
       } else {
@@ -92,62 +99,96 @@ const SubscriptionTiers = () => {
     }
   };
 
-
   const handleOtpChange = (value, index) => {
     if (/^\d?$/.test(value)) {
       const newOtp = [...otp];
       newOtp[index] = value;
       setOtp(newOtp);
-      if (value && index < 3) {
+      if (value && index < otp.length - 1) {
         document.getElementById(`otp-${index + 1}`)?.focus();
       }
     }
   };
 
-  const handleProceed = () => {
+  const handleProceed = async () => {
     const enteredOtp = otp.join("");
-    if (enteredOtp.length === 4 && selectedPlan) {
-      setShowOtpModal(false);
-      setShowDetailsModal(true);
+    if (enteredOtp.length === 6 && selectedPlan) {
+      try {
+        const resultAction = await dispatch(
+          verifyOtp({
+            whatsapp_number: whatsappForOtp,
+            otp: enteredOtp,
+          }) as any
+        );
+
+        if (verifyOtp.fulfilled.match(resultAction)) {
+          setShowOtpModal(false);
+          setShowDetailsModal(true);
+        } else {
+          alert(resultAction.payload || "OTP verification failed.");
+        }
+      } catch (error) {
+        console.error("OTP verification error:", error);
+        alert("Unexpected error verifying OTP.");
+      }
     } else {
-      alert("Please enter the complete 4-digit OTP.");
+      alert("Please enter the complete 6-digit OTP.");
     }
   };
 
-  const handleFinalSubmit = (values) => {
-    // Here you could send values to an API if needed
-    router.push({
-      pathname: "/subscription/checkout",
-      query: {
-        plan: selectedPlan,
-        name: values.fullName,
-        email: values.email,
-        altMobile: values.alternateMobile || "",
-      },
-    });
+
+  const handleFinalSubmit = async (values) => {
+    if (!user?.id || !whatsappForOtp) {
+      alert("Missing user ID or WhatsApp number.");
+      return;
+    }
+
+    const businessPayload = {
+      user_id: user.id,
+      whatsapp_number: whatsappForOtp.replace(/\D/g, ""),
+      name: values.fullName,
+      // Optional fields can be added here if needed:
+      // description: "Best digital agency",
+      // website: "https://example.com",
+      // logo_url: "https://cdn.example.com/logo.png"
+    };
+
+    try {
+      const resultAction = await dispatch(createBusiness(businessPayload) as any);
+
+      if (createBusiness.fulfilled.match(resultAction)) {
+        router.push({
+          pathname: "/subscription/checkout",
+          query: {
+            plan: selectedPlan,
+            name: values.fullName,
+            email: values.email,
+            altMobile: values.alternateMobile || "",
+          },
+        });
+      } else {
+        alert(resultAction.payload || "Failed to create business.");
+      }
+    } catch (error) {
+      console.error("Error creating business:", error);
+      alert("Unexpected error creating business.");
+    }
   };
 
   return (
     <>
+      {/* Subscription Plans Section */}
       <section className="subscription-tiers">
         <div className="container">
           <div className="text-center mb-5">
             <h2 className="section-title">Choose Your Plan</h2>
-            <p className="section-subtitle">
-              Select the perfect plan for your needs
-            </p>
+            <p className="section-subtitle">Select the perfect plan for your needs</p>
           </div>
-
           <div className="row g-4">
             {plans.map((plan) => (
               <div key={plan.id} className="col-md-4">
-                <div
-                  className={`tier-card ${plan.popular ? "popular" : ""} ${selectedPlan === plan.id ? "selected" : ""
-                    }`}
-                >
-                  {plan.popular && (
-                    <div className="popular-badge">Most Popular</div>
-                  )}
+                <div className={`tier-card ${plan.popular ? "popular" : ""} ${selectedPlan === plan.id ? "selected" : ""}`}>
+                  {plan.popular && <div className="popular-badge">Most Popular</div>}
                   <div className="tier-header">
                     <h3 className="tier-name">{plan.name}</h3>
                     <div className="tier-price">
@@ -160,10 +201,7 @@ const SubscriptionTiers = () => {
                       <li key={index}>{feature}</li>
                     ))}
                   </ul>
-                  <button
-                    className="btn btn-outline-primary"
-                    onClick={() => handleSelectPlan(plan.id)}
-                  >
+                  <button className="btn btn-outline-primary" onClick={() => handleSelectPlan(plan.id)}>
                     {plan.cta}
                   </button>
                 </div>
@@ -181,17 +219,13 @@ const SubscriptionTiers = () => {
         <Formik
           initialValues={{ whatsappNumber: "" }}
           validationSchema={Yup.object({
-
             whatsappNumber: Yup.string()
               .required("Phone is required")
               .matches(/^\+?[0-9]{10,}$/, "Phone number is not valid")
               .min(12, "Phone number too short")
               .max(15, "Phone number is too long"),
           })}
-          onSubmit={(values) => {
-            setWhatsappNumber(values.whatsappNumber);
-            handleSendOtp();
-          }}
+          onSubmit={(values) => handleSendOtp(values.whatsappNumber)}
         >
           {({ handleSubmit }) => (
             <Form onSubmit={handleSubmit}>
@@ -204,7 +238,7 @@ const SubscriptionTiers = () => {
                   className="country-code-select-with-number leads-country-code"
                   required
                 />
-                <i>You’ll receive a 4 digit code on this number</i>
+                <i>You’ll receive a 6-digit code on this number</i>
                 <div className="mt-3 d-flex justify-content-center align-items-center">
                   <Button type="submit" variant="outline-success" className="mt-3">
                     Send OTP
@@ -223,7 +257,7 @@ const SubscriptionTiers = () => {
         </Modal.Header>
         <Modal.Body>
           <p className="text-left mb-3">
-            Enter the 4-digit OTP sent to <strong>{whatsappNumber}</strong>
+            Enter the 6-digit OTP sent to <strong>{whatsappForOtp}</strong>
           </p>
           <div className="d-flex justify-content-center gap-2">
             {otp.map((digit, index) => (
@@ -235,7 +269,7 @@ const SubscriptionTiers = () => {
                 onChange={(e) => handleOtpChange(e.target.value, index)}
                 maxLength={1}
                 className="text-center"
-                style={{ width: "50px", fontSize: "1.5rem" }}
+                style={{ width: "40px", fontSize: "1.5rem" }}
               />
             ))}
           </div>
@@ -268,24 +302,15 @@ const SubscriptionTiers = () => {
             <Form onSubmit={handleSubmit}>
               <Modal.Body>
                 <BootstrapForm.Group>
-                  <h3>Personal Information </h3>
+                  <h3>Personal Information</h3>
                   <BootstrapForm.Label>Full Name</BootstrapForm.Label>
-                  <Field
-                    name="fullName"
-                    className="form-control"
-                    placeholder="Enter your full name"
-                  />
+                  <Field name="fullName" className="form-control" placeholder="Enter your full name" />
                   <ErrorMessage name="fullName" component="div" className="text-danger" />
                 </BootstrapForm.Group>
 
                 <BootstrapForm.Group className="mt-3">
                   <BootstrapForm.Label>Email Address</BootstrapForm.Label>
-                  <Field
-                    name="email"
-                    type="email"
-                    className="form-control"
-                    placeholder="Enter your email"
-                  />
+                  <Field name="email" type="email" className="form-control" placeholder="Enter your email" />
                   <ErrorMessage name="email" component="div" className="text-danger" />
                 </BootstrapForm.Group>
 

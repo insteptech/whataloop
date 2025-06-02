@@ -33,7 +33,6 @@ const HeaderTopBar: FC<Props> = ({
       profileReducer: { data: any; loading: boolean; error: string };
     }) => state.profileReducer
   );
-
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
     if (token && !user?.fullName) {
