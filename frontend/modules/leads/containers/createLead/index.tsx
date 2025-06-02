@@ -5,7 +5,6 @@ import { Col, Row } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { FiUserPlus, FiInfo, FiTag, FiFileText, FiSend } from "react-icons/fi";
-
 import InputField from "@/components/common/InputField";
 import SelectField from "@/components/common/SelectField";
 import TextAreaField from "@/components/common/TextareaField";
@@ -14,23 +13,25 @@ import { getConstantType, postLeads } from "../../redux/action/leadAction";
 import InputFieldWithCountryCode from "@/components/common/InputFieldWithCountryCode";
 import { useRouter } from "next/router";
 
-
-const LeadsForm = ( status: any) => {
+const LeadsForm = () => {
     const [tagOptions, setTagOptions] = useState([]);
     const [statusOptions, setStatusOptions] = useState([]);
     const [sourceOptions, setSourceOptions] = useState([]);
     const [successNotification, setSuccessNotification] = useState(false);
-
-    const dispatch = useDispatch<any>();
+    const dispatch = useDispatch();
     const router = useRouter();
-
-
+    
+    // Get query parameters
+    const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    const preFilledStatus = searchParams.get("status");
+    const [isStatusDisabled, setIsStatusDisabled] = useState(!!preFilledStatus);
+    
     useEffect(() => {
         const fetchConstants = async () => {
             try {
-                const response = await dispatch(getConstantType()).unwrap();
+                const response = await dispatch(getConstantType() as any).unwrap();
                 const constants = response?.data?.constantType?.rows || [];
-
+                
                 setTagOptions(
                     constants
                         .filter((item) => item.type === "tag")
@@ -51,24 +52,23 @@ const LeadsForm = ( status: any) => {
                 toast.error("Failed to load select field data");
             }
         };
-
         fetchConstants();
     }, [dispatch]);
-
+    
+    // Set initial form values
     const initialValues = {
         name: "",
         phone: "",
         email: "",
         tag: "",
-        status: "",
+        status: preFilledStatus || "",
         source: "",
         notes: "",
         last_contacted: "",
     };
-
+    
     const validationSchema = Yup.object().shape({
         name: Yup.string().required("Name is required"),
-
         phone: Yup.string()
             .required("Phone is required")
             .matches(/^\+?[0-9]{10,}$/, "Phone number is not valid")
@@ -81,19 +81,18 @@ const LeadsForm = ( status: any) => {
                 /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
                 "Invalid email format"
             ),
-
         tag: Yup.string().required("Tag is required"),
         status: Yup.string().required("Status is required"),
         source: Yup.string().required("Source is required"),
         notes: Yup.string(),
         last_contacted: Yup.date().nullable(),
     });
-
-    const handleSubmit = async (values: typeof initialValues, { resetForm }) => {
+    
+    const handleSubmit = async (values, { resetForm }) => {
         const tagLabel = tagOptions.find((opt) => opt.value === values.tag)?.label || "";
         const statusLabel = statusOptions.find((opt) => opt.value === values.status)?.label || "";
         const sourceLabel = sourceOptions.find((opt) => opt.value === values.source)?.label || "";
-
+        
         const payload = {
             ...values,
             tag_label: tagLabel,
@@ -101,29 +100,19 @@ const LeadsForm = ( status: any) => {
             source_label: sourceLabel,
             last_contacted: values.last_contacted || null,
         };
-
+        
         try {
-            const response = await dispatch(postLeads(payload)).unwrap();
+            const response = await dispatch(postLeads(payload) as any).unwrap();
             console.log("Lead created successfully:", response);
             resetForm();
             setSuccessNotification(true);
             router.push("/leads/leadsList");
-
-        } catch (error: any) {
-            console.log("Full error object:", error);
-
-            const errorMessage = error.message || "Submission error. Please try again.";
-
-            if (errorMessage.includes("email")) {
-                toast.error(errorMessage);
-            } else if (errorMessage.includes("phone")) {
-                toast.error(errorMessage);
-            } else {
-                toast.error(errorMessage);
-            }
+        } catch (error) {
+            console.error("Submission error:", error);
+            toast.error("Failed to create lead. Please try again.");
         }
     };
-
+    
     return (
         <div className="leads-form-container">
             <div className="leads-form-card">
@@ -133,17 +122,17 @@ const LeadsForm = ( status: any) => {
                     </div>
                     <h2>Leads Form</h2>
                 </div>
-
+                
                 {successNotification && (
                     <Notification
                         title="Lead Created"
-                        message="Lead Created successfully."
+                        message="Lead created successfully."
                         type="success"
                         position="top-right"
                         onClose={() => setSuccessNotification(false)}
                     />
                 )}
-
+                
                 <Formik
                     initialValues={initialValues}
                     validationSchema={validationSchema}
@@ -151,7 +140,6 @@ const LeadsForm = ( status: any) => {
                 >
                     {({ values, handleChange, setFieldValue }) => (
                         <Form>
-
                             <div className="form-section">
                                 <div className="section-title">
                                     <FiInfo size={18} />
@@ -194,7 +182,7 @@ const LeadsForm = ( status: any) => {
                                     </Col>
                                 </Row>
                             </div>
-
+                            
                             {/* Classification */}
                             <div className="form-section">
                                 <div className="section-title">
@@ -220,6 +208,7 @@ const LeadsForm = ( status: any) => {
                                             options={statusOptions}
                                             value={values.status}
                                             onChange={(e) => setFieldValue("status", e.target.value)}
+                                            disabled={isStatusDisabled}
                                         />
                                     </Col>
                                     <Col md={6}>
@@ -234,7 +223,7 @@ const LeadsForm = ( status: any) => {
                                     </Col>
                                 </Row>
                             </div>
-
+                            
                             {/* Additional Info */}
                             <div className="form-section">
                                 <div className="section-title">
@@ -263,7 +252,7 @@ const LeadsForm = ( status: any) => {
                                     </Col>
                                 </Row>
                             </div>
-
+                            
                             <div className="form-footer">
                                 <button type="submit" className="login-button">
                                     <FiSend size={18} />

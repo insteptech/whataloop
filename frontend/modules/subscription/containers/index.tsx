@@ -1,17 +1,14 @@
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button, Form as BootstrapForm } from "react-bootstrap";
 import InputFieldWithCountryCode from "@/components/common/InputFieldWithCountryCode";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { sendOtp } from "../redux/actions/subscriptionAction";
 import { verifyOtp } from "../redux/actions/subscriptionAction";
 import { createBusiness } from "../redux/actions/subscriptionAction";
-import { useSelector } from "react-redux";
-
-
-
+import Notification from "@/components/common/Notification";
 
 const SubscriptionTiers = () => {
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -20,11 +17,16 @@ const SubscriptionTiers = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]); // 6-digit OTP
   const [whatsappForOtp, setWhatsappForOtp] = useState("");
+  const [notification, setNotification] = useState<{
+    title: string;
+    message?: string;
+    type: "success" | "error";
+  } | null>(null);
 
   const router = useRouter();
   const dispatch = useDispatch();
-  const user = useSelector((state: any) => state.profileReducer.data);
 
+  const user = useSelector((state: any) => state.profileReducer.data);
 
   const plans = [
     {
@@ -32,14 +34,7 @@ const SubscriptionTiers = () => {
       name: "Free",
       price: "$0",
       period: "forever",
-      price_id: "",
-      features: [
-        "Basic features",
-        "Community support",
-        "Limited storage",
-        "Up to 3 projects",
-        "Email notifications",
-      ],
+      features: ["Basic features", "Community support", "Limited storage"],
       cta: "Get Started",
       popular: false,
     },
@@ -48,14 +43,7 @@ const SubscriptionTiers = () => {
       name: "Starter",
       price: "$9",
       period: "per month",
-      price_id: "",
-      features: [
-        "All Free features",
-        "Priority support",
-        "Unlimited projects",
-        "Advanced analytics",
-        "API access",
-      ],
+      features: ["All Free features", "Priority support", "Unlimited projects"],
       cta: "Start Free Trial",
       popular: true,
     },
@@ -64,19 +52,18 @@ const SubscriptionTiers = () => {
       name: "Pro",
       price: "$19",
       period: "per month",
-      price_id: "",
-      features: [
-        "All Intermediate features",
-        "24/7 dedicated support",
-        "White-labeling",
-        "Team collaboration",
-        "Custom integrations",
-        "Premium templates",
-      ],
+      features: ["All Intermediate features", "White-labeling", "Custom integrations"],
       cta: "Get Pro",
       popular: false,
     },
   ];
+
+  // Clear OTP fields when OTP modal is closed
+  useEffect(() => {
+    if (!showOtpModal) {
+      setOtp(["", "", "", "", "", ""]);
+    }
+  }, [showOtpModal]);
 
   const handleSelectPlan = (planId) => {
     setSelectedPlan(planId);
@@ -90,22 +77,36 @@ const SubscriptionTiers = () => {
         setWhatsappForOtp(number);
         setShowModal(false);
         setShowOtpModal(true);
+        setNotification({ title: "OTP Sent", message: "Please check WhatsApp.", type: "success" });
       } else {
-        alert(resultAction.payload || "Something went wrong sending OTP.");
+        const errorMsg = resultAction.payload || "Failed to send OTP.";
+        setNotification({ title: "Error", message: errorMsg, type: "error" });
       }
     } catch (error) {
       console.error("OTP send error:", error);
-      alert("Unexpected error while sending OTP.");
+      setNotification({ title: "Error", message: "Unexpected error while sending OTP.", type: "error" });
     }
   };
 
-  const handleOtpChange = (value, index) => {
+  const handleOtpChange = (e, index) => {
+    const { value } = e.target;
+
     if (/^\d?$/.test(value)) {
       const newOtp = [...otp];
       newOtp[index] = value;
       setOtp(newOtp);
       if (value && index < otp.length - 1) {
         document.getElementById(`otp-${index + 1}`)?.focus();
+      }
+    }
+
+    if (e.nativeEvent.inputType === "deleteContentBackward") {
+      const newOtp = [...otp];
+      newOtp[index] = "";
+      setOtp(newOtp);
+
+      if (index > 0) {
+        document.getElementById(`otp-${index - 1}`)?.focus();
       }
     }
   };
@@ -120,64 +121,73 @@ const SubscriptionTiers = () => {
             otp: enteredOtp,
           }) as any
         );
-
         if (verifyOtp.fulfilled.match(resultAction)) {
-          setShowOtpModal(false);
+          setShowOtpModal(false); // This triggers OTP reset via useEffect
           setShowDetailsModal(true);
+          setNotification({ title: "OTP Verified", message: "You're good to proceed.", type: "success" });
         } else {
-          alert(resultAction.payload || "OTP verification failed.");
+          const errorMsg = resultAction.payload || "OTP verification failed.";
+          setNotification({ title: "Verification Failed", message: errorMsg, type: "error" });
         }
       } catch (error) {
         console.error("OTP verification error:", error);
-        alert("Unexpected error verifying OTP.");
+        setNotification({ title: "Error", message: "Unexpected error verifying OTP.", type: "error" });
       }
     } else {
-      alert("Please enter the complete 6-digit OTP.");
+      setNotification({ title: "Invalid OTP", message: "Please enter a complete 6-digit OTP.", type: "error" });
     }
   };
 
-
   const handleFinalSubmit = async (values) => {
     if (!user?.id || !whatsappForOtp) {
-      alert("Missing user ID or WhatsApp number.");
+      setNotification({ title: "Missing Info", message: "User ID or WhatsApp number missing.", type: "error" });
       return;
     }
 
     const businessPayload = {
       user_id: user.id,
       whatsapp_number: whatsappForOtp.replace(/\D/g, ""),
-      name: values.fullName,
-      // Optional fields can be added here if needed:
-      // description: "Best digital agency",
-      // website: "https://example.com",
-      // logo_url: "https://cdn.example.com/logo.png"
+      name: values.businessName,
     };
 
     try {
       const resultAction = await dispatch(createBusiness(businessPayload) as any);
-
       if (createBusiness.fulfilled.match(resultAction)) {
-        router.push({
-          pathname: "/subscription/checkout",
-          query: {
-            plan: selectedPlan,
-            name: values.fullName,
-            email: values.email,
-            altMobile: values.alternateMobile || "",
-          },
-        });
+        setNotification({ title: "Success", message: "Business created successfully.", type: "success" });
+        setTimeout(() => {
+          router.push({
+            pathname: "/subscription/checkout",
+            query: {
+              plan: selectedPlan,
+              name: values.businessName,
+              email: values.email,
+              altMobile: values.alternateMobile || "",
+            },
+          });
+        }, 1000);
       } else {
-        alert(resultAction.payload || "Failed to create business.");
+        const errorMsg = resultAction.payload || "Failed to create business.";
+        setNotification({ title: "Creation Failed", message: errorMsg, type: "error" });
       }
     } catch (error) {
       console.error("Error creating business:", error);
-      alert("Unexpected error creating business.");
+      setNotification({ title: "Error", message: "Unexpected error creating business.", type: "error" });
     }
   };
 
   return (
     <>
-      {/* Subscription Plans Section */}
+      {/* Show Notifications */}
+      {notification && (
+        <Notification
+          title={notification.title}
+          message={notification.message}
+          type={notification.type}
+          position="top-right"
+        />
+      )}
+
+      {/* Plan Selection Section */}
       <section className="subscription-tiers">
         <div className="container">
           <div className="text-center mb-5">
@@ -251,7 +261,12 @@ const SubscriptionTiers = () => {
       </Modal>
 
       {/* Modal 2: OTP Entry */}
-      <Modal show={showOtpModal} onHide={() => setShowOtpModal(false)} centered>
+      <Modal
+        show={showOtpModal}
+        onHide={() => setShowOtpModal(false)}
+        centered
+        onExited={() => setOtp(["", "", "", "", "", ""])} // Extra reset hook
+      >
         <Modal.Header closeButton>
           <Modal.Title>Get Premium</Modal.Title>
         </Modal.Header>
@@ -265,8 +280,9 @@ const SubscriptionTiers = () => {
                 key={index}
                 id={`otp-${index}`}
                 type="text"
+                inputMode="numeric"
                 value={digit}
-                onChange={(e) => handleOtpChange(e.target.value, index)}
+                onChange={(e) => handleOtpChange(e, index)}
                 maxLength={1}
                 className="text-center"
                 style={{ width: "40px", fontSize: "1.5rem" }}
@@ -281,19 +297,19 @@ const SubscriptionTiers = () => {
         </Modal.Body>
       </Modal>
 
-      {/* Modal 3: Full Name, Email, Alternate Mobile */}
+      {/* Modal 3: Business Name, Email, Alternate Mobile */}
       <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Get Premium</Modal.Title>
         </Modal.Header>
         <Formik
           initialValues={{
-            fullName: "",
+            businessName: "",
             email: "",
             alternateMobile: "",
           }}
           validationSchema={Yup.object({
-            fullName: Yup.string().required("Full Name is required"),
+            businessName: Yup.string().required("Full Name is required"),
             email: Yup.string().email("Invalid email").required("Email is required"),
           })}
           onSubmit={handleFinalSubmit}
@@ -303,17 +319,15 @@ const SubscriptionTiers = () => {
               <Modal.Body>
                 <BootstrapForm.Group>
                   <h3>Personal Information</h3>
-                  <BootstrapForm.Label>Full Name</BootstrapForm.Label>
-                  <Field name="fullName" className="form-control" placeholder="Enter your full name" />
-                  <ErrorMessage name="fullName" component="div" className="text-danger" />
+                  <BootstrapForm.Label>Business Name</BootstrapForm.Label>
+                  <Field name="businessName" className="form-control" placeholder="Enter your business name" />
+                  <ErrorMessage name="businessName" component="div" className="text-danger" />
                 </BootstrapForm.Group>
-
                 <BootstrapForm.Group className="mt-3">
                   <BootstrapForm.Label>Email Address</BootstrapForm.Label>
                   <Field name="email" type="email" className="form-control" placeholder="Enter your email" />
                   <ErrorMessage name="email" component="div" className="text-danger" />
                 </BootstrapForm.Group>
-
                 <div className="mt-3">
                   <InputFieldWithCountryCode
                     label="Alternate Mobile Number (Optional)"

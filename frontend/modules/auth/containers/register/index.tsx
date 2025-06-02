@@ -10,6 +10,7 @@ import { register, sendOtp, verifyOtp } from "../../redux/actions/authAction";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import Loader from "@/components/common/loader";
+import { log } from "console";
 
 const SignUp = () => {
   const dispatch = useDispatch();
@@ -96,10 +97,10 @@ const SignUp = () => {
       return;
     }
 
-    const { fullName, businessName, email, phone, password, photo } = values;
+    const { full_name, businessName, email, phone, password, photo } = values;
 
     const payload = {
-      full_name: fullName,
+      full_name,
       businessName,
       email,
       phone,
@@ -108,6 +109,8 @@ const SignUp = () => {
     };
     console.log("Payload for registration:", payload);
     try {
+      console.log(payload, "Payload for registration");
+
       const response = await dispatch(register(payload) as any).unwrap();
       if (response?.statusCode === 200) {
         toast.success("Registration successful!");

@@ -49,6 +49,8 @@ export const register = createAsyncThunk(
     try {
       // Create FormData to handle file uploads
       const formData = new FormData();
+      console.log(payload.full_name, "payload.full_name");
+      
       formData.append("full_name", payload.full_name);
       formData.append("email", payload.email);
       formData.append("phone", payload.phone);

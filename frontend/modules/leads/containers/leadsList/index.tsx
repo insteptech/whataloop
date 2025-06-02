@@ -1,10 +1,8 @@
 'use client';
-
 import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
-
 import {
   getLeads,
   updateLead,
@@ -12,20 +10,21 @@ import {
 } from "../../redux/action/leadAction";
 import { fetchConstants } from "@/modules/constants/redux/action/constantAction";
 import EditLeadModal from "@/components/leadEditModal";
+import ConfirmationPopup from "@/components/common/ConfirmationPopUp";
 import { AddLeadIcon } from "@/components/common/Icon";
 
 const LeadsList = () => {
   const dispatch = useDispatch();
   const router = useRouter();
-
   const { leads, loading } = useSelector((state: any) => state.leadReducer);
   const { constantsList } = useSelector((state: any) => state.constantReducer);
   const role = useSelector((state: any) => state.authReducer.role);
-
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedLead, setSelectedLead] = useState<any>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [deleteLeadId, setDeleteLeadId] = useState<string | null>(null);
 
   // Extract status columns dynamically
   const statusColumns = useMemo(() => {
@@ -36,24 +35,20 @@ const LeadsList = () => {
   // Group leads by status
   const groupLeadsByStatus = () => {
     const grouped: { [key: string]: any[] } = {};
-
     // Initialize all status groups
     statusColumns.forEach(col => {
       grouped[col.label] = [];
     });
-
-    // Unassigned fallback
     grouped["Unassigned"] = [];
 
     // Group leads
     if (leads && Array.isArray(leads)) {
       leads.forEach((lead: any) => {
-        const statusLabel = lead.statusDetail?.label || "Unassigned";
+        const statusLabel = lead.statusConstant?.label || "Unassigned";
         if (!grouped[statusLabel]) grouped[statusLabel] = [];
         grouped[statusLabel].push(lead);
       });
     }
-
     return grouped;
   };
 
@@ -68,7 +63,6 @@ const LeadsList = () => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchInput.trim());
     }, 500);
-
     return () => clearTimeout(timer);
   }, [searchInput]);
 
@@ -88,7 +82,6 @@ const LeadsList = () => {
   // Handle drag end
   const onDragEnd = (result: DropResult) => {
     const { source, destination, draggableId } = result;
-
     if (!destination) return;
 
     if (
@@ -138,9 +131,16 @@ const LeadsList = () => {
     }
   };
 
-  const handleDelete = (leadId: string) => {
-    if (confirm("Are you sure you want to delete this lead?")) {
-      dispatch(deleteLead(leadId) as any).then(() => {
+  // Confirm deletion
+  const handleDeleteClick = (leadId: string) => {
+    setDeleteLeadId(leadId);
+    setShowConfirm(true);
+  };
+
+  // Delete confirmed
+  const handleDeleteConfirm = () => {
+    if (deleteLeadId) {
+      dispatch(deleteLead(deleteLeadId) as any).then(() => {
         dispatch(getLeads({
           page: 1,
           limit: 100,
@@ -151,6 +151,14 @@ const LeadsList = () => {
         }) as any);
       });
     }
+    setShowConfirm(false);
+    setDeleteLeadId(null);
+  };
+
+  // Cancel deletion
+  const handleDeleteCancel = () => {
+    setShowConfirm(false);
+    setDeleteLeadId(null);
   };
 
   return (
@@ -193,7 +201,10 @@ const LeadsList = () => {
                   >
                     <div className="d-flex justify-content-between align-items-center">
                       <h4>{column.label}</h4>
-                      <button className="add-lead-button">
+                      <button
+                        className="add-lead-button"
+                        onClick={() => router.push(`/leads/createLead?status=${column.id}`)}
+                      >
                         <AddLeadIcon />
                       </button>
                     </div>
@@ -216,15 +227,14 @@ const LeadsList = () => {
                               <p>{lead.notes || "—"}</p>
                               <p>{lead.email}</p>
                               <p>{lead.phone}</p>
-                              <p>{lead.sourceDetail?.label || "—"}</p>
-                              <p>{lead.tagDetail?.label || "—"}</p>
+                              <p>{lead.sourceConstant?.label || "—"}</p>
+                              <p>{lead.tagConstant?.label || "—"}</p>
                             </div>
-
                             <button
                               className="btn btn-danger btn-sm mt-2"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleDelete(lead.id);
+                                handleDeleteClick(lead.id);
                               }}
                             >
                               Delete
@@ -267,6 +277,16 @@ const LeadsList = () => {
             role: role
           }) as any);
         }}
+      />
+
+      {/* Confirmation Popup */}
+      <ConfirmationPopup
+        visible={showConfirm}
+        onAccept={handleDeleteConfirm}
+        onReject={handleDeleteCancel}
+        message="Are you sure you want to delete this lead?"
+        header="Delete Lead"
+        type="delete"
       />
     </div>
   );
