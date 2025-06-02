@@ -59,6 +59,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       defaultValue: sequelize.literal('NOW()'),
     },
+    type: {
+    type: DataTypes.ENUM('manual', 'wait_for_reply'),
+    allowNull: false,
+    defaultValue: 'manual',
+    },
+    wait_duration_minutes: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    },
   }, {
     sequelize,
     modelName: 'Reminder',

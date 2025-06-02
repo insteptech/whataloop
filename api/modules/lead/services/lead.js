@@ -264,6 +264,56 @@ const remove = async (id) => {
   await lead.destroy();
 };
 
+const getLeadThread = async (leadId, userId) => {
+  const { Lead, Message, User } = await getAllModels(process.env.DB_TYPE);
+
+  // 1. Get Lead details
+  const lead = await Lead.findOne({
+    where: { id: leadId },
+  });
+
+  if (!lead) throw new Error('Lead not found');
+
+  // 2. Get the user's phone number (if userId is your business user)
+  const user = await User.findOne({ where: { id: userId } });
+  if (!user) throw new Error('User not found');
+
+  const userPhone = user.phone;
+
+  // 3. Get Message history (ordered by timestamp)
+  const messages = await Message.findAll({
+    where: { lead_id: leadId },
+    order: [['timestamp', 'ASC']],
+    attributes: [
+      'id',
+      'lead_id',
+      'sender_phone_number',
+      'receiver_phone_number',
+      'message_content',
+      'message_type',
+      'timestamp',
+      'status'
+    ],
+  });
+
+  // 4. Format messages with isSentByUser helper
+  const chatMessages = messages.map(msg => ({
+    id: msg.id,
+    lead_id: msg.lead_id,
+    sender: msg.sender_phone_number,
+    receiver: msg.receiver_phone_number,
+    content: msg.message_content,
+    type: msg.message_type, // 'incoming' or 'outgoing'
+    timestamp: msg.timestamp,
+    status: msg.status,
+    isSentByUser: msg.sender_phone_number === userPhone
+  }));
+
+  return {
+    lead,
+    messages: chatMessages,
+  };
+};
 
 module.exports = {
   findUser,
@@ -276,4 +326,5 @@ module.exports = {
   getAll,
   update,
   remove,
+  getLeadThread
 };

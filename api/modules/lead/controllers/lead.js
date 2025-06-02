@@ -139,3 +139,13 @@ exports.remove = async (req, res) => {
 };
 
 
+exports.getLeadThread = async (req, res) => {
+  try {
+    const { leadId } = req.params;
+    const userId = req.user.id; // if using JWT auth
+    const result = await leadManager.getLeadThread(leadId, userId);
+    res.json({ status: 'success', data: result });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+};
