@@ -26,9 +26,17 @@ exports.deleteBusiness = async (req, res) => {
 };
 
 exports.requestOtp = async (req, res) => {
-  const { whatsapp_number } = req.body;
-  const result = await businessManager.requestOtp(whatsapp_number);
-  res.status(200).json(result);
+  try {
+    const { whatsapp_number } = req.body;
+    const result = await businessManager.requestOtp(whatsapp_number);
+    res.status(200).json(result);
+  } catch (err) {
+    // Proper error structure
+    res.status(400).json({
+      status: "error",
+      message: err.message || "Something went wrong"
+    });
+  }
 };
 
 exports.verifyOtp = async (req, res) => {

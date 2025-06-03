@@ -6,12 +6,18 @@ const sendOtpToWhatsapp = require('../../../utils/sendOtpToWhatsapp');
 
 const requestOtp = async (whatsapp_number) => {
   if (!whatsapp_number) throw new Error("WhatsApp number is required.");
+
+  const { Business } = await getAllModels(process.env.DB_TYPE);
+  const existingBusiness = await Business.findOne({ where: { whatsapp_number } });
+  if (existingBusiness) {
+    throw new Error("This WhatsApp number is already registered with another business.");
+  }
+
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   await sendOtpToWhatsapp(whatsapp_number, otp);
-  await redisClient.set(`BUSINESS_OTP_${whatsapp_number}`, otp, { EX: 600 }); // Correct way to set expiry in redis v4
+  await redisClient.set(`BUSINESS_OTP_${whatsapp_number}`, otp, { EX: 600 });
   return { message: "OTP sent to WhatsApp number." };
 };
-
 // 2. Verify OTP
 const verifyOtp = async (whatsapp_number, otp) => {
   const storedOtp = await redisClient.get(`BUSINESS_OTP_${whatsapp_number}`);
