@@ -62,4 +62,37 @@ const getUserIdFromToken = (token) => {
   }
 };
 
-module.exports = { sendResponse, verifyToken, sendOtp, generateToken, sanitizePhoneNumber, getUserIdFromToken };
+
+const getMessageDetails = (payload) =>{
+  try {
+    const entry = payload?.entry?.[0];
+    const changes = entry?.changes?.[0];
+    const value = changes?.value;
+    const waId = value?.contacts?.[0]?.wa_id;
+    const message = value?.messages?.[0];
+    const contact = value?.contacts?.[0];
+    const timestamp = value?.messages?.[0]?.timestamp;
+    const receiverNumber = value?.metadata?.display_phone_number;
+
+    return {
+      from: message?.from || null,
+      text: message?.text?.body || null,
+      name: contact?.profile?.name || null,
+      waId: waId || null,
+      timestamp: timestamp ? new Date(timestamp * 1000) : null,
+      receiverNumber: receiverNumber || null
+    };
+  } catch (err) {
+    console.error("Error extracting details:", err.message);
+    return {
+      from: null,
+      text: null,
+      name: null,
+      waId: null,
+      timestamp: null,
+      receiverNumber: null
+    };
+  }
+}
+
+module.exports = { sendResponse, verifyToken, sendOtp, generateToken, sanitizePhoneNumber, getUserIdFromToken, getMessageDetails };

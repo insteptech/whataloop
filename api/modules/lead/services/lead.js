@@ -1,10 +1,49 @@
 const { getAllModels } = require("../../../middlewares/loadModels");
 const redisClient = require("../../../config/redis");
+const axios = require('axios');
+
 const { v4: uuidv4 } = require("uuid");
 const otpStorage = new Map();
 const bcrypt = require("bcryptjs");
 const { generateToken } = require("../../../utils/helper");
 const { Op } = require('sequelize');
+
+const WHATSAPP_API_URL = 'https://graph.facebook.com/v18.0';
+const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
+const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
+
+const DEFAULT_TAG_ID = process.env.DEFAULT_TAG_ID;
+const DEFAULT_STATUS_ID = process.env.DEFAULT_STATUS_ID;
+
+const sendTextMessage = async (toPhone, messageText) => {
+
+  if (!PHONE_NUMBER_ID || !ACCESS_TOKEN) {
+    throw new Error('WhatsApp API credentials are not set.');
+  }
+
+  const url = `${WHATSAPP_API_URL}/${PHONE_NUMBER_ID}/messages`;
+
+  const payload = {
+    messaging_product: 'whatsapp',
+    to: toPhone.replace('+', ''),
+    type: 'text',
+    text: { body: messageText },
+  };
+
+  const headers = {
+    Authorization: `Bearer ${ACCESS_TOKEN}`,
+    'Content-Type': 'application/json',
+  };
+
+  try {    
+    const { data } = await axios.post(url, payload, { headers });
+    return data;
+  } catch (error) {
+    console.error('Error sending message to WhatsApp API:', error);
+    throw error;
+  }
+};
+
 
 const findUser = async (where) => {
   if (typeof where !== "object" || Array.isArray(where) || where === null || Object.keys(where).length === 0) {
@@ -315,6 +354,66 @@ const getLeadThread = async (leadId, userId) => {
   };
 };
 
+async function createIfNotExists({
+  phone,
+  full_name,
+  source,
+  user_id,
+  tag = DEFAULT_TAG_ID,
+  status = DEFAULT_STATUS_ID,
+  last_message,
+  email = null,
+  notes = null,
+  qualityLabel = null,
+  timestamp = Date.now().toString(),
+  receiverNumber = null
+}) {
+  const { Lead, Message } = await getAllModels(process.env.DB_TYPE);
+
+
+  if (!phone) throw new Error('Phone is required');
+  if (!user_id) throw new Error('user_id is required');
+  if (!source) throw new Error('source is required');
+  if (!tag) throw new Error('tag is required');
+  if (!status) throw new Error('status is required');
+
+  const existing = await Lead.findOne({
+    where: { phone, user_id },
+  });
+
+  if (existing) return existing;
+
+  const lead = await Lead.create({
+    user_id,
+    tag,
+    status,
+    source,
+    name: full_name,
+    phone,
+    email,
+    notes: last_message || notes,
+  });
+  
+  sendTextMessage(
+      phone,
+      'Thank you for contacting us! We have received your inquiry and will get back to you soon.'
+    ).catch(console.error);
+    console.log('qualityLabel:-------', qualityLabel);
+    
+  await Message.create({
+    lead_id: lead.id,
+    sender_phone_number: phone,   
+    receiver_phone_number: receiverNumber,
+    message_content: last_message,
+    message_type: 'incoming',
+    timestamp: timestamp, 
+    status: 'sent',                   
+    quality_label: qualityLabel,
+  });
+
+  return lead;
+}
+
 module.exports = {
   findUser,
   createUser,
@@ -326,5 +425,6 @@ module.exports = {
   getAll,
   update,
   remove,
-  getLeadThread
+  getLeadThread,
+  createIfNotExists
 };

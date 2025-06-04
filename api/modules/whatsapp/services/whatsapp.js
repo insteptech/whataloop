@@ -1,10 +1,19 @@
 const { getAllModels } = require("../../../middlewares/loadModels");
 const axios = require('axios');
 const QRCode = require('qrcode');
+const leadQualityService = require('../../lead/services/leadQualityService');
+const { getMessageDetails } = require('../../../utils/helper');
+const leadService = require('../../lead/services/lead');
 
 const WHATSAPP_API_URL = 'https://graph.facebook.com/v18.0';
 const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
 const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
+
+const DEFAULT_TAG_ID = process.env.DEFAULT_TAG_ID;
+const DEFAULT_STATUS_ID = process.env.DEFAULT_STATUS_ID;
+const WHATSAPP_SOURCE_ID = process.env.WHATSAPP_SOURCE_ID;
+const DEFAULT_USER_ID = process.env.DEFAULT_USER_ID;
+
 
 // const handleIncomingMessage = async (data) => {
 
@@ -41,7 +50,31 @@ const createWhatsappEntry = async (payload) => {
 };
 
 const saveRawPayload = async (payload) => {
-  const { WhatsApp } = await getAllModels(process.env.DB_TYPE);
+  const messageDetails = getMessageDetails(payload);
+  const qualityLabel = await leadQualityService.analyzeMessage(messageDetails?.text, "");
+  console.log('🔍 Message Quality Label:', qualityLabel);
+
+
+  const { WhatsApp, User } = await getAllModels(process.env.DB_TYPE);
+  // const user = await User.findOne({
+  //   where: { phone: messageDetails.waId } // or { phone: '+91' + waId.slice(2) } if your DB uses '+'
+  // });
+  
+  if (qualityLabel === 'high_quality') {
+  await leadService.createIfNotExists({
+      phone: messageDetails.from,
+      full_name: messageDetails.name,
+      source: WHATSAPP_SOURCE_ID,        
+      user_id: DEFAULT_USER_ID,                
+      tag: DEFAULT_TAG_ID,               
+      status: DEFAULT_STATUS_ID,
+      last_message: messageDetails.text,
+      qualityLabel: qualityLabel,
+      timestamp: messageDetails.timestamp,
+      receiverNumber: messageDetails.receiverNumber,
+    });
+  }
+
   if(!WhatsApp) {
     throw new Error('WhatsApp model not found');
   }
