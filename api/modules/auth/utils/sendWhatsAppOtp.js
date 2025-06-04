@@ -16,7 +16,7 @@ async function sendOtpToWhatsapp(phoneNumber, otp) {
                 {
                     type: "body",
                     parameters: [
-                        { type: "text", text: String(otp) },         // OTP param
+                        { type: "text", text: String(otp) }, 
                     ]
                 },
                 {
@@ -24,7 +24,7 @@ async function sendOtpToWhatsapp(phoneNumber, otp) {
                     sub_type: "url",
                     index: "0",
                     parameters: [
-                        { type: "text", text: "test" }       // Replace "test" with dynamic value if needed
+                        { type: "text", text: "test" }    
                     ]
                 }
             ]

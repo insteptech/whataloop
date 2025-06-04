@@ -343,7 +343,6 @@ const verifyOtp = async (phone, otp) => {
   };
 };
 
-
 const signup = async (phone, full_name) => {
   const { User, UserRole, SubscriptionPlan, sequelize } = await getAllModels(process.env.DB_TYPE);
 
@@ -400,9 +399,12 @@ const resendOtp = async (phone) => {
   let user = await User.findOne({ where: { phone } });
   if (user) throw new Error("Phone number already registered.");
 
-  const otp = generateOtp();
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
   const full_name = cache?.full_name || null;
-  const expiresAt = now + 5 * 60 * 1000;
+
+  const expiresAt = Date.now() + 5 * 60 * 1000;
+  otpCache.set(phone, { otp, full_name, expiresAt, lastSent: Date.now() });
+
 
   otpCache.set(phone, { otp, full_name, expiresAt, lastSent: now });
 
