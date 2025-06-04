@@ -239,18 +239,23 @@ const profileComplete = async (requestBody, where) => {
   return await User.update(requestBody, { where: where });
 };
 
-const sendOtp = async (phone, full_name) => {
+const sendOtp = async (phone, full_name, type) => {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
   const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
-  otpCache.set(phone, { otp, full_name, expiresAt, lastSent: Date.now() });
+  otpCache.set(phone, {
+    otp,
+    full_name,
+    expiresAt,
+    lastSent: Date.now(),
+    context: type
+  });
 
   const { User } = await getAllModels(process.env.DB_TYPE);
 
   // Prevent duplicate
   let user = await User.findOne({ where: { phone } });
-  if (user) throw new Error("Phone number already registered.");
-
+  // if (user) throw new Error("Phone number already registered.");
 
   await sendWhatsAppOtp(phone, otp);
   await redisClient.set(`Sign_Up_OTP_${phone}`, otp, { EX: 600 });
@@ -259,7 +264,7 @@ const sendOtp = async (phone, full_name) => {
 
 const verifyOtp = async (phone, otp) => {
   const cache = otpCache.get(phone);
-
+  console.log("[OTP VERIFY] cache:", cache);
   if (!cache) throw new Error("No OTP sent to this phone, or OTP expired.");
   if (cache.otp !== otp) throw new Error("Invalid OTP.");
   if (Date.now() > cache.expiresAt) {
@@ -268,34 +273,35 @@ const verifyOtp = async (phone, otp) => {
   }
 
   const { User, UserRole, SubscriptionPlan, sequelize } = await getAllModels(process.env.DB_TYPE);
-
   let user = await User.findOne({ where: { phone } });
-  if (!user) {
+
+  // LOGIN: user exists, just return JWT
+  if (user) {
+    otpCache.delete(phone);
+    const token = generateToken({ id: user.id, phone: user.phone });
+    return { user: { id: user.id, phone: user.phone, full_name: user.full_name }, token };
+  }
+
+  // SIGNUP: user does not exist, create everything
+  if (cache.context === 'signup') {
     const freePlan = await SubscriptionPlan.findOne({ where: { name: "Free" } });
     if (!freePlan) throw new Error("Default subscription plan not found.");
     if (!freePlan.stripe_price_id) throw new Error("Stripe price ID for Free plan is not set.");
 
-    // 1. Create Stripe customer first
     let stripeCustomer, stripeSubscription;
     try {
       stripeCustomer = await stripe.customers.create({
         name: cache.full_name,
         phone: phone,
-        // email: cache.email || undefined
       });
-
-      // 2. Create Stripe subscription for "Free" plan
       stripeSubscription = await stripe.subscriptions.create({
         customer: stripeCustomer.id,
         items: [{ price: freePlan.stripe_price_id }],
-        // Optionally set trial_period_days, metadata, etc.
       });
-
     } catch (stripeError) {
       throw new Error("Failed to create Stripe customer/subscription: " + stripeError.message);
     }
 
-    // 3. If Stripe succeeded, create user in DB
     const transaction = await sequelize.transaction();
     try {
       user = await User.create(
@@ -304,7 +310,7 @@ const verifyOtp = async (phone, otp) => {
           full_name: cache.full_name,
           subscription_plan_id: freePlan.id,
           stripe_customer_id: stripeCustomer.id,
-          stripe_subscription_id: stripeSubscription.id, // <-- Save here!
+          stripe_subscription_id: stripeSubscription.id,
         },
         { transaction }
       );
@@ -315,7 +321,6 @@ const verifyOtp = async (phone, otp) => {
       await transaction.commit();
     } catch (dbError) {
       await transaction.rollback();
-      // Clean up Stripe customer and subscription
       try {
         await stripe.subscriptions.del(stripeSubscription.id);
         await stripe.customers.del(stripeCustomer.id);
@@ -324,23 +329,22 @@ const verifyOtp = async (phone, otp) => {
       }
       throw new Error(dbError.message || "Failed to create user.");
     }
+    otpCache.delete(phone);
+    const token = generateToken({ id: user.id, phone: user.phone });
+    return {
+      user: {
+        id: user.id,
+        phone: user.phone,
+        full_name: user.full_name,
+        stripe_customer_id: user.stripe_customer_id,
+        stripe_subscription_id: user.stripe_subscription_id,
+        subscription_plan_id: user.subscription_plan_id
+      },
+      token
+    };
+  } else {
+    throw new Error("OTP verification failed. Unrecognized context.");
   }
-
-  otpCache.delete(phone);
-
-  const token = generateToken({ id: user.id, phone: user.phone });
-
-  return {
-    user: {
-      id: user.id,
-      phone: user.phone,
-      full_name: user.full_name,
-      stripe_customer_id: user.stripe_customer_id,
-      stripe_subscription_id: user.stripe_subscription_id,
-      subscription_plan_id: user.subscription_plan_id
-    },
-    token
-  };
 };
 
 const signup = async (phone, full_name) => {
@@ -387,30 +391,48 @@ const login = async (phone, otp) => {
   return await exports.verifyOtp(phone, otp);
 };
 
-const resendOtp = async (phone) => {
+const resendOtp = async (phone, context = "login", full_name = null) => {
   const cache = otpCache.get(phone);
   const now = Date.now();
-
   if (cache && cache.lastSent && (now - cache.lastSent < 60 * 1000)) {
     throw new Error("OTP already sent. Please wait before resending.");
   }
+  if (context === 'signup') {
+    return await sendOtpForSignup(phone, full_name);
+  }
+  if (context === 'login') {
+    return await sendOtpForLogin(phone);
+  }
+  throw new Error("Invalid context for OTP resend.");
+};
 
+const userExists = async (phone) => {
+  const { User } = await getAllModels(process.env.DB_TYPE);
+  return !!(await User.findOne({ where: { phone } }));
+};
+
+const sendOtpForSignup = async (phone, full_name) => {
   const { User } = await getAllModels(process.env.DB_TYPE);
   let user = await User.findOne({ where: { phone } });
-  if (user) throw new Error("Phone number already registered.");
+  if (user) throw new Error("User already exists. Please login.");
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  const full_name = cache?.full_name || null;
-
-  const expiresAt = Date.now() + 5 * 60 * 1000;
-  otpCache.set(phone, { otp, full_name, expiresAt, lastSent: Date.now() });
-
-
-  otpCache.set(phone, { otp, full_name, expiresAt, lastSent: now });
+  otpCache.set(phone, { otp, full_name, expiresAt: Date.now() + 5 * 60 * 1000, context: 'signup' });
 
   await sendWhatsAppOtp(phone, otp);
+  return { message: "OTP sent for signup.", phone };
+};
 
-  return { phone };
+const sendOtpForLogin = async (phone) => {
+  const { User } = await getAllModels(process.env.DB_TYPE);
+  let user = await User.findOne({ where: { phone } });
+  if (!user) throw new Error("User not found. Please signup.");
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  otpCache.set(phone, { otp, expiresAt: Date.now() + 5 * 60 * 1000, context: 'login' });
+
+  await sendWhatsAppOtp(phone, otp);
+  return { message: "OTP sent for login.", phone };
 };
 
 module.exports = {
