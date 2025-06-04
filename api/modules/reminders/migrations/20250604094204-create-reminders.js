@@ -1,4 +1,5 @@
 'use strict';
+
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('reminders', {
@@ -40,6 +41,15 @@ module.exports = {
         type: Sequelize.ENUM('pending', 'done', 'snoozed'),
         defaultValue: 'pending',
       },
+      type: {
+        type: Sequelize.ENUM('manual', 'wait_for_reply'),
+        allowNull: false,
+        defaultValue: 'manual'
+      },
+      wait_duration_minutes: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -55,5 +65,6 @@ module.exports = {
   async down(queryInterface) {
     await queryInterface.dropTable('reminders');
     await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_reminders_status";');
+    await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_reminders_type";');
   },
 };

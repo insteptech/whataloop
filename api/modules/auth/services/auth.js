@@ -6,6 +6,14 @@ const bcrypt = require("bcryptjs");
 const { generateToken } = require("../../../utils/helper");
 const User = require("../models/user");
 const stripe = require('../../../utils/stripe');
+const {
+  sendResponse,
+  generateOtp,
+  generateAccessToken,
+} = require("../utils/helper.js");
+const sendWhatsAppOtp = require("../utils/sendWhatsAppOtp");
+const otpCache = new Map();
+
 
 const findUser = async (where) => {
   if (typeof where !== "object" || Array.isArray(where) || where === null || Object.keys(where).length === 0) {
@@ -231,109 +239,176 @@ const profileComplete = async (requestBody, where) => {
   return await User.update(requestBody, { where: where });
 };
 
-const login = async (email, password, id) => {
-  try {
-    const user = await findUser({ email: email.toLowerCase() });
-    const { UserRole, Role } = await getAllModels(process.env.DB_TYPE);
+const sendOtp = async (phone, full_name) => {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    if (!user) {
-      throw { status: 401, message: "Invalid email or password" };
-    }
+  const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
+  otpCache.set(phone, { otp, full_name, expiresAt, lastSent: Date.now() });
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      throw { status: 401, message: "Invalid email or password" };
-    }
+  const { User } = await getAllModels(process.env.DB_TYPE);
 
-    const userRole = await UserRole.findOne({
-      where: { user_id: user.id },
-      attributes: ["role_id"],
-    });
-    if (!userRole || userRole.length === 0) {
-      throw { status: 401, message: "User has no roles assigned" };
-    }
-    const roleId = userRole.role_id;
+  // Prevent duplicate
+  let user = await User.findOne({ where: { phone } });
+  if (user) throw new Error("Phone number already registered.");
 
-    const role = await Role.findOne({
-      where: { id: roleId },
-      attributes: ["name"],
-    });
 
-    const token = generateToken({
-      id: user.id,
-      email: user.email,
-      role: role.name,
-    });
-
-    return {
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-      },
-    };
-  } catch (error) {
-    console.error(`Error in login: ${error.message}`);
-    throw error;
-  }
+  await sendWhatsAppOtp(phone, otp);
+  await redisClient.set(`Sign_Up_OTP_${phone}`, otp, { EX: 600 });
+  return { message: "OTP sent to WhatsApp number.", phone, otp };
 };
 
-// FIXED: use user_id and role_id
-const signup = async (requestBody) => {
+const verifyOtp = async (phone, otp) => {
+  const cache = otpCache.get(phone);
+
+  if (!cache) throw new Error("No OTP sent to this phone, or OTP expired.");
+  if (cache.otp !== otp) throw new Error("Invalid OTP.");
+  if (Date.now() > cache.expiresAt) {
+    otpCache.delete(phone);
+    throw new Error("OTP expired. Please request a new one.");
+  }
+
   const { User, UserRole, SubscriptionPlan, sequelize } = await getAllModels(process.env.DB_TYPE);
 
-  if (!User) {
-    throw { message: "User model not found" };
+  let user = await User.findOne({ where: { phone } });
+  if (!user) {
+    const freePlan = await SubscriptionPlan.findOne({ where: { name: "Free" } });
+    if (!freePlan) throw new Error("Default subscription plan not found.");
+    if (!freePlan.stripe_price_id) throw new Error("Stripe price ID for Free plan is not set.");
+
+    // 1. Create Stripe customer first
+    let stripeCustomer, stripeSubscription;
+    try {
+      stripeCustomer = await stripe.customers.create({
+        name: cache.full_name,
+        phone: phone,
+        // email: cache.email || undefined
+      });
+
+      // 2. Create Stripe subscription for "Free" plan
+      stripeSubscription = await stripe.subscriptions.create({
+        customer: stripeCustomer.id,
+        items: [{ price: freePlan.stripe_price_id }],
+        // Optionally set trial_period_days, metadata, etc.
+      });
+
+    } catch (stripeError) {
+      throw new Error("Failed to create Stripe customer/subscription: " + stripeError.message);
+    }
+
+    // 3. If Stripe succeeded, create user in DB
+    const transaction = await sequelize.transaction();
+    try {
+      user = await User.create(
+        {
+          phone,
+          full_name: cache.full_name,
+          subscription_plan_id: freePlan.id,
+          stripe_customer_id: stripeCustomer.id,
+          stripe_subscription_id: stripeSubscription.id, // <-- Save here!
+        },
+        { transaction }
+      );
+      await UserRole.create(
+        { user_id: user.id, role_id: 2, created_at: new Date(), updated_at: new Date() },
+        { transaction }
+      );
+      await transaction.commit();
+    } catch (dbError) {
+      await transaction.rollback();
+      // Clean up Stripe customer and subscription
+      try {
+        await stripe.subscriptions.del(stripeSubscription.id);
+        await stripe.customers.del(stripeCustomer.id);
+      } catch (cleanupError) {
+        console.error("Failed to clean up Stripe resources:", cleanupError.message);
+      }
+      throw new Error(dbError.message || "Failed to create user.");
+    }
   }
+
+  otpCache.delete(phone);
+
+  const token = generateToken({ id: user.id, phone: user.phone });
+
+  return {
+    user: {
+      id: user.id,
+      phone: user.phone,
+      full_name: user.full_name,
+      stripe_customer_id: user.stripe_customer_id,
+      stripe_subscription_id: user.stripe_subscription_id,
+      subscription_plan_id: user.subscription_plan_id
+    },
+    token
+  };
+};
+
+
+const signup = async (phone, full_name) => {
+  const { User, UserRole, SubscriptionPlan, sequelize } = await getAllModels(process.env.DB_TYPE);
+
+  // Prevent duplicate
+  let user = await User.findOne({ where: { phone } });
+  if (user) throw new Error("Phone number already registered.");
+
+  // Find free plan (optional)
+  const freePlan = await SubscriptionPlan.findOne({ where: { name: "Free" } });
+  if (!freePlan) throw new Error("Default subscription plan not found.");
+
+  // Create user in transaction
   const transaction = await sequelize.transaction();
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(requestBody.password, salt);
-
   try {
-    // 1. Find the Free plan (ensure the plan exists!)
-    const freePlan = await SubscriptionPlan.findOne({
-      where: { name: "Free" },
-      transaction,
-    });
-    if (!freePlan) throw new Error("Default subscription plan not found");
-
-    // 2. Create Stripe customer
-    const stripeCustomer = await stripe.customers.create({
-      email: requestBody.email,
-      name: requestBody.fullName || requestBody.full_name || "",
-      phone: requestBody.phone,
-    });
-
-    // 3. ⭐️ Create Stripe Subscription for that customer ⭐️
-    // This step is what you are missing!
-    const stripeSubscription = await stripe.subscriptions.create({
-      customer: stripeCustomer.id,
-      items: [{ price: freePlan.stripe_price_id }],
-      // If you want, set trial_period_days or other subscription options here
-    });
-
-    // 4. Add Stripe/customer/subscription IDs and plan to user
-    requestBody.subscription_plan_id = freePlan.id;
-    requestBody.stripe_customer_id = stripeCustomer.id;
-    requestBody.stripe_subscription_id = stripeSubscription.id; // Add this field in your user model/migration if not present
-
-    requestBody.password = hashedPassword;
-    // 5. Create user
-    const user = await User.create(requestBody, { transaction });
-
-    // 6. Assign default user role
+    user = await User.create(
+      { phone, full_name, subscription_plan_id: freePlan.id },
+      { transaction }
+    );
     await UserRole.create(
       { user_id: user.id, role_id: 2, created_at: new Date(), updated_at: new Date() },
       { transaction }
     );
-
     await transaction.commit();
-    return user;
   } catch (error) {
     await transaction.rollback();
-    throw error;
+    throw new Error(error.message || "Failed to create user.");
   }
+
+  // Now, send OTP outside of the transaction
+  try {
+    await sendOtp(phone);
+  } catch (otpError) {
+    // You might want to log this
+    throw new Error("User created but failed to send OTP: " + otpError.message);
+  }
+
+  return { id: user.id, phone: user.phone, full_name: user.full_name };
+};
+
+const login = async (phone, otp) => {
+  // You can allow login by verifying OTP for existing users
+  return await exports.verifyOtp(phone, otp);
+};
+
+const resendOtp = async (phone) => {
+  const cache = otpCache.get(phone);
+  const now = Date.now();
+
+  if (cache && cache.lastSent && (now - cache.lastSent < 60 * 1000)) {
+    throw new Error("OTP already sent. Please wait before resending.");
+  }
+
+  const { User } = await getAllModels(process.env.DB_TYPE);
+  let user = await User.findOne({ where: { phone } });
+  if (user) throw new Error("Phone number already registered.");
+
+  const otp = generateOtp();
+  const full_name = cache?.full_name || null;
+  const expiresAt = now + 5 * 60 * 1000;
+
+  otpCache.set(phone, { otp, full_name, expiresAt, lastSent: now });
+
+  await sendWhatsAppOtp(phone, otp);
+
+  return { phone };
 };
 
 module.exports = {
@@ -349,4 +424,7 @@ module.exports = {
   login,
   signup,
   findById,
+  sendOtp,
+  verifyOtp,
+  resendOtp
 };

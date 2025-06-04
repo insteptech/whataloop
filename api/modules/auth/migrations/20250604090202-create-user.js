@@ -16,16 +16,16 @@ module.exports = {
       },
       full_name: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: false,
       },
       email: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
         unique: true,
       },
       password: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       otp: {
         type: Sequelize.STRING,
@@ -55,7 +55,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: true,
         references: {
-          model: 'subscriptionplans', // lower case for Postgres!
+          model: 'subscriptionplans',
           key: 'id',
         },
         onUpdate: 'CASCADE',

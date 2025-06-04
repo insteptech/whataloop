@@ -3,7 +3,7 @@ const path = require("path");
 
 module.exports = {
   config: path.resolve("./config/config.js"),
-  "models-path": path.resolve("./modules/lead/models"),
-  "migrations-path": path.resolve("./modules/lead/migrations"),
-  "seeders-path": path.resolve("./modules/lead/seeders"),
+  "models-path": path.resolve("./modules/reminders/models"),
+  "migrations-path": path.resolve("./modules/reminders/migrations"),
+  "seeders-path": path.resolve("./modules/reminders/seeders"),
 };

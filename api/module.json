@@ -5,6 +5,7 @@
     {"name": "permission"},
     {"name": "constant"},
     {"name": "category"},
+    {"name": "message"},
     {"name": "lead"},
     {"name": "webhook"},
     {"name": "whatsapp"},
@@ -13,6 +14,5 @@
     {"name": "reminders"},
     {"name": "replies"},
     {"name": "businessSubscription"},
-    {"name": "thirdPartyIntegration"},
-    {"name": "message"}
+    {"name": "thirdPartyIntegration"}
 ]

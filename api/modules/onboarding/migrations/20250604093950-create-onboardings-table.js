@@ -1,6 +1,8 @@
 'use strict';
+
 module.exports = {
   async up(queryInterface, Sequelize) {
+    // Create onboardings table
     await queryInterface.createTable('onboardings', {
       id: {
         type: Sequelize.UUID,
@@ -22,6 +24,12 @@ module.exports = {
         type: Sequelize.JSONB,
         allowNull: true,
       },
+      whatsapp_number: { // <-- Added here!
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+        defaultValue: '', // Remove default if you don't need it!
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -34,6 +42,7 @@ module.exports = {
       },
     });
   },
+
   async down(queryInterface) {
     await queryInterface.dropTable('onboardings');
   },

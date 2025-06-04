@@ -9,45 +9,6 @@ const {
   sendOtp,
 } = require("../utils/helper.js");
 
-exports.sendOtp = async (req, res) => {
-  const otp = process.env.TEST_OTP;
-  const email = req.body.email.toLowerCase();
-
-  console.log(`Sending OTP to ${email}`);
-  console.log(`OTP is ${otp}`);
-
-
-  try {
-    const user = await authService.findUser({ email });
-
-    if (user) {
-      console.log(`User already exists with email ${email}`);
-      return sendResponse(res, 400, true, "Email already exists");
-    } else {
-      console.log(`OTP is ${otp} for ${email}`);
-      return sendResponse(res, 200, true, "OTP sent successfully", { email, otp });
-    }
-  } catch (err) {
-    return sendResponse(res, 500, false, "Something went wrong", err.message);
-  }
-};
-
-
-
-exports.verifyOtp = async (req, res) => {
-  const { email, otp } = req.body;
-  const generatedOtp = process.env.TEST_OTP;
-  const user = await authService.findUser({ email: email });
-  if (!user) {
-    if (otp !== generatedOtp) {
-      console.log(`Invalid OTP for email ${email}`);
-      throw new Error("Invalid OTP");
-    } else {
-      return sendResponse(res, 200, true, "OTP Verified", email);
-    }
-  }
-};
-
 exports.listUsers = async (req, res) => {
   const {
     page = 1,
@@ -72,7 +33,6 @@ exports.getUserById = async (id) => {
   return await authService.findById(id);
 };
 
-
 exports.getUserDetails = async (req, res) => {
   const { id } = req.params;
   const user = await authService.findUser({
@@ -88,6 +48,7 @@ exports.getUserDetails = async (req, res) => {
 exports.updateUserProfile = async (userId, updateData) => {
   return await authService.updateUserProfile(userId, updateData);
 };
+
 exports.updateProfileByAdmin = async (userId, updateData) => {
   try {
     const user = await authService.findUser({ id: userId });
@@ -126,62 +87,19 @@ exports.profileComplete = async (req, res) => {
   return sendResponse(res, 200, true, "User Logined", user, token);
 };
 
-exports.login = async (req, res, next) => {
-  try {
-    const { email, password, id } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and password required" });
-    }
-    const result = await authService.login(email, password, id);
 
-    return res.status(200).json({
-      message: "Login successful",
-      data: result,
-    });
-  } catch (err) {
-    next(err);
-  }
+exports.sendOtp = async ({ phone, full_name }) => {
+  return await authService.sendOtp(phone, full_name);
 };
 
-exports.signup = async (reqBody, file, res) => { // Accept reqBody and file
-  const { phone, email, full_name, password } = reqBody;
-  console.log("Signup request body:", reqBody);
-  
-  let photo_url = null;
+exports.verifyOtp = async ({ phone, otp }) => {
+  return await authService.verifyOtp(phone, otp);
+};
 
-  if (file) {
-    // Assuming your `multer` configuration saves to `./uploads/profile-pictures/`
-    // The `filename` in multer storage should be used here.
-    // Adjust this path based on how you want to serve the static files.
-    photo_url = `/uploads/profile-pictures/${file.filename}`;
-  }
+exports.resendOtp = async ({ phone }) => {
+  return await authService.resendOtp(phone);
+};
 
-  // Check if user already exists with the same email
-  let user = await authService.findUser({ email: email.toLowerCase() });
-  if (user) {
-    return sendResponse(res, 400, true, "Email already exists");
-  }
-
-  // Check if user already exists with the same phone number
-  user = await authService.findUser({ phone });
-  if (user) {
-    return sendResponse(res, 400, true, "Phone number already exists");
-  }
-
-  // If no existing user found, proceed with signup
-  user = await authService.signup({
-    phone,
-    email,
-    full_name,
-    password,
-    photo_url, // Pass the photo_url to the service
-  });
-
-  return sendResponse(res, 200, true, "User successfully created", {
-    id: user.id,
-    phone: user.phone,
-    email: user.email,
-    fullName: user.full_name,
-    photo_url: user.photo_url, // Include photo_url in the response
-  });
+exports.login = async ({ phone, otp }) => {
+  return await authService.login(phone, otp);
 };

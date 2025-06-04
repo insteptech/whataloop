@@ -10,14 +10,13 @@ async function sendOtpToWhatsapp(phoneNumber, otp) {
         to: phoneNumber,
         type: "template",
         template: {
-            name: "business_verify_otp",
+            name: "login_signup_template_new",
             language: { code: "en_US" },
             components: [
                 {
                     type: "body",
                     parameters: [
                         { type: "text", text: String(otp) },         // OTP param
-                        { type: "text", text: String(phoneNumber) }  // Phone param
                     ]
                 },
                 {

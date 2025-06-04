@@ -32,27 +32,32 @@ module.exports = (sequelize, DataTypes) => {
     },
     full_name: {
       type: DataTypes.STRING,
+      allowNull: false,
     },
     email: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       unique: true,
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     otp: {
       type: DataTypes.STRING,
+      allowNull: true,
     },
     otp_expires: {
       type: DataTypes.DATE,
+      allowNull: true,
     },
     timezone: {
       type: DataTypes.STRING,
+      allowNull: true,
     },
     photo_url: {
       type: DataTypes.STRING,
+      allowNull: true,
     },
     account_type: {
       type: DataTypes.ENUM('free', 'starter', 'pro'),
@@ -60,12 +65,13 @@ module.exports = (sequelize, DataTypes) => {
     },
     stripe_customer_id: {
       type: DataTypes.STRING,
+      allowNull: true,
     },
     subscription_plan_id: {
       type: DataTypes.UUID,
       allowNull: true,
       references: {
-        model: 'subscriptionplans',
+        model: 'subscriptionplans', // lower case for Postgres
         key: 'id',
       },
     },
