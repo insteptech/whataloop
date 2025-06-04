@@ -109,18 +109,31 @@ export const createBusiness = createAsyncThunk(
         business_id: businessData.id,
       };
 
-      const onboardResponse = await api.post("/onboarding/onboard", onboardPayload, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // const onboardResponse = await api.post("/onboarding/onboard", onboardPayload, {
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      // });
 
       return {
         createBusiness: createResponse.data,
-        onboardUser: onboardResponse.data,
+        // onboardUser: onboardResponse.data,
       };
     } catch (error: any) {
       return rejectWithValue(error?.response?.data || "Failed to complete business setup.");
+    }
+  }
+);
+
+export const getSubscriptionPlans = createAsyncThunk(
+  "subscriptions/getPlans",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/subscriptionPlan");
+      console.log("Subscription Plans Response:", response.data);
+      return response.data; 
+    } catch (error: any) {
+      return rejectWithValue(error?.response?.data || "Failed to fetch subscription plans");
     }
   }
 );

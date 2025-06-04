@@ -1,6 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { deleteLead, getLeads, postLeads, updateLead } from "../action/leadAction";
-
+import {
+  deleteLead,
+  getLeads,
+  postLeads,
+  updateLead,
+} from "../action/leadAction";
+import { getChat } from "../action/leadAction";
 const initialState = {
   leads: [],
   total: 0,
@@ -8,6 +13,7 @@ const initialState = {
   error: "",
   message: "",
   token: "",
+  chats: {}, 
 };
 
 const leadSlice = createSlice({
@@ -67,30 +73,40 @@ const leadSlice = createSlice({
         state.error = action.error.message || "Failed to delete lead";
       })
 
-      // ✅ Update Lead
+      // Update Lead
       .addCase(updateLead.pending, (state) => {
         state.loading = true;
         state.error = "";
       })
-  .addCase(updateLead.fulfilled, (state, action) => {
-  state.loading = false;
-  console.log('Update lead fulfilled:', action.payload);
-  // Check if payload exists and has the expected structure
-  if (action.payload) {
-    const updatedLead = action.payload;
-    
-    // Find and replace the lead in the array
-    const index = state.leads.findIndex(lead => lead.id === updatedLead.id);
-    if (index !== -1) {
-      state.leads[index] = updatedLead;
-    }
-    
-    state.message = "Lead updated successfully";
-  }
-})
+      .addCase(updateLead.fulfilled, (state, action) => {
+        state.loading = false;
+        if (action.payload) {
+          const updatedLead = action.payload;
+          const index = state.leads.findIndex((lead) => lead.id === updatedLead.id);
+          if (index !== -1) {
+            state.leads[index] = updatedLead;
+          }
+          state.message = "Lead updated successfully";
+        }
+      })
       .addCase(updateLead.rejected, (state, action) => {
         state.loading = false;
-        state.error = (action.payload as string) || action.error.message || "Failed to update lead";
+        state.error =
+          (action.payload as string) || action.error.message || "Failed to update lead";
+      })
+
+      .addCase(getChat.pending, (state) => {
+        state.loading = true;
+        state.error = "";
+      })
+      .addCase(getChat.fulfilled, (state, action) => {
+        state.loading = false;
+        const { leadId, messages } = action.payload;
+        state.chats[leadId] = messages;
+      })
+      .addCase(getChat.rejected, (state, action) => {
+        state.loading = false;
+        state.error = (action.payload as string) || "Failed to load chat.";
       });
   },
 });

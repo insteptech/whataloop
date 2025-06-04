@@ -96,3 +96,38 @@ export const updateLead = createAsyncThunk(
     }
   }
 );
+
+export const getChat = createAsyncThunk(
+  "getChat",
+  async (leadId: string, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/lead/${leadId}/thread`);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "Failed to load chat.");
+    }
+  }
+);
+
+export const postMessage = createAsyncThunk(
+  "postMessage",
+  async (
+    payload: {
+      lead_id: string;
+      sender_phone_number: string;
+      receiver_phone_number: string;
+      message_content: string;
+      message_type: "incoming" | "outgoing";
+      status: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await api.post("/message", payload);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "Failed to send message.");
+    }
+  }
+);
+

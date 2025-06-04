@@ -52,16 +52,16 @@ function LeftSidebar({ Width, toggleSidebar }: any) {
         },
       ]
       : []),
-    {
-      href: "/messages/messagesAndReplies",
-      label: "Messages",
-      icon: "",
-    },
-    {
-      href: "/autoreplies/autoReplies",
-      label: "Auto Replies",
-      icon: "",
-    },
+    // {
+    //   href: "/messages/messagesAndReplies",
+    //   label: "Messages",
+    //   icon: "",
+    // },
+    // {
+    //   href: "/autoreplies/autoReplies",
+    //   label: "Auto Replies",
+    //   icon: "",
+    // },
   ];
 
   return (

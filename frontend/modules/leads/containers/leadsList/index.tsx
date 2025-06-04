@@ -3,6 +3,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+
 import {
   getLeads,
   updateLead,
@@ -12,6 +13,7 @@ import { fetchConstants } from "@/modules/constants/redux/action/constantAction"
 import EditLeadModal from "@/components/leadEditModal";
 import ConfirmationPopup from "@/components/common/ConfirmationPopUp";
 import { AddLeadIcon } from "@/components/common/Icon";
+import ChatModal from "@/components/common/ChatModal";
 
 const LeadsList = () => {
   const dispatch = useDispatch();
@@ -25,6 +27,8 @@ const LeadsList = () => {
   const [selectedLead, setSelectedLead] = useState<any>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteLeadId, setDeleteLeadId] = useState<string | null>(null);
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [selectedLeadForChat, setSelectedLeadForChat] = useState<any>(null);
 
   // Extract status columns dynamically
   const statusColumns = useMemo(() => {
@@ -83,7 +87,6 @@ const LeadsList = () => {
   const onDragEnd = (result: DropResult) => {
     const { source, destination, draggableId } = result;
     if (!destination) return;
-
     if (
       source.droppableId === destination.droppableId &&
       source.index === destination.index
@@ -107,11 +110,7 @@ const LeadsList = () => {
       destLeads.splice(destination.index, 0, movedLead);
       newGroupedLeads[sourceStatus] = sourceLeads;
       newGroupedLeads[destStatus] = destLeads;
-    }
 
-    setGroupedLeads(newGroupedLeads);
-
-    if (sourceStatus !== destStatus) {
       const newStatus = statusColumns.find((col: any) => col.label === destStatus);
       if (!newStatus) return;
 
@@ -129,6 +128,8 @@ const LeadsList = () => {
         }) as any);
       });
     }
+
+    setGroupedLeads(newGroupedLeads);
   };
 
   // Confirm deletion
@@ -230,15 +231,29 @@ const LeadsList = () => {
                               <p>{lead.sourceConstant?.label || "—"}</p>
                               <p>{lead.tagConstant?.label || "—"}</p>
                             </div>
-                            <button
-                              className="btn btn-danger btn-sm mt-2"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteClick(lead.id);
-                              }}
-                            >
-                              Delete
-                            </button>
+                            <div className="d-flex justify-content-between mt-2">
+                              <button
+                                className="btn btn-sm btn-danger"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteClick(lead.id);
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                            <div>
+                              <button
+                                className="btn btn-sm btn-info text-white"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedLeadForChat(lead);
+                                  setShowChatModal(true);
+                                }}
+                              >
+                                Chat
+                              </button>
+                            </div>
                           </div>
                         )}
                       </Draggable>
@@ -277,6 +292,18 @@ const LeadsList = () => {
             role: role
           }) as any);
         }}
+      />
+
+      {/* Chat Modal */}
+      <ChatModal
+        show={showChatModal}
+        onClose={() => {
+          setShowChatModal(false);
+          setSelectedLeadForChat(null);
+        }}
+        leadId={selectedLeadForChat?.id}
+        leadPhone={selectedLeadForChat?.phone}
+        leadName={selectedLeadForChat?.name}
       />
 
       {/* Confirmation Popup */}

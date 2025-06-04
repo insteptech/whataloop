@@ -1,5 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { subscribePlan, sendOtp, verifyOtp, createBusiness } from "../actions/subscriptionAction";
+import {
+  subscribePlan,
+  sendOtp,
+  verifyOtp,
+  createBusiness,
+  getSubscriptionPlans,
+} from "../actions/subscriptionAction";
 
 interface SubscriptionState {
   loading: boolean;
@@ -17,6 +23,10 @@ interface SubscriptionState {
   businessLoading: boolean;
   businessError: string | null;
   businessCreated: boolean;
+
+  plansLoading: boolean;
+  plansError: string | null;
+  plans: any[]; 
 }
 
 const initialState: SubscriptionState = {
@@ -35,6 +45,10 @@ const initialState: SubscriptionState = {
   businessLoading: false,
   businessError: null,
   businessCreated: false,
+
+  plansLoading: false,
+  plansError: null,
+  plans: [],
 };
 
 const subscriptionSlice = createSlice({
@@ -60,6 +74,11 @@ const subscriptionSlice = createSlice({
       state.businessLoading = false;
       state.businessError = null;
       state.businessCreated = false;
+    },
+    resetPlansState: (state) => {
+      state.plansLoading = false;
+      state.plansError = null;
+      state.plans = [];
     },
   },
   extraReducers: (builder) => {
@@ -126,6 +145,20 @@ const subscriptionSlice = createSlice({
         state.businessLoading = false;
         state.businessError = action.payload as string;
         state.businessCreated = false;
+      })
+
+      // Get Subscription Plans
+      .addCase(getSubscriptionPlans.pending, (state) => {
+        state.plansLoading = true;
+        state.plansError = null;
+      })
+      .addCase(getSubscriptionPlans.fulfilled, (state, action) => {
+        state.plansLoading = false;
+        state.plans = action.payload;
+      })
+      .addCase(getSubscriptionPlans.rejected, (state, action) => {
+        state.plansLoading = false;
+        state.plansError = action.payload as string;
       });
   },
 });
@@ -135,6 +168,7 @@ export const {
   resetOtpState,
   resetOtpVerifyState,
   resetBusinessState,
+  resetPlansState,
 } = subscriptionSlice.actions;
 
 export default subscriptionSlice.reducer;

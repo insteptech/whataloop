@@ -9,6 +9,8 @@ import { sendOtp } from "../redux/actions/subscriptionAction";
 import { verifyOtp } from "../redux/actions/subscriptionAction";
 import { createBusiness } from "../redux/actions/subscriptionAction";
 import Notification from "@/components/common/Notification";
+import { getSubscriptionPlans } from "../redux/actions/subscriptionAction";
+
 
 const SubscriptionTiers = () => {
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -26,11 +28,26 @@ const SubscriptionTiers = () => {
   const router = useRouter();
   const dispatch = useDispatch();
 
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      await dispatch(getSubscriptionPlans() as any);
+    };
+    fetchPlans();
+  }, [dispatch]);
+
   const user = useSelector((state: any) => state.profileReducer.data);
+  const plansData = useSelector((state: any) => state.subscriptionReducer?.plans);
+
+  const findPlanIdByName = (name: string) =>
+    plansData.filter((plan: any) => plan.name === name)?.id || name; // fallback to name as key
+
 
   const plans = [
     {
-      id: "free",
+      // id: 1,
+      id: findPlanIdByName("Free"),
+      // id: "9deeaaaf-b6cb-44a4-b4d1-cd34dd8de8bf",
       name: "Free",
       price: "$0",
       period: "forever",
@@ -39,7 +56,9 @@ const SubscriptionTiers = () => {
       popular: false,
     },
     {
-      id: "starter",
+      // id: 2,
+      id: findPlanIdByName("Starter"),
+      // id: "b1c2d3e4-f5a6-7b8c-9d0e-f1a2b3c4d5e6",
       name: "Starter",
       price: "$9",
       period: "per month",
@@ -48,7 +67,9 @@ const SubscriptionTiers = () => {
       popular: true,
     },
     {
-      id: "pro",
+      // id: 3,
+      id: findPlanIdByName("Pro"),
+      // id:"879926f0-7ac7-46c4-b995-ee4a6b7321b2",
       name: "Pro",
       price: "$19",
       period: "per month",
@@ -57,6 +78,9 @@ const SubscriptionTiers = () => {
       popular: false,
     },
   ];
+
+
+
 
   // Clear OTP fields when OTP modal is closed
   useEffect(() => {
@@ -68,6 +92,7 @@ const SubscriptionTiers = () => {
   const handleSelectPlan = (planId) => {
     setSelectedPlan(planId);
     setShowModal(true);
+    console.log("Selected Plan ID:", planId);
   };
 
   const handleSendOtp = async (number: string) => {
@@ -154,17 +179,14 @@ const SubscriptionTiers = () => {
       const resultAction = await dispatch(createBusiness(businessPayload) as any);
       if (createBusiness.fulfilled.match(resultAction)) {
         setNotification({ title: "Success", message: "Business created successfully.", type: "success" });
-        setTimeout(() => {
-          router.push({
-            pathname: "/subscription/checkout",
-            query: {
-              plan: selectedPlan,
-              name: values.businessName,
-              email: values.email,
-              altMobile: values.alternateMobile || "",
-            },
-          });
-        }, 1000);
+        console.log(selectedPlan, "selectedPlan");
+
+        router.push(`/subscription/checkout?plan=${selectedPlan.toLowerCase()}`); // Redirect to checkout page with selected plan
+        // pathname: "/subscription/checkout",
+        // query: {
+        //   plan: selectedPlan,
+        // },
+
       } else {
         const errorMsg = resultAction.payload || "Failed to create business.";
         setNotification({ title: "Creation Failed", message: errorMsg, type: "error" });
@@ -174,6 +196,7 @@ const SubscriptionTiers = () => {
       setNotification({ title: "Error", message: "Unexpected error creating business.", type: "error" });
     }
   };
+
 
   return (
     <>
@@ -195,9 +218,9 @@ const SubscriptionTiers = () => {
             <p className="section-subtitle">Select the perfect plan for your needs</p>
           </div>
           <div className="row g-4">
-            {plans.map((plan) => (
+            {plans.map((plan, index) => (
               <div key={plan.id} className="col-md-4">
-                <div className={`tier-card ${plan.popular ? "popular" : ""} ${selectedPlan === plan.id ? "selected" : ""}`}>
+                <div className={`tier-card  ${plan.popular ? "popular" : ""} ${selectedPlan === plan.id ? "selected" : ""}`}>
                   {plan.popular && <div className="popular-badge">Most Popular</div>}
                   <div className="tier-header">
                     <h3 className="tier-name">{plan.name}</h3>
@@ -207,8 +230,8 @@ const SubscriptionTiers = () => {
                     </div>
                   </div>
                   <ul className="tier-features">
-                    {plan.features.map((feature, index) => (
-                      <li key={index}>{feature}</li>
+                    {plan.features.map((feature) => (
+                      <li key={feature}>{feature}</li>
                     ))}
                   </ul>
                   <button className="btn btn-outline-primary" onClick={() => handleSelectPlan(plan.id)}>
