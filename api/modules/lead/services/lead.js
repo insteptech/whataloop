@@ -188,38 +188,37 @@ const login = async (email, password) => {
 const create = async (data) => {
   try {
     const { Lead } = await getAllModels(process.env.DB_TYPE);
-    if (!Lead) {
-      throw new Error("Lead model not found");
-    }
+    if (!Lead) throw new Error("Lead model not found");
 
-    if (data.email) {
-      const existingEmail = await Lead.findOne({ where: { email: data.email } });
-      if (existingEmail) {
-        throw new Error("Lead with this email already exists");
-      }
-    }
+    // Validate required fields
+    const required = ['user_id', 'tag', 'status', 'source', 'name'];
+    required.forEach(key => {
+      if (!data[key]) throw new Error(`${key} is required`);
+    });
 
+    // Log data
+    console.log("Lead data before insert:", data);
+
+    // Check for duplicate (should be phone+user_id)
     if (data.phone) {
-      const existingPhone = await Lead.findOne({ where: { phone: data.phone } });
+      const existingPhone = await Lead.findOne({ where: { phone: data.phone, user_id: data.user_id } });
       if (existingPhone) {
-        throw new Error("Lead with this phone number already exists");
+        throw new Error("Lead with this phone number already exists for this user");
       }
     }
-
-    const existingLead = await Lead.findOne({ where: { phone: data.phone } });
-    if (existingLead) {
-      throw new Error("Lead with this phone number already exists");
-    }
+    
+    console.log("About to insert lead with data:", data);
 
     const newLead = await Lead.create(data);
     return newLead;
-
   } catch (error) {
-    console.error("Error in leadService.create:", error.message);
+    console.error("Error in leadService.create:", error); // log full error!
+    if (error.parent) {
+      console.error("Postgres error details:", error.parent);
+    }
     throw error;
   }
 };
-
 
 const getAll = async (userId, query) => {
   const {
@@ -354,7 +353,7 @@ const getLeadThread = async (leadId, userId) => {
   };
 };
 
-async function createIfNotExists({
+ const createIfNotExists = async({
   phone,
   full_name,
   source,
@@ -367,51 +366,81 @@ async function createIfNotExists({
   qualityLabel = null,
   timestamp = Date.now().toString(),
   receiverNumber = null
-}) {
+}) => {
   const { Lead, Message } = await getAllModels(process.env.DB_TYPE);
 
-
+  // Validate required fields
   if (!phone) throw new Error('Phone is required');
   if (!user_id) throw new Error('user_id is required');
   if (!source) throw new Error('source is required');
   if (!tag) throw new Error('tag is required');
   if (!status) throw new Error('status is required');
+  if (!full_name) throw new Error('full_name (lead name) is required');
 
-  const existing = await Lead.findOne({
-    where: { phone, user_id },
+  // Log all input values and their types
+  console.log("Lead.create with:", {
+    user_id, tag, status, source, name: full_name, phone, email, notes: last_message || notes
+  });
+  console.log("Types:", {
+    user_id: typeof user_id,
+    tag: typeof tag,
+    status: typeof status,
+    source: typeof source,
+    full_name: typeof full_name
   });
 
-  if (existing) return existing;
+  // Optional: check if referenced IDs exist in their tables (remove/comment if not desired)
+  // await checkExists('users', user_id);
+  // await checkExists('constants', tag);
+  // await checkExists('constants', status);
+  // await checkExists('constants', source);
 
-  const lead = await Lead.create({
-    user_id,
-    tag,
-    status,
-    source,
-    name: full_name,
-    phone,
-    email,
-    notes: last_message || notes,
-  });
-  
-  sendTextMessage(
+  try {
+    // Check for duplicate by phone + user_id
+    const existing = await Lead.findOne({ where: { phone, user_id } });
+    if (existing) return existing;
+
+    // Create the lead
+    const lead = await Lead.create({
+      user_id,
+      tag,
+      status,
+      source,
+      name: full_name,
+      phone,
+      email,
+      notes: last_message || notes,
+      quality_label: qualityLabel
+    });
+
+    // Send thank you message (async, errors won't block lead creation)
+    sendTextMessage(
       phone,
       'Thank you for contacting us! We have received your inquiry and will get back to you soon.'
     ).catch(console.error);
-    console.log('qualityLabel:-------', qualityLabel);
-    
-  await Message.create({
-    lead_id: lead.id,
-    sender_phone_number: phone,   
-    receiver_phone_number: receiverNumber,
-    message_content: last_message,
-    message_type: 'incoming',
-    timestamp: timestamp, 
-    status: 'sent',                   
-    quality_label: qualityLabel,
-  });
 
-  return lead;
+    // Create message
+    await Message.create({
+      lead_id: lead.id,
+      sender_phone_number: phone,
+      receiver_phone_number: receiverNumber,
+      message_content: last_message,
+      message_type: 'incoming',
+      timestamp: timestamp,
+      status: 'sent',
+      quality_label: qualityLabel,
+    });
+
+    return lead;
+
+  } catch (error) {
+    // Print full Sequelize error and (if present) the original Postgres error
+    console.error("Error in createIfNotExists:", error);
+    if (error.parent) {
+      console.error("Postgres error details:", error.parent);
+    }
+    throw error; // Propagate for API error response
+  }
 }
 
 module.exports = {

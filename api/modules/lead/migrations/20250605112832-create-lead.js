@@ -2,7 +2,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // Create leads table only
+    // Create leads table with quality_label column
     await queryInterface.createTable('leads', {
       id: {
         type: Sequelize.UUID,
@@ -58,6 +58,10 @@ module.exports = {
       },
       notes: {
         type: Sequelize.TEXT,
+        allowNull: true,
+      },
+      quality_label: {                       // <--- Add this line
+        type: Sequelize.STRING,
         allowNull: true,
       },
       created_at: {

@@ -60,7 +60,7 @@ const saveRawPayload = async (payload) => {
   //   where: { phone: messageDetails.waId } // or { phone: '+91' + waId.slice(2) } if your DB uses '+'
   // });
   
-  if (qualityLabel === 'high_quality') {
+  if (qualityLabel != 'unclear') {
   await leadService.createIfNotExists({
       phone: messageDetails.from,
       full_name: messageDetails.name,
