@@ -1,4 +1,3 @@
-// modules/messages/migrations/20250529151000-create-messages.js
 'use strict';
 
 module.exports = {
@@ -43,6 +42,10 @@ module.exports = {
         type: Sequelize.ENUM('sent', 'delivered', 'read', 'failed'),
         allowNull: false,
         defaultValue: 'sent',
+      },
+      quality_label: {        // <--- include here!
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       created_at: {
         allowNull: false,
