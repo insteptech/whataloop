@@ -121,7 +121,16 @@ const verifyOtp = async ({ businessId, otp }) => {
       whatsappNumber: business.whatsapp_number
     });
   } catch (err) {
-    console.error("WABA onboarding failed:", err.message);
+    if (err.response) {
+      // Axios error with response from Meta
+      console.error('WABA onboarding failed:');
+      console.error('Status:', err.response.status);
+      console.error('Data:', JSON.stringify(err.response.data, null, 2));
+      console.error('Headers:', JSON.stringify(err.response.headers, null, 2));
+    } else {
+      // Any other error (no response)
+      console.error("WABA onboarding failed:", err.message);
+    }
   }
 
   return { success: true, businessId: business.id };

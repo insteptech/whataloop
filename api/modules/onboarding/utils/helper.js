@@ -29,13 +29,20 @@ const sendTestWhatsAppMessage = async ({ whatsappNumber }) => {
     console.log('response.data:-----', response.data);
     return response.data;
   } catch (err) {
-    // Log the error details for debugging
-    console.error('WhatsApp API error:', err?.response?.data || err.message);
-    throw err;
+    // Log full error details if present
+    if (err.response) {
+      console.error('WhatsApp API error:');
+      console.error('Status:', err.response.status);
+      console.error('Data:', JSON.stringify(err.response.data, null, 2));
+      console.error('Headers:', JSON.stringify(err.response.headers, null, 2));
+    } else {
+      console.error('WhatsApp API error (no response):', err.message);
+    }
+    throw err; // Propagate error up
   }
-}
-  
+};
+
 module.exports = {
-...mainHelper,
-sendTestWhatsAppMessage
+  ...mainHelper,
+  sendTestWhatsAppMessage
 };
