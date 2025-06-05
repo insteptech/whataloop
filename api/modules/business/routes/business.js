@@ -17,6 +17,6 @@ router.post('/verify-otp', businessController.verifyOtp);
 router.post('/update-info', businessController.updateInfo);
 router.post('/welcome-message', businessController.setWelcomeMessage);
 router.post('/resend-otp', businessController.resendOtp);
-
+router.get('/check/:userId', businessController.checkBusinessByUserId);
 
 module.exports = router;

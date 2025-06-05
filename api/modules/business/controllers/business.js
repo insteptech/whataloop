@@ -90,3 +90,20 @@ exports.resendOtp = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+exports.checkBusinessByUserId = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const business = await businessManager.findByUserId(userId);
+    if (!business) {
+      return res.status(404).json({ exists: false, message: "Business not found for this user." });
+    }    
+    if (business) {
+      return res.json({ exists: true, data: business });
+    } else {
+      return res.json({ exists: false, data: null });
+    }
+  } catch (err) {
+    next(err);
+  }
+};

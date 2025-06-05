@@ -27,3 +27,7 @@ exports.setWelcomeMessage = async (payload) => {
 exports.resendOtp = async ({ businessId }) => {
   return businessService.resendOtp({ businessId });
 };
+
+exports.findByUserId = async (userId) => {
+  return businessService.getBusinessByUserId(userId);
+};

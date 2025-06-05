@@ -174,6 +174,11 @@ const resendOtp = async ({ businessId }) => {
   return { success: true, message: "OTP resent successfully." };
 };
 
+const getBusinessByUserId = async (userId) => {
+  const { Business } = await getAllModels(process.env.DB_TYPE);
+  return Business.findOne({ where: { user_id: userId } });
+};
+
 module.exports = {
   create,
   findById,
@@ -185,5 +190,6 @@ module.exports = {
   verifyOtp,
   updateInfo,
   setWelcomeMessage,
-  resendOtp
+  resendOtp,
+  getBusinessByUserId
 };
