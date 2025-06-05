@@ -1,187 +1,188 @@
 import React, { useState } from "react";
-import { Formik, Form } from "formik";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "../../redux/actions/authAction";
-import InputField from "@/components/common/InputField";
-import { EmailIcon, LockIcon } from "@/components/common/Icon";
-import CheckBoxField from "@/components/common/CheckBoxField";
-import { Router } from "next/router";
+import { login, verifyOtpAndRegisterAndLogin } from "../../redux/actions/authAction";
+import InputFieldWithCountryCode from "@/components/common/InputFieldWithCountryCode";
 import { useRouter } from "next/router";
 import Loader from "@/components/common/loader";
-// import SelectField from "@/components/common/SelectField";
-// import TextAreaField from "@/components/common/TextareaField";
+import { Modal, Button } from "react-bootstrap"; // Make sure react-bootstrap is installed
+import { toast } from "react-toastify";
 
 const LoginWithOTP = () => {
   const router = useRouter();
-  const isloding = useSelector((state: any) => state?.authReducer?.loading);
-  // const isloding = true
-
-  const dispatch = useDispatch<any>();
+  const isLoading = useSelector((state: any) => state?.authReducer?.loading);
+  const dispatch = useDispatch();
   const [isOTPSent, setIsOTPSent] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [otpError, setOtpError] = useState("");
 
-  const loginValidationSchema = Yup.object({
-    email: Yup.string()
-      .email("Invalid email address")
-      .required("Email Address is required"),
-    password: Yup.string()
-      .min(6, "Password must be at least 6 characters")
-      .required("Password is required"),
-    rememberMe: Yup.boolean(),
+  // Schema for phone form
+  const loginValidationSchema = Yup.object().shape({
+    phone: Yup.string()
+      .required("WhatsApp number is required")
+      .matches(/^\+?[0-9]{10,}$/, "WhatsApp number is not valid")
+      .min(12, "WhatsApp number too short")
+      .max(15, "WhatsApp number is too long!"),
   });
 
-  const handleSubmit = async (values: { email: string; password: string }) => {
-    const payload = {
-      email: values.email,
-      password: values.password,
-    };
+  // Schema for OTP form
+  const otpValidationSchema = Yup.object().shape({
+    otp: Yup.string()
+      .length(6, "OTP must be 6 digits")
+      .required("OTP is required"),
+  });
 
+  const handleSendOtp = async (values: { phone: string }) => {
     try {
-      await dispatch(login(payload)).then((response) => {
-        if (response.payload.status === 200) {
+      const response = await dispatch(login(values) as any).unwrap();
+      console.log("Response from login:dd", response);
 
-          window.location.href = "/dashboard/containers";
-        } else {
-          alert(
-            response.payload.data?.message ||
-            "Invalid credentials, please try again."
-          );
-        }
-      });
-    } catch (error) {
-      console.error("Login error:", error);
-      alert("An error occurred. Please try again.");
+      if (response.status === 200) {
+        setPhone(values.phone);
+        setIsOTPSent(true); // Show OTP modal
+        toast.success("OTP has been sent to your WhatsApp!");
+      }
+    } catch (error: any) {
+      console.error("Login Error:", error);
+      toast.error(error.message || "Failed to send OTP. Please try again.");
     }
   };
 
-  // const handleCheckboxClick = () => {
-  //   setRememberMe(!rememberMe);
-  // };
+  const handleVerifyOtp = async (values: { otp: string }) => {
+    try {
+      const payload = {
+        phone,
+        otp: values.otp,
+        mode: "login" as "login",
+      };
+      const response = await dispatch(verifyOtpAndRegisterAndLogin(payload) as any).unwrap();
+      console.log("Response from verifyOtpAndRegister from login:", response);
+      if (response.status === 200) {
+        toast.success("Login successful!");
+        router.push("/dashboard/containers");
+      }
+    } catch (error: any) {
+      console.error("OTP Verification Error:", error);
+      setOtpError("Invalid or expired OTP. Please try again.");
+    }
+  };
 
   return (
-
     <div className="card-bg-container">
-      {isloding && <Loader />}
+      {isLoading && <Loader />}
       <div className="card-inner-content">
         <div className="module-card-header">
           <h2>Welcome</h2>
           <p>Please enter your credentials to login</p>
         </div>
-        {/* {!isOTPSent ? ( */}
-        <Formik
-          initialValues={{ email: "", password: "" }}
-          validationSchema={loginValidationSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ isSubmitting }) => (
-            <Form className="login-form">
-              <InputField
-                label="Email Address"
-                StartIcon={EmailIcon}
-                placeholder="Enter your email"
-                id="email"
-                type="email"
-                name="email"
-                required={true}
-              />
-              <InputField
-                label="Password"
-                StartIcon={LockIcon}
-                placeholder="Enter your password"
-                id="password"
-                type="password"
-                name="password"
-                required
-              />
 
-              {/* <CheckBoxField
-                label="Remember me"
-                type="checkbox"
-                id="rememberMe"
-                checked={rememberMe}
-                onChange={handleCheckboxClick}
-              /> */}
-
-              <button type="submit" className="login-button">
-                Login
-              </button>
-
-              <div className="divider">
-                <span>or</span>
-              </div>
-
-              {/* <div className="social-login">
-                <button type="button" className="social-button google">
-                  <i className="fab fa-google"></i> Continue with Google
-                </button>
-              </div> */}
-
-              <div className="signup-link">
-                Don't have an account? <a href="/auth/register">Sign up</a>
-              </div>
-            </Form>
-          )}
-        </Formik>
-        {/* ) : ( */}
-        {/* <Formik
-          initialValues={{ otp: "" }}
-          validationSchema={Yup.object({
-            otp: Yup.string()
-              // .length(6, "OTP must be 6 digits")
-              .required("OTP is required"),
-          })}
-          onSubmit={handleOTPSubmit}
-        >
-          {({ isSubmitting }) => (
-            <Form>
-              <div style={{ marginBottom: "16px" }}>
-                <label
-                  htmlFor="otp"
-                  style={{ display: "block", marginBottom: "4px" }}
-                >
-                  OTP
-                </label>
-                <Field
+        {!isOTPSent ? (
+          <Formik
+            initialValues={{ phone: "" }}
+            validationSchema={loginValidationSchema}
+            onSubmit={handleSendOtp}
+          >
+            {({ isSubmitting, handleChange }) => (
+              <Form className="login-form">
+                <InputFieldWithCountryCode
+                  label="WhatsApp Number"
+                  placeholder="Enter WhatsApp Phone number"
+                  id="phone"
                   type="text"
-                  id="otp"
-                  name="otp"
-                  placeholder="Enter OTP"
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    border: "1px solid #ccc",
-                    borderRadius: "4px",
-                  }}
+                  name="phone"
+                  onChange={handleChange}
+                  className="country-code-select-with-number"
+                  required
                 />
 
-                <ErrorMessage name="otp">
-                  {(msg) => (
-                    <div style={{ color: "red", marginTop: "5px" }}>{msg}</div>
-                  )}
-                </ErrorMessage>
-              </div>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  backgroundColor: "#0070f3",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                }}
-              >
-                {isSubmitting ? "Verifying..." : "Verify OTP"}
-              </button>
-            </Form>
-          )}
-        </Formik> */}
-        {/* )} */}
+                <button
+                  type="submit"
+                  className="send-otp-button"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Sending OTP..." : "Send OTP"}
+                </button>
+
+                <div className="divider">
+                  <span>or</span>
+                </div>
+
+                <div className="signup-link">
+                  Don't have an account?{" "}
+                  <a href="/auth/register">Sign up</a>
+                </div>
+              </Form>
+            )}
+          </Formik>
+        ) : (
+          <OtpModal
+            phone={phone}
+            onVerify={handleVerifyOtp}
+            onCancel={() => setIsOTPSent(false)}
+            otpError={otpError}
+            isLoading={isLoading}
+          />
+        )}
       </div>
     </div>
+  );
+};
+
+// OTP Modal Component
+const OtpModal = ({ phone, onVerify, onCancel, otpError, isLoading }) => {
+  const [otp, setOtp] = useState("");
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      setOtp(value);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (otp.length === 6) {
+      onVerify({ otp });
+    }
+  };
+
+  return (
+    <Modal show={true} onHide={onCancel} centered backdrop="static">
+      <Modal.Header closeButton>
+        <Modal.Title>Enter OTP</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <form onSubmit={handleSubmit}>
+          <p className="text-center">
+            We've sent an OTP to: <strong>{phone}</strong>
+          </p>
+          <input
+            type="text"
+            maxLength={6}
+            value={otp}
+            onChange={handleChange}
+            placeholder="Enter 6-digit OTP"
+            className="form-control text-center"
+            style={{ fontSize: "1.2rem", padding: "10px" }}
+            disabled={isLoading}
+          />
+          {otpError && <div className="text-danger mt-2 text-center">{otpError}</div>}
+          <div className="d-flex justify-content-between mt-4">
+            <Button variant="secondary" onClick={onCancel} disabled={isLoading}>
+              Back
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={otp.length !== 6 || isLoading}
+            >
+              {isLoading ? "Verifying..." : "Verify OTP"}
+            </Button>
+          </div>
+        </form>
+      </Modal.Body>
+    </Modal>
   );
 };
 

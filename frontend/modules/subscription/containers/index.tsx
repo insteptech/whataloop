@@ -172,7 +172,7 @@ const SubscriptionTiers = () => {
     const businessPayload = {
       user_id: user.id,
       whatsapp_number: whatsappForOtp.replace(/\D/g, ""),
-      name: values.businessName,
+      business_name: values.businessName,
     };
 
     try {

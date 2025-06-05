@@ -1,8 +1,11 @@
-export default function Login() {
+import React from 'react'
+
+const main = () => {
   return (
     <div>
-      <h2>Main Page</h2>
-     
+      <h1>Main page</h1>
     </div>
-  );
+  )
 }
+
+export default main

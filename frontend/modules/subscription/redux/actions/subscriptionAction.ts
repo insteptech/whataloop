@@ -48,19 +48,17 @@ export const sendOtp = createAsyncThunk(
 export const verifyOtp = createAsyncThunk(
   "auth/verifyOtp",
   async (
-    payload: { whatsapp_number: string; otp: string },
+    payload: { businessId: string; otp: string },
     { rejectWithValue }
   ) => {
     try {
       // Remove all non-digit characters including '+'
-      const cleanedNumber = payload.whatsapp_number.replace(/\D/g, '');
 
-      console.log("Verifying OTP for:", cleanedNumber);
 
       const response = await api.post(
         "/business/verify-otp",
         {
-          whatsapp_number: cleanedNumber, 
+          businessId: payload.businessId,
           otp: payload.otp,
         },
         {
@@ -84,43 +82,64 @@ export const createBusiness = createAsyncThunk(
     payload: {
       user_id: string;
       whatsapp_number: string;
-      name: string;
-      description?: string;
-      website?: string;
-      logo_url?: string;
+      business_name: string;
     },
     { dispatch, rejectWithValue }
   ) => {
     try {
-      // First request: Create business
-      const createResponse = await api.post("/business/", payload, {
+
+      
+      const response = await api.post("/business/connect", payload, {
         headers: {
           "Content-Type": "application/json",
         },
       });
 
-      const businessData = createResponse.data.data;
-     
-
-      // Second request: Onboard user
-      const onboardPayload = {
-        businessName: businessData.name,
-        whatsappNumber: businessData.whatsapp_number,
-        business_id: businessData.id,
-      };
+      // // Optional second API call (currently commented)
+      // const onboardPayload = {
+      //   businessName: businessData.name,
+      //   whatsappNumber: businessData.whatsapp_number,
+      //   business_id: businessData.id,
+      // };
 
       // const onboardResponse = await api.post("/onboarding/onboard", onboardPayload, {
       //   headers: {
       //     "Content-Type": "application/json",
       //   },
       // });
-
+      console.log("Business Creation Response:", response);
       return {
-        createBusiness: createResponse.data,
+        data: response
         // onboardUser: onboardResponse.data,
       };
     } catch (error: any) {
       return rejectWithValue(error?.response?.data || "Failed to complete business setup.");
+    }
+  }
+);
+// Inside your existing file with other createAsyncThunks
+
+export const addBusinessInfo = createAsyncThunk(
+  "business/addBusinessInfo",
+  async (
+    payload: {
+      businessId?: string;
+      industry?: string;
+      website?: string;
+      welcome_message?: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await api.post("/business/update-info", payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error?.response?.data || "Failed to update business info");
     }
   }
 );

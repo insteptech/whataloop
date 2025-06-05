@@ -230,6 +230,7 @@ exports.signup = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   try {
     const { phone } = req.body;
+    console.log("Login request body:", req.body);
     if (!phone) throw new CustomError("Phone is required.", 400);
 
     const exists = await authManager.userExists(phone);
@@ -248,6 +249,7 @@ exports.verifyOtp = async (req, res, next) => {
     if (!phone || !otp)
       throw new CustomError("Phone and OTP are required.", 400);
     const result = await authManager.verifyOtp({ phone, otp });
+    console.log("OTP verification result:", result);
     res.status(200).json({ message: "OTP verified.", ...result });
   } catch (error) {
     next(new CustomError(error.message || "OTP verification failed.", error.status || 500));

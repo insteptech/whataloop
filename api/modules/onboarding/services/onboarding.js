@@ -5,7 +5,7 @@ const { sendTestWhatsAppMessage } = require('../utils/helper'); // adjust path
 const WHATSAPP_API_URL = 'https://graph.facebook.com/v19.0';
 const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
-const WEB_HOOK_URL = 'https://rnnxb-2401-4900-1c6f-a87d-548b-15ec-5f72-d5ea.a.free.pinggy.link/api/v1/whatsapp';
+const WEB_HOOK_URL = 'https://rndua-2401-4900-1c6f-a87d-548b-15ec-5f72-d5ea.a.free.pinggy.link/api/v1/whatsapp';
 
 const APP_ID = process.env.WHATSAPP_APP_ID;
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;

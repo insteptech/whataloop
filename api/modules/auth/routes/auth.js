@@ -17,7 +17,6 @@ router.delete("/deleteuser/:id", authenticate, authController.deleteUser)
 router.put('/updateprofilebyadmin/:id', authenticate, authController.updateProfileByAdmin)
 
 
-// router.post("/send-otp", authController.sendOtp);
 // router.post("/verify-otp", authController.verifyOtp);
 // router.post("/signup", authController.signup);
 // router.post("/login", authController.login);
