@@ -39,8 +39,54 @@ exports.requestOtp = async (req, res) => {
   }
 };
 
+// exports.verifyOtp = async (req, res) => {
+//   const { whatsapp_number, otp } = req.body;
+//   const result = await businessManager.verifyOtp(whatsapp_number, otp);
+//   res.status(200).json(result);
+// };
+
+exports.connectBusiness = async (req, res) => {
+  try {
+    const result = await businessManager.connectBusiness(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 exports.verifyOtp = async (req, res) => {
-  const { whatsapp_number, otp } = req.body;
-  const result = await businessManager.verifyOtp(whatsapp_number, otp);
-  res.status(200).json(result);
+  try {
+    const result = await businessManager.verifyOtp(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+};
+
+exports.updateInfo = async (req, res) => {
+  try {
+    const result = await businessManager.updateInfo(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+};
+
+exports.setWelcomeMessage = async (req, res) => {
+  try {
+    const result = await businessManager.setWelcomeMessage(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+};
+
+exports.resendOtp = async (req, res) => {
+  try {
+    const { businessId } = req.body;
+    const result = await businessManager.resendOtp({ businessId });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };

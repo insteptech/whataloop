@@ -55,6 +55,28 @@ module.exports = (sequelize, DataTypes) => {
     logo_url: {
       type: DataTypes.STRING,
     },
+    // NEW FIELDS FOR ONBOARDING & FLOW
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'pending', // 'pending', 'verified', 'onboarded'
+    },
+    otp: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    otp_expires: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    industry: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    welcome_message: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: sequelize.literal('NOW()'),

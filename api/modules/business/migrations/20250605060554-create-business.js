@@ -40,6 +40,27 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      status: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: 'pending',
+      },
+      otp: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      otp_expires: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+      industry: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      welcome_message: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,

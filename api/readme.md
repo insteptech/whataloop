@@ -51,6 +51,10 @@ Replace [model-name] with your model name.
 npx sequelize-cli model:generate --name model-name  --attributes column-name:data-type
 npx sequelize-cli seed:generate --name seed-subscriptions
 
+npx sequelize-cli migration:generate --name your-migration-name
+npx sequelize-cli db:migrate
+
+
 ```
 
 Replace model-name and column-name with your name.\

@@ -63,3 +63,18 @@ exports.onboardNewUser = async (req, res) => {
         });
     }
 };
+
+exports.triggerWabaOnboarding = async (req, res) => {
+  try {
+    const { businessId } = req.params;
+    const { businessName, whatsappNumber } = req.body;
+    const onboarding = await onboardingManager.triggerWabaOnboarding({
+      businessId,
+      businessName,
+      whatsappNumber
+    });
+    res.json({ success: true, onboarding });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

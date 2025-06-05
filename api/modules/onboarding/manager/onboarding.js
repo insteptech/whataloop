@@ -6,3 +6,7 @@ exports.onboardNewUser = async (businessName, whatsappNumber,business_id) => {
 
   return { businessProfile, webhookUrl };
 };
+
+exports.triggerWabaOnboarding = async ({ businessId, businessName, whatsappNumber }) => {
+  return onboardingService.handleWabaOnboarding({ businessId, businessName, whatsappNumber });
+};
