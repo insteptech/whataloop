@@ -6,7 +6,7 @@ const { sendTestWhatsAppMessage } = require('../utils/helper'); // adjust path
 const WHATSAPP_API_URL = 'https://graph.facebook.com/v19.0';
 const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
-const WEB_HOOK_URL = 'https://rnrsd-2401-4900-1c6f-a87d-548b-15ec-5f72-d5ea.a.free.pinggy.link/api/v1/whatsapp';
+const WEB_HOOK_URL = 'https://rnnam-2401-4900-1c6f-a87d-548b-15ec-5f72-d5ea.a.free.pinggy.link/api/v1/whatsapp';
 
 const APP_ID = process.env.WHATSAPP_APP_ID;
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
@@ -85,36 +85,50 @@ const handleWabaOnboarding = async ({ businessId, businessName, whatsappNumber }
 
   let onboardingProfile;
   try {
+    console.log('Creating onboarding profile...');
     onboardingProfile = await createBusinessProfile(businessName, whatsappNumber, businessId);
+    console.log('Onboarding profile created.');
   } catch (err) {
+    console.error('Failed to create onboarding profile:', err.message);
     throw new Error('Failed to create onboarding profile: ' + err.message);
   }
 
   let associationResult;
   try {
+    console.log('Associating business number...');
     associationResult = await associateBusinessNumber(whatsappNumber);
     onboardingProfile.profile_status = 'waba_associated';
     onboardingProfile.raw_payload = associationResult;
     await onboardingProfile.save();
+    console.log('Business number associated and profile updated.');
   } catch (err) {
+    // Log the full error response from Meta for diagnostics
+    const errorData = err?.response?.data || err.message;
+    console.error('WABA association failed:', JSON.stringify(errorData, null, 2));
     onboardingProfile.profile_status = 'failed';
-    onboardingProfile.raw_payload = { error: err.message };
+    onboardingProfile.raw_payload = { error: errorData };
     await onboardingProfile.save();
-    throw new Error('WABA association failed: ' + err.message);
+    // Commented throw for debugging -- uncomment after fixing association errors!
+    // throw new Error('WABA association failed: ' + (errorData?.error?.message || err.message));
   }
 
   try {
+    console.log('Setting up webhook...');
     await setupWebhook();
+    console.log('Webhook setup completed.');
   } catch (err) {
     console.warn('Webhook setup error (ignored):', err.message);
   }
 
   try {
+    console.log('Attempting to send WhatsApp message to:', whatsappNumber);
     await sendTestWhatsAppMessage({ whatsappNumber });
+    console.log('sendTestWhatsAppMessage completed');
   } catch (err) {
     console.warn('Test WhatsApp message failed (ignored):', err.message);
   }
 
+  console.log('Returning onboardingProfile...');
   return onboardingProfile;
 };
 
