@@ -10,10 +10,12 @@ exports.createCheckoutSession = async (req, res, next) => {
   }
 };
 
-exports.stripeWebhook = async (req, res, next) => {
+exports.stripeWebhook = async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  const rawBody = req.body; // This is now a Buffer
+
   try {
-    const sig = req.headers['stripe-signature'];
-    const event = await manager.handleStripeWebhook(req.body, sig);
+    await manager.handleStripeWebhook(rawBody, sig); // pass Buffer, not parsed object!
     res.status(200).json({ received: true });
   } catch (err) {
     console.error('[Stripe Webhook] Error:', err);

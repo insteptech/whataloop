@@ -1,4 +1,5 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const { getAllModels } = require("../../../middlewares/loadModels");
 
 const createCheckoutSession = async ({ planId, businessId, userId, successUrl, cancelUrl }) => {
   const { SubscriptionPlan, User } = await getAllModels(process.env.DB_TYPE);
@@ -44,17 +45,17 @@ const createCheckoutSession = async ({ planId, businessId, userId, successUrl, c
 };
 
 const handleStripeWebhook = async (body, signature) => {
-  // Validate signature
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
   let event;
 
+  // 1. Verify Stripe signature
   try {
     event = stripe.webhooks.constructEvent(body, signature, endpointSecret);
   } catch (err) {
     throw new Error(`Webhook signature verification failed: ${err.message}`);
   }
 
-  // Event types you want to handle
+  // 2. Process supported events
   switch (event.type) {
     case 'checkout.session.completed':
       await handleCheckoutSessionCompleted(event.data.object);
@@ -72,6 +73,92 @@ const handleStripeWebhook = async (body, signature) => {
 
   return true;
 };
+
+async function handleCheckoutSessionCompleted(session) {
+  // Stripe session.metadata is set by you during session creation
+  const { SubscriptionPlan, User, BusinessSubscription } = await getAllModels(process.env.DB_TYPE);
+
+  const userId = session.metadata?.userId;
+  const businessId = session.metadata?.businessId;
+  const planId = session.metadata?.planId;
+  const stripeSubscriptionId = session.subscription;
+
+  // Update user
+  const user = await User.findByPk(userId);
+  const plan = await SubscriptionPlan.findByPk(planId);
+
+  if (user && plan) {
+    user.subscription_plan_id = plan.id;
+    user.account_type = plan.name.toLowerCase();
+    user.subscription_status = 'active';
+    await user.save();
+  }
+
+  // Update or create business subscription
+  let businessSub = await BusinessSubscription.findOne({
+    where: { user_id: userId, business_id: businessId }
+  });
+  if (!businessSub) {
+    await BusinessSubscription.create({
+      business_id: businessId,
+      user_id: userId,
+      plan_id: planId,
+      status: 'active',
+      stripe_subscription_id: stripeSubscriptionId,
+      start_date: new Date(session.created * 1000),
+    });
+  } else {
+    businessSub.plan_id = planId;
+    businessSub.status = 'active';
+    businessSub.stripe_subscription_id = stripeSubscriptionId;
+    await businessSub.save();
+  }
+}
+
+async function handleSubscriptionUpdated(subscription) {
+  // Find business subscription by Stripe sub ID
+  const { SubscriptionPlan, User, BusinessSubscription } = await getAllModels(process.env.DB_TYPE);
+
+  let businessSub = await BusinessSubscription.findOne({
+    where: { stripe_subscription_id: subscription.id }
+  });
+  if (businessSub) {
+    businessSub.status = subscription.status; // 'active', 'canceled', etc.
+    businessSub.start_date = new Date(subscription.start_date * 1000);
+    businessSub.end_date = subscription.ended_at
+      ? new Date(subscription.ended_at * 1000)
+      : null;
+    await businessSub.save();
+
+    // Also update user status
+    const user = await User.findByPk(businessSub.user_id);
+    if (user) {
+      user.subscription_status = subscription.status;
+      user.subscription_plan_id = businessSub.plan_id;
+      await user.save();
+    }
+  }
+}
+
+async function handleSubscriptionDeleted(subscription) {
+  const { SubscriptionPlan, User, BusinessSubscription } = await getAllModels(process.env.DB_TYPE);
+
+  let businessSub = await BusinessSubscription.findOne({
+    where: { stripe_subscription_id: subscription.id }
+  });
+  if (businessSub) {
+    businessSub.status = 'canceled';
+    businessSub.end_date = new Date();
+    await businessSub.save();
+
+    // Update user status as well
+    const user = await User.findByPk(businessSub.user_id);
+    if (user) {
+      user.subscription_status = 'canceled';
+      await user.save();
+    }
+  }
+}
 
 module.exports = {
   createCheckoutSession,
