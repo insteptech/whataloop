@@ -6,6 +6,7 @@ import businessOnboardingReducer from  "@/modules/dashboard/redux/slices/busines
 import subscriptionReducer from  "@/modules/subscription/redux/slices/subscriptionSlice"; 
 import constantReducer from  "@/modules/constants/redux/slices/constantsSlice"; 
 import usersReducer from  "@/modules/users/redux/slices/usersSlice"; 
+import stripeReducer from  "@/modules/stripepaymentstatus/redux/slices/stripeSlice"; 
 import appReducer from  "@/redux/slices/appSlice"; 
 export const reducers = {
 authReducer,
@@ -16,6 +17,7 @@ businessOnboardingReducer,
 subscriptionReducer,
 constantReducer,
 usersReducer,
+stripeReducer,
 appReducer,
 
 };

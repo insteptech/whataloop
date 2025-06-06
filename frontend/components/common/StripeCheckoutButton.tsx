@@ -1,17 +1,20 @@
 import React, { useState } from "react";
-
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { fetchStripePaymentUrl } from "@/modules/stripepaymentstatus/redux/actions/stripeAction";
+import loader from "./loader";
+// Import your async thunk
 export default function StripeCheckoutButton({
     planId,
     businessId,
     userId,
-    amount,         // Only for one-time payments
-    mode = "subscription", // or "payment"
+    amount, // optional, only for one-time payments
     successUrl,
     cancelUrl,
     children,
 }) {
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+    const dispatch = useDispatch();
 
     const baseStyle = {
         padding: "12px 24px",
@@ -41,41 +44,21 @@ export default function StripeCheckoutButton({
 
     const handleCheckout = async () => {
         setLoading(true);
-        setError("");
+
         try {
-            const origin = window.location.origin;
-            const _successUrl = successUrl || `${origin}/billing/success`;
-            const _cancelUrl = cancelUrl || `${origin}/billing/cancel`;
-
-            const body = {
-                planId,
-                businessId,
-                userId,
-                mode,
-                successUrl: _successUrl,
-                cancelUrl: _cancelUrl,
-                ...(mode === "payment" && amount ? { amount } : {}),
-            };
-
-            const response = await fetch("/stripe/checkout-session", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body),
-            });
-
-            if (!response.ok) {
-                const { error } = await response.json();
-                throw new Error(error || "Failed to create Stripe checkout session");
-            }
-
-            const { url } = await response.json();
-            if (url) {
-                window.location.href = url;
-            } else {
-                throw new Error("Stripe session URL not returned");
-            }
-        } catch (err) {
-            setError(err.message || "An error occurred. Please try again.");
+            await dispatch(
+                fetchStripePaymentUrl({
+                    planId,
+                    businessId,
+                    userId,
+                    amount,
+                    successUrl,
+                    cancelUrl,
+                }) as any
+            );
+        } catch (error) {
+            console.error("Error during checkout:", error);
+            toast.error("Failed to initialize payment. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -91,7 +74,12 @@ export default function StripeCheckoutButton({
             >
                 {loading && (
                     <svg
-                        style={{ width: "20px", height: "20px", marginRight: "10px", animation: "spin 1s linear infinite" }}
+                        style={{
+                            width: "20px",
+                            height: "20px",
+                            marginRight: "10px",
+                            animation: "spin 1s linear infinite",
+                        }}
                         viewBox="0 0 24 24"
                     >
                         <circle
@@ -113,9 +101,6 @@ export default function StripeCheckoutButton({
                 )}
                 {loading ? "Redirecting..." : children || "Pay with Stripe"}
             </button>
-
-            {/* Error Message */}
-            {error && <div style={{ color: "red", marginTop: "8px" }}>{error}</div>}
         </div>
     );
 }

@@ -113,6 +113,7 @@ const HeaderTopBar: FC<Props> = ({
                       className="dropdown-item d-flex align-items-center"
                       onClick={() => {
                         router.push("/subscription/containers");
+                        toggleProfile();
                       }}
                     >
                       Subscription

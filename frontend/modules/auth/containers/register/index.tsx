@@ -59,7 +59,8 @@ const SignUp = () => {
       };
       const response = await dispatch(sendOtp(payload) as any);
       if (response.error) {
-        throw new Error(response.error.message || "Failed to send OTP");
+        toast.error(response.error.message || "Failed to send OTP");
+        // throw new Error(response.error.message || "Failed to send OTP");
       }
       if (response.payload.status === 200) {
         setPhoneNumber(values.phone);
@@ -88,7 +89,10 @@ const SignUp = () => {
         mode: "register" as "register",
       };
       const response = await dispatch(verifyOtpAndRegisterAndLogin(payload) as any);
-      if (response.error) throw new Error(response.error.message || "Failed to verify OTP");
+      if (response.error) {
+        toast.error(response.error.message || "Failed to verify OTP");
+        // throw new Error(response.error.message || "Failed to verify OTP");
+      }
 
       if (response.payload.status === 200) {
         toast.success("Registration successful!");

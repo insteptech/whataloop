@@ -33,11 +33,11 @@ function LeftSidebar({ Width, toggleSidebar }: any) {
       label: "Leads",
       icon: <ProfileIcon />,
     },
-    {
-      href: "/subscription/containers",
-      label: "Subscription",
-      icon: <SubscriptionIcon />,
-    },
+    // {
+    //   href: "/subscription/containers",
+    //   label: "Subscription",
+    //   icon: <SubscriptionIcon />,
+    // },
     ...(role === "admin"
       ? [
         {
