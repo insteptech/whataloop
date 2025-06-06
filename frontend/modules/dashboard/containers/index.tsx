@@ -8,7 +8,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { getLeads } from "@/modules/leads/redux/action/leadAction";
 import { getUsers } from "@/modules/users/redux/action/usersAction";
 import Loader from "@/components/common/loader";
-import { addBusinessInfo, createBusiness, verifyOtp } from "@/modules/subscription/redux/actions/subscriptionAction";
+import {
+  addBusinessInfo,
+  createBusiness,
+  getUsersBusinessExist,
+  verifyOtp
+} from "../redux/actions/businessAction";
 import {
   Modal,
   Button as BootstrapButton,
@@ -25,20 +30,52 @@ function DashboardPage() {
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [otp, setOtp] = useState(["", "", "", ""]);
   const [whatsappForOtp, setWhatsappForOtp] = useState("");
   const [isBusinessRegistered, setBusinessRegistered] = useState(false);
   const [businessId, setBusinessId] = useState("");
+  const [registrationComplete, setRegistrationComplete] = useState(false);
 
   const { data: user, loading } = useSelector(
     (state: { profileReducer: { data: any; loading: boolean } }) =>
       state.profileReducer
   );
+
+  const userBusinessExists = useSelector((state: any) => state.businessOnboardingReducer.exists);
+  console.log("User Business Exists:", userBusinessExists);
+  // Only use Redux value if registration isn't complete yet
+  useEffect(() => {
+    if (registrationComplete) return;
+    if (userBusinessExists !== undefined) {
+      setBusinessRegistered(userBusinessExists);
+    }
+  }, [userBusinessExists, registrationComplete]);
+
+  // Check if user already has a business registered
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        await dispatch(getUsersBusinessExist(user.id) as any);
+        // Always fetch leads and users
+        await Promise.all([
+          dispatch(getLeads({ page: 1, limit: 1, search: "", sort: "", order: "" }) as any),
+          dispatch(getUsers({ page: 1, pageSize: 1, search: "", sort: "createdAt", order: "DESC" }) as any),
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (user?.id) {
+      fetchData();
+    }
+  }, [dispatch, user?.id]);
+
   const handleFirstModalSubmit = async (values, { setSubmitting }) => {
     try {
       // Clean WhatsApp number: remove all non-digit characters
       const cleanedWhatsappNumber = values.whatsappNumber.replace(/\D/g, "");
-
       const payload = {
         user_id: user?.id,
         whatsapp_number: cleanedWhatsappNumber,
@@ -47,8 +84,10 @@ function DashboardPage() {
 
       const response = await dispatch(createBusiness(payload) as any).unwrap();
       console.log("Business Registration Response:", response, response.data.data.businessId);
+
       setBusinessId(response.data.data.businessId);
       console.log("Business ID:", response.data.data.businessId);
+
       if (response.data.status === 200 || response?.statusCode === 200) {
         setWhatsappForOtp(values.whatsappNumber);
         setShowModal(false);
@@ -64,21 +103,29 @@ function DashboardPage() {
       setSubmitting(false);
     }
   };
-  // Fetch dashboard data
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        await Promise.all([
-          dispatch(getLeads({ page: 1, limit: 1, search: "", sort: "", order: "" }) as any),
-          dispatch(getUsers({ page: 1, pageSize: 1, search: "", sort: "createdAt", order: "DESC" }) as any),
-        ]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, [dispatch]);
+
+  const handleOtpVerification = async () => {
+    const enteredOtp = otp.join("");
+    if (enteredOtp.length !== 4) {
+      toast.error("Please enter a valid 4-digit OTP.");
+      return;
+    }
+
+    try {
+      await dispatch(verifyOtp({ businessId, otp: enteredOtp }) as any).unwrap();
+      toast.success("OTP Verified Successfully!");
+
+      // Reset OTP input fields
+      setOtp(["", "", "", ""]);
+
+      // Move to next step
+      setShowOtpModal(false);
+      setShowDetailsModal(true);
+    } catch (error: any) {
+      console.error("OTP Verification Failed:", error);
+      toast.error(error?.message || "Invalid or expired OTP. Please try again.");
+    }
+  };
 
   if (loading || isLoading) {
     return <Loader />;
@@ -98,9 +145,10 @@ function DashboardPage() {
             </BootstrapButton>
           </div>
 
+          {/* Modal 1: Register Business */}
           <Modal show={showModal} onHide={() => setShowModal(false)} centered>
             <Modal.Header closeButton>
-              <Modal.Title>Get Premium</Modal.Title>
+              <Modal.Title>Register your Business</Modal.Title>
             </Modal.Header>
             <Formik
               initialValues={{
@@ -121,7 +169,7 @@ function DashboardPage() {
                 <Form onSubmit={handleSubmit}>
                   <Modal.Body>
                     <h5>
-                      Enter your  Business Name and WhatsApp Business number to sign in or create a new account
+                      Enter your Business Name and WhatsApp Business number to sign in or create a new account
                     </h5>
                     <div className="mb-3">
                       <label className="form-label">Business Name</label>
@@ -143,7 +191,7 @@ function DashboardPage() {
                       className="country-code-select-with-number leads-country-code"
                       required
                     />
-                    <i>You’ll receive a 6-digit code on this number</i>
+                    <i>You’ll receive a 4-digit code on this number</i>
                     <div className="mt-3 d-flex justify-content-center">
                       <BootstrapButton type="submit" variant="outline-success" className="mt-3">
                         Send OTP
@@ -163,7 +211,7 @@ function DashboardPage() {
             onExited={() => setOtp(["", "", "", ""])}
           >
             <Modal.Header closeButton>
-              <Modal.Title>Get Premium</Modal.Title>
+              <Modal.Title>Enter OTP</Modal.Title>
             </Modal.Header>
             <Modal.Body>
               <p className="text-left mb-3">
@@ -183,7 +231,6 @@ function DashboardPage() {
                         const newOtp = [...otp];
                         newOtp[index] = value;
                         setOtp(newOtp);
-
                         // Auto-focus next input
                         if (value && index < otp.length - 1) {
                           document.getElementById(`otp-${index + 1}`)?.focus();
@@ -195,38 +242,11 @@ function DashboardPage() {
                   />
                 ))}
               </div>
-
               <div className="mt-4 d-flex justify-content-center">
                 <BootstrapButton
                   variant="success"
                   className="px-5"
-                  onClick={() => {
-                    const enteredOtp = otp.join("");
-                    if (enteredOtp.length === 4) {
-                      dispatch(
-                        verifyOtp({
-                          businessId: businessId,
-                          otp: enteredOtp,
-                        }) as any
-                      )
-                        .unwrap()
-                        .then(() => {
-                          // Show success toast
-                          toast.success("OTP Verified Successfully!");
-                          setShowOtpModal(false);
-                          setTimeout(() => {
-                            setShowDetailsModal(true); // Open next modal after small delay
-                          }, 500);
-                        })
-                        .catch((error) => {
-                          console.error("OTP Verification Failed:", error);
-                          // Show error toast
-                          toast.error(error?.message || "Invalid or expired OTP. Please try again.");
-                        });
-                    } else {
-                      toast.error("Please enter a valid 4-digit OTP.");
-                    }
-                  }}
+                  onClick={handleOtpVerification}
                 >
                   Continue
                 </BootstrapButton>
@@ -234,7 +254,7 @@ function DashboardPage() {
             </Modal.Body>
           </Modal>
 
-          {/* Modal 3: Business Name, Email, Alternate Mobile */}
+          {/* Modal 3: Business Info */}
           <Modal
             show={showDetailsModal}
             onHide={() => setShowDetailsModal(false)}
@@ -243,7 +263,6 @@ function DashboardPage() {
             <Modal.Header closeButton>
               <Modal.Title>Get Premium</Modal.Title>
             </Modal.Header>
-
             <Formik
               initialValues={{
                 industry: "",
@@ -268,8 +287,8 @@ function DashboardPage() {
 
                   if (addBusinessInfo.fulfilled.match(resultAction)) {
                     toast.success("Business info submitted successfully!");
-                    setShowDetailsModal(false); // Close first modal
-                    setShowWelcomeModal(true);  // Open second modal
+                    setShowDetailsModal(false);
+                    setShowWelcomeModal(true);
                   } else {
                     throw new Error(resultAction?.payload || "Failed to submit business info");
                   }
@@ -284,7 +303,6 @@ function DashboardPage() {
                 <Form onSubmit={handleSubmit}>
                   <Modal.Body>
                     <h5 className="mb-3">Business Info</h5>
-
                     <div className="mb-3">
                       <label className="form-label">What industry are you in?</label>
                       <Field
@@ -298,7 +316,6 @@ function DashboardPage() {
                         className="text-danger"
                       />
                     </div>
-
                     <div className="mb-3">
                       <label className="form-label">Business Website URL (Optional)</label>
                       <Field
@@ -314,7 +331,6 @@ function DashboardPage() {
                       />
                     </div>
                   </Modal.Body>
-
                   <Modal.Footer>
                     <BootstrapButton type="submit" variant="success">
                       Submit
@@ -324,11 +340,16 @@ function DashboardPage() {
               )}
             </Formik>
           </Modal>
-          <Modal show={showWelcomeModal} onHide={() => setShowWelcomeModal(false)} centered>
+
+          {/* Modal 4: Welcome Message */}
+          <Modal
+            show={showWelcomeModal}
+            onHide={() => setShowWelcomeModal(false)}
+            centered
+          >
             <Modal.Header closeButton>
               <Modal.Title>Welcome Message</Modal.Title>
             </Modal.Header>
-
             <Formik
               initialValues={{
                 welcomeMessage: "👋 Welcome to Pixalane! How can we help you today?",
@@ -348,7 +369,10 @@ function DashboardPage() {
                   if (addBusinessInfo.fulfilled.match(resultAction)) {
                     toast.success("Welcome message saved successfully!");
                     setShowWelcomeModal(false);
-                    window.location.href = "/payment/premium";
+
+                    // Now mark business as fully registered
+                    setBusinessRegistered(true);
+                    setRegistrationComplete(true);
                   } else {
                     throw new Error(resultAction.payload || "Failed to save welcome message");
                   }
@@ -374,7 +398,6 @@ function DashboardPage() {
                       <ErrorMessage name="welcomeMessage" component="div" className="text-danger" />
                     </div>
                   </Modal.Body>
-
                   <Modal.Footer>
                     <BootstrapButton type="submit" variant="primary">
                       Save & Continue
@@ -384,7 +407,6 @@ function DashboardPage() {
               )}
             </Formik>
           </Modal>
-
         </>
       ) : (
         <>
@@ -426,14 +448,12 @@ function DashboardPage() {
                 </div>
               </div>
             </div>
-
             <div className="visitor-graph-container">
               <div className="row">
                 <UniqueVisitorChart />
                 <IncomeOverview />
               </div>
             </div>
-
             <div className="salery-report-and-transition-history">
               <div className="row">
                 <div className="col-md-12 col-xl-4">
@@ -468,7 +488,6 @@ function DashboardPage() {
         </>
       )}
     </>
-
   );
 }
 

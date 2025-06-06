@@ -11,12 +11,9 @@ import {
 import ChatModal from "@/components/common/ChatModal";
 import { fetchProfile } from "@/modules/userprofile/redux/actions/profileAction";
 import { logout } from "@/modules/auth/redux/slices/authSlice"; // adjust path as per your structure
-
-
 type Props = {
   profileOpen: boolean;
   toggleProfile: () => void;
-
 };
 
 const HeaderTopBar: FC<Props> = ({
@@ -27,12 +24,12 @@ const HeaderTopBar: FC<Props> = ({
   const router = useRouter();
   const profileRef = useRef<HTMLDivElement>(null);
   const [messageOpen, setMessageOpen] = useState(false);
-
   const { data: user } = useSelector(
     (state: {
       profileReducer: { data: any; loading: boolean; error: string };
     }) => state.profileReducer
   );
+
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
     if (token && !user?.fullName) {
@@ -78,6 +75,7 @@ const HeaderTopBar: FC<Props> = ({
         <div className="row align-items-center">
           <div className="col-md-6">
             <div className="header-top-bar-left d-flex align-items-center gap-3">
+              {/* Optional Left Content */}
             </div>
           </div>
 
@@ -111,6 +109,16 @@ const HeaderTopBar: FC<Props> = ({
                     </button>
                   </li>
                   <li>
+                    <button
+                      className="dropdown-item d-flex align-items-center"
+                      onClick={() => {
+                        router.push("/subscription/containers");
+                      }}
+                    >
+                      Subscription
+                    </button>
+                  </li>
+                  <li>
                     <hr className="dropdown-divider" />
                   </li>
                   <li>
@@ -121,7 +129,6 @@ const HeaderTopBar: FC<Props> = ({
                         localStorage.removeItem("auth_token");
                         dispatch(logout());
                         toggleProfile();
-
                       }}
                     >
                       <LogOutIcon />
@@ -137,6 +144,8 @@ const HeaderTopBar: FC<Props> = ({
 
       {/* Chat Modal */}
       <ChatModal show={messageOpen} onClose={() => setMessageOpen(false)} />
+
+
     </header>
   );
 };

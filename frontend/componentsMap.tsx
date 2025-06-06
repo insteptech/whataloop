@@ -39,6 +39,10 @@ export const componentsMap = {
   "autoreplies": {
     "autoReplies": dynamic(() => import("@/modules/autoreplies/containers/autoReplies/index"), { ssr: false, loading: () => <Loader /> }), 
   },
+  "stripepaymentstatus": {
+    "unsuccessfull": dynamic(() => import("@/modules/stripepaymentstatus/containers/unsuccessfull/index"), { ssr: false, loading: () => <Loader /> }), 
+    "successfull": dynamic(() => import("@/modules/stripepaymentstatus/containers/successfull/index"), { ssr: false, loading: () => <Loader /> }), 
+  },
   "main": {
     "403": dynamic(() => import("@/containers/403"), { ssr: false, loading: () => <Loader /> }), 
     "dashboard": dynamic(() => import("@/containers/dashboard/index"), { ssr: false, loading: () => <Loader /> }), 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Formik, Form, ErrorMessage, Field } from "formik";
 import * as Yup from "yup";
 import InputField from "@/components/common/InputField";
@@ -14,6 +14,30 @@ const SignUp = () => {
   const isLoading = useSelector((state: any) => state?.authReducer?.loading);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [otpError, setOtpError] = useState("");
+
+  const inputsRef = useRef([]);
+
+  const handleChange = (e, index) => {
+    const value = e.target.value;
+    if (!/^\d*$/.test(value)) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    // Auto focus next
+    if (value && index < 5) {
+      inputsRef.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputsRef.current[index - 1]?.focus();
+    }
+  };
 
   const validationSchema = Yup.object().shape({
     full_name: Yup.string()
@@ -27,80 +51,55 @@ const SignUp = () => {
       .max(15, "Phone number is too long!"),
   });
 
-  const otpValidationSchema = Yup.object().shape({
-    otp: Yup.string()
-      .length(6, "OTP must be 6 digits")
-      .required("OTP is required"),
-  });
-
-  const handleSendOtp = async (values: { full_name: string; phone: string }) => {
+  const handleSendOtp = async (values) => {
     try {
       const payload = {
         full_name: values.full_name,
         phone: values.phone,
       };
-
       const response = await dispatch(sendOtp(payload) as any);
-      console.log("OTP Response:", response, response.payload.status);
-
       if (response.error) {
-        console.log('response.error:---', response.error);
-        return toast.error(response.error.message || "Failed to send OTP");
-
-        // throw new Error(response.error.message || "Failed to send OTP");
+        throw new Error(response.error.message || "Failed to send OTP");
       }
-
-      const responseData = response.payload || response;
-      console.log("Response Data:", responseData.status);
-
-
-      if (responseData.status === 200 || responseData.statusCode === 200) {
+      if (response.payload.status === 200) {
         setPhoneNumber(values.phone);
         setShowOtpModal(true);
         toast.success("OTP has been sent to your WhatsApp!");
       } else {
-        toast.error(responseData.message || "Failed to send OTP");
+        toast.error(response.payload.message || "Failed to send OTP");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("OTP Sending Error:", error);
-      const errorMsg = error?.message || "An error occurred while sending OTP";
-      if (errorMsg.includes("Phone already exists")) {
-        toast.error("This phone number is already registered.");
-      } else {
-        toast.error(errorMsg);
-      }
+      toast.error(error.message || "An error occurred while sending OTP");
     }
   };
 
-  const handleVerifyOtp = async (otp: string) => {
+  const handleVerifyOtp = async () => {
+    const enteredOtp = otp.join("");
+    if (enteredOtp.length !== 6) {
+      setOtpError("Please enter a valid 6-digit OTP.");
+      return;
+    }
+
     try {
       const payload = {
         phone: phoneNumber,
-        otp,
-        mode: "register" as "register", // Specify the mode as 'register'
+        otp: enteredOtp,
+        mode: "register" as "register",
       };
-
       const response = await dispatch(verifyOtpAndRegisterAndLogin(payload) as any);
-      console.log("OTP Verification Response:", response);
+      if (response.error) throw new Error(response.error.message || "Failed to verify OTP");
 
-
-      if (response.error) {
-        throw new Error(response.error.message || "Failed to verify OTP");
-      }
-
-      const responseData = response.payload || response;
-      console.log("Response Data from OTP Verification:", responseData);
-
-      if (responseData.status === 200 || responseData.statusCode === 200) {
+      if (response.payload.status === 200) {
         toast.success("Registration successful!");
         setShowOtpModal(false);
-        window.location.href = "/auth/login"; // Redirect to login page
+        window.location.href = "/auth/login";
       } else {
-        toast.error(responseData.message || "Failed to verify OTP");
+        toast.error(response.payload.message || "Failed to verify OTP");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("OTP Verification Error:", error);
-      toast.error(error?.message || "Invalid OTP. Please try again.");
+      toast.error(error.message || "Invalid OTP. Please try again.");
     }
   };
 
@@ -112,15 +111,7 @@ const SignUp = () => {
           <h2>Sign Up</h2>
           <p>Please enter your credentials to Sign-Up</p>
         </div>
-
-        <Formik
-          initialValues={{
-            full_name: "",
-            phone: "",
-          }}
-          validationSchema={validationSchema}
-          onSubmit={handleSendOtp}
-        >
+        <Formik initialValues={{ full_name: "", phone: "" }} validationSchema={validationSchema} onSubmit={handleSendOtp}>
           {({ values, handleChange, isSubmitting }) => (
             <Form>
               <Row>
@@ -137,7 +128,6 @@ const SignUp = () => {
                   />
                 </Col>
               </Row>
-
               <Row>
                 <Col md={12}>
                   <InputFieldWithCountryCode
@@ -153,15 +143,9 @@ const SignUp = () => {
                   />
                 </Col>
               </Row>
-
-              <button
-                type="submit"
-                className="login-button mt-4 w-100"
-                disabled={isSubmitting}
-              >
+              <button type="submit" className="login-button mt-4 w-100" disabled={isSubmitting}>
                 {isSubmitting ? "Sending OTP..." : "Send OTP"}
               </button>
-
               <div className="divider mt-4">
                 <span>or</span>
               </div>
@@ -172,57 +156,34 @@ const SignUp = () => {
           )}
         </Formik>
 
-        {/* OTP Verification Modal */}
-        <Modal
-          show={showOtpModal}
-          onHide={() => setShowOtpModal(false)}
-          centered
-          backdrop="static"
-        >
+        {/* OTP Modal */}
+        <Modal show={showOtpModal} onHide={() => setShowOtpModal(false)} centered backdrop="static">
           <Modal.Header closeButton>
             <Modal.Title>Verify OTP</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Formik
-              initialValues={{ otp: "" }}
-              validationSchema={otpValidationSchema}
-              onSubmit={(values) => handleVerifyOtp(values.otp)}
-            >
-              {({ isSubmitting }) => (
-                <Form>
-                  <p className="text-center mb-3">
-                    We've sent a 6-digit OTP to: <br />
-                    <strong>{phoneNumber}</strong>
-                  </p>
-
-                  <div className="mb-3">
-                    <Field
-                      type="text"
-                      name="otp"
-                      placeholder="Enter OTP"
-                      className="form-control text-center"
-                      maxLength={6}
-                      style={{ fontSize: "1.2rem", padding: "10px" }}
-                    />
-                    <ErrorMessage
-                      name="otp"
-                      component="div"
-                      className="text-danger mt-2 text-center"
-                    />
-                  </div>
-
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    className="w-100"
-                    disabled={isSubmitting}
-                    size="lg"
-                  >
-                    {isSubmitting ? "Verifying..." : "Verify OTP"}
-                  </Button>
-                </Form>
-              )}
-            </Formik>
+            <p className="text-center mb-3">
+              Enter the 6-digit OTP sent to: <strong>{phoneNumber}</strong>
+            </p>
+            <div className="d-flex justify-content-center gap-2 mb-3">
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  ref={(el) => { inputsRef.current[index] = el; }}
+                  type="text"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleChange(e, index)}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  className="form-control text-center"
+                  style={{ width: "40px", fontSize: "1.5rem" }}
+                />
+              ))}
+            </div>
+            {otpError && <div className="text-danger mt-2 text-center">{otpError}</div>}
+            <Button variant="primary" className="w-100 mt-3" onClick={handleVerifyOtp} disabled={isLoading}>
+              {isLoading ? "Verifying..." : "Verify OTP"}
+            </Button>
           </Modal.Body>
         </Modal>
       </div>

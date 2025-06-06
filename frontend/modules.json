@@ -34,5 +34,8 @@
     },
     {
       "name": "main"
+    },
+    {
+      "name": "stripepaymentstatus"
     }
   ]
