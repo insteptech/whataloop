@@ -109,6 +109,8 @@ app.use(
 app.use(errorHandler);
 app.set('trust proxy', 1);
 
+app.use('/api/v1/stripe', require('../api/modules/stripe/routes/stripe'));
+
 // app.use(errorLogger);
 // app.use(accessLogger);
 
