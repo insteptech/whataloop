@@ -21,6 +21,7 @@ const startReminderFollowupJob = require('./modules/jobs/reminderFollowupJob');
 const port = process.env.PORT || 3000;
 
 const apiVersion = process.env.API_VERSION ? process.env.API_VERSION : "v1";
+app.use(express.json());
 app.use(helmet());
 
 // const corsOptions = {
@@ -110,8 +111,7 @@ app.set('trust proxy', 1);
 
 app.use('/api/v1/stripe', require('../api/modules/stripe/routes/stripe'));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded({ extended: true }));
 // app.use(errorLogger);
 // app.use(accessLogger);
 
