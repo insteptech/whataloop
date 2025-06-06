@@ -38,6 +38,12 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
+      // Add this field
+      stripe_subscription_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        unique: false,
+      },
       start_date: {
         type: Sequelize.DATE,
         allowNull: true,

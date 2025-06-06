@@ -17,41 +17,23 @@ const accessLogger = require('./modules/log/middlewares/accessLogger');
 const errorLogger = require('./modules/log/middlewares/errorLogger');
 const startReminderFollowupJob = require('./modules/jobs/reminderFollowupJob');
 
-
 const port = process.env.PORT || 3000;
-
 const apiVersion = process.env.API_VERSION ? process.env.API_VERSION : "v1";
+
+// 1. Stripe webhook routes FIRST! (before any body parser middleware)
+app.use('/api/v1/stripe', require('../api/modules/stripe/routes/stripe'));
+
+// 2. Now apply global middleware
 app.use(express.json());
 app.use(helmet());
-
-// const corsOptions = {
-//   origin: "http://localhost:3001", // Frontend URL
-//   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-//   credentials: true, // Allow credentials like cookies or Authorization headers
-// };
-
-app.use(cors({
-  origin: '*',
-}))
+app.use(cors({ origin: '*' }));
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
 });
 app.use(limiter);
 
-// process.on("uncaughtException", (err) => {
-//   logger.error("Uncaught Exception:", err);
-//   // process.exit(1); // Optionally exit after logging
-//   process.exit(1);
-// });
-
-// process.on("unhandledRejection", (reason, promise) => {
-//   logger.error("Unhandled Rejection at:", promise, "reason:", reason);
-//   throw reason instanceof Error ? reason : new Error(String(reason));
-// });
-
-// Request logging middleware
 app.use((req, res, next) => {
   logger.info(`Incoming request: ${req.method} ${req.url}`);
   res.on("finish", () => {
@@ -92,29 +74,21 @@ app.get("/db-seed", function (err, res) {
   });
 });
 
-// load the modules based on module.json
 dynamicModuleLoader(app);
 startReminderFollowupJob();
 
+// 3. All your REST API routes after JSON/bodyparser
 app.use(`/api/${apiVersion}`, routes);
 
-// Serve Swagger documentation
+// Swagger docs
 app.use(
   "/api-docs",
   swaggerUi.serve,
   swaggerUi.setup(generateSwaggerJSONFromRouter(routes, fields))
 );
 
-// Error handling middleware
 app.use(errorHandler);
 app.set('trust proxy', 1);
-
-app.use('/api/v1/stripe', require('../api/modules/stripe/routes/stripe'));
-
-// app.use(express.urlencoded({ extended: true }));
-// app.use(errorLogger);
-// app.use(accessLogger);
-
 
 app.listen(port, () => {
   logger.info(`Server running at http://localhost:${port}`);

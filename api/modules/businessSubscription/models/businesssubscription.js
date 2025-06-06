@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
+
   BusinessSubscription.init({
     id: {
       type: DataTypes.UUID,
@@ -53,6 +54,10 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     },
+    stripe_subscription_id: {         // <--- Added field
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     start_date: {
       type: DataTypes.DATE,
       allowNull: true,
@@ -80,5 +85,6 @@ module.exports = (sequelize, DataTypes) => {
     underscored: true,
     timestamps: true,
   });
+
   return BusinessSubscription;
 };
