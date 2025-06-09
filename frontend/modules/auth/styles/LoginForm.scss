@@ -1,186 +1,193 @@
-.profile-icon {
-    margin-bottom: 30px;
+/* LoginWithOTP.module.css */
 
-    label {
-
-
-        div {
-            width: 100%;
-            height: 100%;
-            width: 100px;
-            height: 100px;
-            border-radius: 100%;
-            border: 5px solid #040025;
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            &.with-overlay::after {
-                content: "";
-                background-color: #00000078;
-                width: 100%;
-                height: 100%;
-                position: absolute;
-                border-radius: 100%;
-            }
-
-        }
-    }
+.card-bg-container {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
 }
 
-.login-button {
-    width: 100%;
-    padding: 14px;
-    background-color: $primary-color;
-    color: $white;
-    border: none;
-    border-radius: $border-radius;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: $transition;
-    margin-bottom: 20px;
-
-    &:hover {
-        background-color: $secondary-color;
-        transform: translateY(-2px);
-    }
-
-    &:active {
-        transform: translateY(0);
-    }
-
-    &:disabled {
-        background-color: lighten($primary-color, 20%);
-        cursor: not-allowed;
-    }
+.card-inner-content {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
 }
 
+.module-card-header {
+  text-align: left; /* Ensure parent doesn't enforce center */
+}
+
+.module-card-header h2 {
+    color: #26282b;
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+  text-align: left; /* Explicitly set */
+}
+
+.module-card-header h3 {
+  color: #574e4e;
+   font-size: 1.2rem;
+  margin-bottom: 2rem;
+  text-align: left; /* Explicitly set */
+}
+
+.login-form .country-code-select-with-number {
+  margin-bottom: 1rem;
+  border-radius: 50px;
+}
+.login-form p {
+  color: #6c757d;
+ 
+  margin-bottom: 1rem;
+}
+.otp-message{
+     color: #6c757d;
+ 
+  margin-bottom: 1rem;
+}
 .send-otp-button {
-    width: 100%;
-    padding: 14px;
-    background-color: $primary-color;
-    color: $white;
-    border: none;
-    border-radius: $border-radius;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: $transition;
-    margin-bottom: 20px;
-
-    &:hover {
-        background-color: $secondary-color;
-        transform: translateY(-2px);
-    }
-
-    &:active {
-        transform: translateY(0);
-    }
-
-    &:disabled {
-        background-color: lighten($primary-color, 20%);
-        cursor: not-allowed;
-    }
+  background: #168c7e;
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  width: 100%;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  border-radius: 50px;
 }
 
+.send-otp-button:hover {
+  opacity: 0.9;
+}
 
 .divider {
-
-
-    span {
-        padding: 0 15px;
-    }
+  position: relative;
+  text-align: center;
+  margin: 1.5rem 0;
 }
 
-.social-login {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 20px;
-
-    .social-button {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        padding: 12px;
-        border-radius: $border-radius;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: $transition;
-        border: 1px solid #e0e0e0;
-        background-color: $white;
-
-        &:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        &.google {
-            color: #4267B2;
-
-            &:hover {
-                border-color: #4267B2;
-                background-color: rgba(#4267B2, 0.05);
-            }
-        }
-    }
+.divider span {
+  background-color: #fff;
+  padding: 0 1rem;
+  color: #6c757d;
+  font-size: 0.9rem;
 }
 
 .signup-link {
-    text-align: center;
-    font-size: 14px;
-    color: $gray;
-
-    a {
-        color: $primary-color;
-        text-decoration: none;
-        font-weight: 500;
-        transition: $transition;
-
-        &:hover {
-            color: $secondary-color;
-            text-decoration: underline;
-        }
-    }
+  text-align: center;
+  font-size: 0.95rem;
 }
 
-// Responsive adjustments
-@media (max-width: 480px) {
+.signup-link a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: bold;
+}
 
-    .social-login .social-button {
-        font-size: 13px;
-    }
+.signup-link a:hover {
+  text-decoration: underline;
+}
+.modalHeader {
+  background-color: #ffffff;
+  color: #574e4e;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.modalBody {
+  padding: 2rem;
+}
+
+.otpTitle {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+.otpTitle strong{
+    color: #556cd6;
+}
+.otpDescription {
+  font-size: 0.95rem;
+  color: #6c757d;
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.otpInputContainer {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.otpInput {
+  width: 60px;
+  height: 50px;
+  font-size: 1.25rem;
+  text-align: center;
+  border-radius: 15px;
+  border: 1px solid #696c6f;
+  transition: border-color 0.3s ease;
+}
+
+.otpInput:focus {
+  border-color: #667eea;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+}
+
+.resendText {
+  text-align: left;
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-top: 0.2rem;
+  margin-bottom: 0.7rem;
+}
+
+.resendLink {
+  color: #667eea;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.resendLink:hover {
+  color: #556cd6;
 }
 
 
-.error-msg {
-    color: #FF4B2B;
-    font-size: 14px;
+.backButton {
+  background-color: #e9ecef;
+  color: #343a40;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  border-radius: 8px;
 }
 
-
-.divider {
-    display: flex;
-    align-items: center;
-    margin: 1.5rem 0;
-    color: #94a3b8;
-    font-size: 14px;
-    width: 100%;
+.backButton:hover {
+  background-color: #dde0e5;
 }
 
-.divider::before,
-.divider::after {
-    content: '';
-    flex: 1;
-    height: 2px;
-    background: #e2e8f0;
-    margin: 0 0.5rem;
+.continueButton {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.continueButton:hover {
+  opacity: 0.9;
 }

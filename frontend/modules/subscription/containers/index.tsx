@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
+import Loader from "@/components/common/loader";
 
 import { getSubscriptionPlans } from "../redux/actions/subscriptionAction";
 import StripeCheckoutButton from "@/components/common/StripeCheckoutButton";
@@ -11,6 +12,8 @@ const SubscriptionTiers = () => {
   const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(false);
+  const [stripeLoading, setStripeLoading] = useState(false);
+
   const [error, setError] = useState("");
 
   // Redux state
@@ -41,17 +44,9 @@ const SubscriptionTiers = () => {
     }
   }, [dispatch, user]);
 
-  const handleSelectPlan = (plan) => {
-    console.log("Selected Plan:", plan);
 
-    if (!businessId) {
-      alert("Please complete your business setup before upgrading.");
-      router.push("/dashboard/business-setup"); // Redirect to business setup page
-      return;
-    }
-  };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading || stripeLoading) return <Loader />;
   if (error) return <div className="text-danger">{error}</div>;
 
   return (
@@ -79,7 +74,6 @@ const SubscriptionTiers = () => {
                   ))}
                 </ul>
 
-                {/* Pass correct props to Stripe Button */}
                 <StripeCheckoutButton
                   planId={plan.id}
                   businessId={businessId || "default"}
@@ -87,10 +81,11 @@ const SubscriptionTiers = () => {
                   amount={plan.price}
                   successUrl={`http://localhost:3001/stripepaymentstatus/successfull`}
                   cancelUrl={`http://localhost:3001/stripepaymentstatus/unsuccessfull`}
-
+                  setStripeLoading={setStripeLoading}
                 >
                   Upgrade to {plan.name}
                 </StripeCheckoutButton>
+
               </div>
             </div>
           ))}

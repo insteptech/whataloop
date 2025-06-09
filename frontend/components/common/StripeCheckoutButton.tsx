@@ -2,67 +2,71 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { fetchStripePaymentUrl } from "@/modules/stripepaymentstatus/redux/actions/stripeAction";
-import loader from "./loader";
-// Import your async thunk
+
 export default function StripeCheckoutButton({
     planId,
     businessId,
     userId,
-    amount, // optional, only for one-time payments
+    amount,
     successUrl,
     cancelUrl,
     children,
+    setStripeLoading,
 }) {
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
 
     const baseStyle = {
-        padding: "12px 24px",
-        borderRadius: "12px",
-        fontWeight: "bold",
-        color: "#fff",
-        backgroundColor: "linear-gradient(90deg, #667eea, #764ba2)",
+        background: "#168c7e",
+        color: "white",
         border: "none",
-        cursor: "pointer",
+        padding: "0.75rem",
         width: "100%",
+        fontWeight: "bold",
+        borderRadius: "50px",
+        cursor: "pointer",
+        transition: "background 0.3s ease",
         maxWidth: "300px",
         margin: "auto",
-        transition: "all 0.3s ease",
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
         fontSize: "16px",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        background: "linear-gradient(90deg, #667eea, #764ba2)",
     };
 
     const disabledStyle = {
         ...baseStyle,
         opacity: 0.7,
         cursor: "not-allowed",
+        // backgroundColor: "#168c7e",
     };
 
-    const handleCheckout = async () => {
-        setLoading(true);
+   const handleCheckout = async () => {
+  if (loading) return;
 
-        try {
-            await dispatch(
-                fetchStripePaymentUrl({
-                    planId,
-                    businessId,
-                    userId,
-                    amount,
-                    successUrl,
-                    cancelUrl,
-                }) as any
-            );
-        } catch (error) {
-            console.error("Error during checkout:", error);
-            toast.error("Failed to initialize payment. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
+  setLoading(true);
+  setStripeLoading(true); 
+
+  try {
+    await dispatch(
+      fetchStripePaymentUrl({
+        planId,
+        businessId,
+        userId,
+        amount,
+        successUrl,
+        cancelUrl,
+      }) as any
+    );
+  } catch (error) {
+    console.error("Error during checkout:", error);
+    toast.error("Failed to initialize payment. Please try again.");
+  } finally {
+    setLoading(false);
+    setStripeLoading(false); // ✅ Stop full-page loader if not redirected
+  }
+};
+
 
     return (
         <div style={{ textAlign: "center" }}>

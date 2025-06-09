@@ -34,8 +34,8 @@ const fetchStripePaymentUrl = createAsyncThunk(
           throw new Error("Stripe session URL not returned");
         } else {
           console.log("Redirecting to Stripe URL:", res.data.url);
-          window.open(res.data.url, '_blank').focus();
-          return res.data.url; // Return the redirect URL
+          window.location.href = res.data.url;
+          return res.data.url; 
         }
       });
     } catch (error: any) {

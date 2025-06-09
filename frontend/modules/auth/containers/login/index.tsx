@@ -41,10 +41,10 @@ const LoginWithOTP = () => {
 
   const loginValidationSchema = Yup.object().shape({
     phone: Yup.string()
-      .required("WhatsApp number is required")
-      .matches(/^\+?[0-9]{10,}$/, "WhatsApp number is not valid")
-      .min(12, "WhatsApp number too short")
-      .max(15, "WhatsApp number is too long!"),
+      .required("Number is required")
+      .matches(/^\+?[0-9]{10,}$/, "Number is not valid")
+      .min(12, " number too short")
+      .max(15, "Number is too long!"),
   });
 
   const handleSendOtp = async (values) => {
@@ -90,16 +90,16 @@ const LoginWithOTP = () => {
       {isLoading && <Loader />}
       <div className="card-inner-content">
         <div className="module-card-header">
-          <h2>Welcome</h2>
-          <p>Please enter your credentials to login</p>
+          <h2>Log in</h2>
+          <h3>Enter yout number to log in</h3>
         </div>
         {!isOTPSent ? (
           <Formik initialValues={{ phone: "" }} validationSchema={loginValidationSchema} onSubmit={handleSendOtp}>
             {({ values, handleChange, isSubmitting }) => (
               <Form className="login-form">
                 <InputFieldWithCountryCode
-                  label="WhatsApp Number"
-                  placeholder="Enter WhatsApp Phone number"
+                  label="Enter your Phone number"
+                  placeholder="Enter your Phone number"
                   id="phone"
                   type="text"
                   name="phone"
@@ -108,6 +108,7 @@ const LoginWithOTP = () => {
                   className="country-code-select-with-number"
                   required
                 />
+                <p>you will recieve 6 digit code </p>
                 <button type="submit" className="send-otp-button" disabled={isSubmitting}>
                   {isSubmitting ? "Sending OTP..." : "Send OTP"}
                 </button>
@@ -115,21 +116,26 @@ const LoginWithOTP = () => {
                   <span>or</span>
                 </div>
                 <div className="signup-link">
-                  Don't have an account? <a href="/auth/register">Sign up</a>
+                  Don't have an account? <a href="/auth/register">Create an account</a>
                 </div>
               </Form>
             )}
           </Formik>
         ) : (
           <Modal show={true} onHide={() => setIsOTPSent(false)} centered backdrop="static">
-            <Modal.Header closeButton>
-              <Modal.Title>Enter OTP</Modal.Title>
+            <Modal.Header className="modalHeader" closeButton>
+              <h2>Enter OTP</h2>
             </Modal.Header>
-            <Modal.Body>
-              <p className="text-center mb-3">
-                Enter the 6-digit OTP sent to: <strong>{phone}</strong>
+            <Modal.Body className="modalBody">
+              <div className="otpTitle">
+                Enter 6-digit code sent to <strong>{phone}</strong>
+              </div>
+
+              <p className="otpDescription">
+                Enter OTP Code
               </p>
-              <div className="d-flex justify-content-center gap-2 mb-3">
+
+              <div className="otpInputContainer">
                 {otp.map((digit, index) => (
                   <input
                     key={index}
@@ -139,20 +145,26 @@ const LoginWithOTP = () => {
                     value={digit}
                     onChange={(e) => handleChange(e, index)}
                     onKeyDown={(e) => handleKeyDown(e, index)}
-                    className="form-control text-center"
-                    style={{ width: "40px", fontSize: "1.5rem" }}
+                    className="otpInput"
                   />
                 ))}
               </div>
+
               {otpError && <div className="text-danger mt-2 text-center">{otpError}</div>}
-              <div className="d-flex justify-content-between mt-4">
-                <Button variant="secondary" onClick={() => setIsOTPSent(false)} disabled={isLoading}>
-                  Back
-                </Button>
-                <Button variant="primary" onClick={handleVerifyOtp} disabled={isLoading}>
-                  {isLoading ? "Verifying..." : "Verify OTP"}
-                </Button>
+
+              <div className="resendText">
+                Didn't receive the code?{" "}
+                <span className="resendLink" onClick={handleSendOtp}>
+                  Send again
+                </span>
               </div>
+
+              {/* Centered Continue Button */}
+             
+                <button className="send-otp-button" onClick={handleVerifyOtp} disabled={isLoading}>
+                  {isLoading ? "Verifying..." : "Continue"}
+                </button>
+             
             </Modal.Body>
           </Modal>
         )}

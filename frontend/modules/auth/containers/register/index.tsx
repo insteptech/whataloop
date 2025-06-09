@@ -27,7 +27,7 @@ const SignUp = () => {
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Auto focus next
+    // Auto focus next input
     if (value && index < 5) {
       inputsRef.current[index + 1]?.focus();
     }
@@ -58,10 +58,12 @@ const SignUp = () => {
         phone: values.phone,
       };
       const response = await dispatch(sendOtp(payload) as any);
+
       if (response.error) {
         toast.error(response.error.message || "Failed to send OTP");
-        // throw new Error(response.error.message || "Failed to send OTP");
+        return;
       }
+
       if (response.payload.status === 200) {
         setPhoneNumber(values.phone);
         setShowOtpModal(true);
@@ -89,9 +91,10 @@ const SignUp = () => {
         mode: "register" as "register",
       };
       const response = await dispatch(verifyOtpAndRegisterAndLogin(payload) as any);
+
       if (response.error) {
         toast.error(response.error.message || "Failed to verify OTP");
-        // throw new Error(response.error.message || "Failed to verify OTP");
+        return;
       }
 
       if (response.payload.status === 200) {
@@ -111,83 +114,107 @@ const SignUp = () => {
     <div className="card-bg-container lg-card-bg-container">
       {isLoading && <Loader />}
       <div className="card-inner-content registration-form-card">
-        <div className="module-card-header">
-          <h2>Sign Up</h2>
-          <p>Please enter your credentials to Sign-Up</p>
-        </div>
-        <Formik initialValues={{ full_name: "", phone: "" }} validationSchema={validationSchema} onSubmit={handleSendOtp}>
-          {({ values, handleChange, isSubmitting }) => (
-            <Form>
-              <Row>
-                <Col md={12}>
-                  <InputField
-                    label="Full Name"
-                    placeholder="Enter Full Name"
-                    id="full_name"
-                    type="text"
-                    name="full_name"
-                    value={values.full_name}
-                    onChange={handleChange}
-                    required
-                  />
-                </Col>
-              </Row>
-              <Row>
-                <Col md={12}>
-                  <InputFieldWithCountryCode
-                    label="WhatsApp Number"
-                    placeholder="Enter WhatsApp Phone number"
-                    id="phone"
-                    type="text"
-                    name="phone"
-                    value={values.phone}
-                    onChange={handleChange}
-                    className="country-code-select-with-number"
-                    required
-                  />
-                </Col>
-              </Row>
-              <button type="submit" className="login-button mt-4 w-100" disabled={isSubmitting}>
-                {isSubmitting ? "Sending OTP..." : "Send OTP"}
-              </button>
-              <div className="divider mt-4">
-                <span>or</span>
-              </div>
-              <div className="signup-link text-center">
-                Already have an account? <a href="/auth/login">Login</a>
-              </div>
-            </Form>
-          )}
-        </Formik>
+        {/* Only show the form if OTP modal is NOT open */}
+        {!showOtpModal ? (
+          <>
+            <div className="module-card-header">
+              <h2>Let's get your account set up</h2>
+              <p>Enter your number to sign in or create a new account</p>
+            </div>
+
+            <Formik
+              initialValues={{ full_name: "", phone: "" }}
+              validationSchema={validationSchema}
+              onSubmit={handleSendOtp}
+            >
+              {({ values, handleChange, isSubmitting }) => (
+                <Form>
+                  <Row>
+                    <Col md={12}>
+                      <InputField
+                        label="Full Name"
+                        placeholder="Enter Full Name"
+                        id="full_name"
+                        type="text"
+                        name="full_name"
+                        value={values.full_name}
+                        onChange={handleChange}
+                        required
+                      />
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col md={12}>
+                      <InputFieldWithCountryCode
+                        label="WhatsApp Number"
+                        placeholder="Enter WhatsApp Phone number"
+                        id="phone"
+                        type="text"
+                        name="phone"
+                        value={values.phone}
+                        onChange={handleChange}
+                        className="country-code-select-with-number"
+                        required
+                      />
+                    </Col>
+                  </Row>
+                  <p className="otp-message">You will receive a 6-digit code</p>
+                  <button type="submit" className="send-otp-button" disabled={isSubmitting}>
+                    {isSubmitting ? "Sending OTP..." : "Send OTP"}
+                  </button>
+                  <div className="divider mt-4">
+                    <span>or</span>
+                  </div>
+                  <div className="signup-link text-start">
+                    Have an account? <a href="/auth/login">Login</a>
+                  </div>
+                </Form>
+              )}
+            </Formik>
+          </>
+        ) : null}
 
         {/* OTP Modal */}
         <Modal show={showOtpModal} onHide={() => setShowOtpModal(false)} centered backdrop="static">
-          <Modal.Header closeButton>
+          <Modal.Header className="modalHeader" closeButton>
             <Modal.Title>Verify OTP</Modal.Title>
           </Modal.Header>
-          <Modal.Body>
-            <p className="text-center mb-3">
+          <Modal.Body className="modalBody">
+            <div className="otpTitle">
               Enter the 6-digit OTP sent to: <strong>{phoneNumber}</strong>
-            </p>
-            <div className="d-flex justify-content-center gap-2 mb-3">
+            </div>
+
+            <p className="otpDescription">Enter OTP Code</p>
+
+            <div className="otpInputContainer">
               {otp.map((digit, index) => (
                 <input
                   key={index}
-                  ref={(el) => { inputsRef.current[index] = el; }}
+                  ref={(el) => {
+                    inputsRef.current[index] = el;
+                  }}
                   type="text"
                   maxLength={1}
                   value={digit}
                   onChange={(e) => handleChange(e, index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
-                  className="form-control text-center"
-                  style={{ width: "40px", fontSize: "1.5rem" }}
+                  className="otpInput"
                 />
               ))}
             </div>
+
+            <div className="resendText">
+              Didn't receive the code?{" "}
+              <span className="resendLink" onClick={handleSendOtp}>
+                Send again
+              </span>
+            </div>
+
             {otpError && <div className="text-danger mt-2 text-center">{otpError}</div>}
-            <Button variant="primary" className="w-100 mt-3" onClick={handleVerifyOtp} disabled={isLoading}>
+
+            <button className="send-otp-button" onClick={handleVerifyOtp} disabled={isLoading}>
               {isLoading ? "Verifying..." : "Verify OTP"}
-            </Button>
+            </button>
           </Modal.Body>
         </Modal>
       </div>

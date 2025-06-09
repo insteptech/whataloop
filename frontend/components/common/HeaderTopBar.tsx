@@ -10,20 +10,19 @@ import {
 } from "@/components/common/Icon";
 import ChatModal from "@/components/common/ChatModal";
 import { fetchProfile } from "@/modules/userprofile/redux/actions/profileAction";
-import { logout } from "@/modules/auth/redux/slices/authSlice"; // adjust path as per your structure
+import { logout } from "@/modules/auth/redux/slices/authSlice";
+
 type Props = {
   profileOpen: boolean;
   toggleProfile: () => void;
 };
 
-const HeaderTopBar: FC<Props> = ({
-  profileOpen,
-  toggleProfile,
-}) => {
+const HeaderTopBar: FC<Props> = ({ profileOpen, toggleProfile }) => {
   const dispatch: any = useDispatch();
   const router = useRouter();
   const profileRef = useRef<HTMLDivElement>(null);
   const [messageOpen, setMessageOpen] = useState(false);
+
   const { data: user } = useSelector(
     (state: {
       profileReducer: { data: any; loading: boolean; error: string };
@@ -70,7 +69,7 @@ const HeaderTopBar: FC<Props> = ({
   };
 
   return (
-    <header className="header-top-bar">
+    <header className="header-top-bar sticky top-0 z-50 bg-white shadow-sm border-rounded">
       <div className="container-fluid">
         <div className="row align-items-center">
           <div className="col-md-6">
@@ -86,9 +85,9 @@ const HeaderTopBar: FC<Props> = ({
                   className="d-flex align-items-center bg-transparent border-0"
                   onClick={toggleProfile}
                 >
-                  <div className="avatar me-2">
+                  {/* <div className="avatar me-2">
                     <UserIcon />
-                  </div>
+                  </div> */}
                   <span className="d-none d-md-inline text-dark fw-medium">
                     {user?.full_name || "User"}
                   </span>
@@ -96,8 +95,9 @@ const HeaderTopBar: FC<Props> = ({
                 </button>
 
                 <ul
-                  className={`dropdown-menu dropdown-menu-end ${profileOpen ? "open-profile-menu" : ""
-                    }`}
+                  className={`dropdown-menu dropdown-menu-end ${
+                    profileOpen ? "open-profile-menu" : ""
+                  } z-50`}
                 >
                   <li>
                     <button
@@ -145,8 +145,6 @@ const HeaderTopBar: FC<Props> = ({
 
       {/* Chat Modal */}
       <ChatModal show={messageOpen} onClose={() => setMessageOpen(false)} />
-
-
     </header>
   );
 };

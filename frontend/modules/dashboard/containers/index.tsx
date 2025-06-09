@@ -136,19 +136,21 @@ function DashboardPage() {
       {!isBusinessRegistered ? (
         <>
           {/* Message + Button Section */}
-          <div className="dashboard-top-card p-4 bg-light d-flex justify-content-between align-items-center">
-            <p className="mb-0">
-              <strong>Register your business to get started</strong>
-            </p>
-            <BootstrapButton variant="success" onClick={() => setShowModal(true)}>
-              Add Business
-            </BootstrapButton>
+          <div className="centered-container">
+            <div className="dashboard-top-card p-4 bg-light d-flex flex-column align-items-center text-center">
+              <p className="mb-0">
+                <strong>Register your business to get started</strong>
+              </p>
+              <button className="send-otp-button" onClick={() => setShowModal(true)}>
+                Add Business
+              </button>
+            </div>
           </div>
 
           {/* Modal 1: Register Business */}
-          <Modal show={showModal} onHide={() => setShowModal(false)} centered>
-            <Modal.Header closeButton>
-              <Modal.Title>Register your Business</Modal.Title>
+          <Modal show={showModal} onHide={() => setShowModal(false)} centered className="custom-modal">
+            <Modal.Header className="modalHeader" closeButton>
+              <h2>Register your Business</h2>
             </Modal.Header>
             <Formik
               initialValues={{
@@ -167,10 +169,11 @@ function DashboardPage() {
             >
               {({ handleSubmit }) => (
                 <Form onSubmit={handleSubmit}>
-                  <Modal.Body>
-                    <h5>
+                  <Modal.Body className="modalBody">
+                    <p className="text-left mb-3">
                       Enter your Business Name and WhatsApp Business number to sign in or create a new account
-                    </h5>
+                    </p>
+
                     <div className="mb-3">
                       <label className="form-label">Business Name</label>
                       <Field
@@ -184,6 +187,7 @@ function DashboardPage() {
                         className="text-danger"
                       />
                     </div>
+
                     <InputFieldWithCountryCode
                       label="Enter your WhatsApp Business number"
                       name="whatsappNumber"
@@ -191,12 +195,12 @@ function DashboardPage() {
                       className="country-code-select-with-number leads-country-code"
                       required
                     />
+
                     <i>You’ll receive a 4-digit code on this number</i>
-                    <div className="mt-3 d-flex justify-content-center">
-                      <BootstrapButton type="submit" variant="outline-success" className="mt-3">
-                        Send OTP
-                      </BootstrapButton>
-                    </div>
+
+                    <button type="submit" className="send-otp-button mt-3">
+                      Send OTP
+                    </button>
                   </Modal.Body>
                 </Form>
               )}
@@ -208,16 +212,18 @@ function DashboardPage() {
             show={showOtpModal}
             onHide={() => setShowOtpModal(false)}
             centered
+            backdrop="static"
             onExited={() => setOtp(["", "", "", ""])}
           >
-            <Modal.Header closeButton>
-              <Modal.Title>Enter OTP</Modal.Title>
+            <Modal.Header className="modalHeader" closeButton>
+              <h2>Enter OTP</h2>
             </Modal.Header>
-            <Modal.Body>
+            <Modal.Body className="modalBody">
               <p className="text-left mb-3">
                 Enter the 4-digit OTP sent to <strong>{whatsappForOtp}</strong>
               </p>
-              <div className="d-flex justify-content-center gap-2">
+
+              <div className="otpInputContainer">
                 {otp.map((digit, index) => (
                   <input
                     key={index}
@@ -231,26 +237,26 @@ function DashboardPage() {
                         const newOtp = [...otp];
                         newOtp[index] = value;
                         setOtp(newOtp);
-                        // Auto-focus next input
                         if (value && index < otp.length - 1) {
                           document.getElementById(`otp-${index + 1}`)?.focus();
                         }
                       }
                     }}
-                    className="form-control text-center"
-                    style={{ width: "40px", fontSize: "1.5rem" }}
+                    className="otpInput"
                   />
                 ))}
               </div>
-              <div className="mt-4 d-flex justify-content-center">
-                <BootstrapButton
-                  variant="success"
-                  className="px-5"
-                  onClick={handleOtpVerification}
-                >
-                  Continue
-                </BootstrapButton>
+
+              <div className="resendText mt-3">
+                Didn't receive the code?{" "}
+                <span className="resendLink" >
+                  Send again
+                </span>
               </div>
+
+              <button className="send-otp-button mt-3" onClick={handleOtpVerification}>
+                Continue
+              </button>
             </Modal.Body>
           </Modal>
 
@@ -259,9 +265,10 @@ function DashboardPage() {
             show={showDetailsModal}
             onHide={() => setShowDetailsModal(false)}
             centered
+            className="custom-modal"
           >
-            <Modal.Header closeButton>
-              <Modal.Title>Get Premium</Modal.Title>
+            <Modal.Header className="modalHeader" closeButton>
+              <h2>Get Premium</h2>
             </Modal.Header>
             <Formik
               initialValues={{
@@ -301,8 +308,9 @@ function DashboardPage() {
             >
               {({ handleSubmit }) => (
                 <Form onSubmit={handleSubmit}>
-                  <Modal.Body>
+                  <Modal.Body className="modalBody">
                     <h5 className="mb-3">Business Info</h5>
+
                     <div className="mb-3">
                       <label className="form-label">What industry are you in?</label>
                       <Field
@@ -316,6 +324,7 @@ function DashboardPage() {
                         className="text-danger"
                       />
                     </div>
+
                     <div className="mb-3">
                       <label className="form-label">Business Website URL (Optional)</label>
                       <Field
@@ -331,10 +340,11 @@ function DashboardPage() {
                       />
                     </div>
                   </Modal.Body>
+
                   <Modal.Footer>
-                    <BootstrapButton type="submit" variant="success">
+                    <button type="submit" className="send-otp-button">
                       Submit
-                    </BootstrapButton>
+                    </button>
                   </Modal.Footer>
                 </Form>
               )}
@@ -342,71 +352,80 @@ function DashboardPage() {
           </Modal>
 
           {/* Modal 4: Welcome Message */}
-          <Modal
-            show={showWelcomeModal}
-            onHide={() => setShowWelcomeModal(false)}
-            centered
-          >
-            <Modal.Header closeButton>
-              <Modal.Title>Welcome Message</Modal.Title>
-            </Modal.Header>
-            <Formik
-              initialValues={{
-                welcomeMessage: "👋 Welcome to Pixalane! How can we help you today?",
-              }}
-              validationSchema={Yup.object({
-                welcomeMessage: Yup.string().required("Welcome message is required"),
-              })}
-              onSubmit={async (values, { setSubmitting }) => {
-                try {
-                  const resultAction = await dispatch(
-                    addBusinessInfo({
-                      businessId: businessId,
-                      welcome_message: values.welcomeMessage,
-                    }) as any
-                  );
+       <Modal
+  show={showWelcomeModal}
+  onHide={() => setShowWelcomeModal(false)}
+  centered
+>
+  <Modal.Header className="modalHeader" closeButton>
+    <h2>Welcome Message</h2>
+  </Modal.Header>
+  <Formik
+    initialValues={{
+      welcomeMessage: "👋 Welcome to Pixalane! How can we help you today?",
+    }}
+    validationSchema={Yup.object({
+      welcomeMessage: Yup.string().required("Welcome message is required"),
+    })}
+    onSubmit={async (values, { setSubmitting }) => {
+      try {
+        const resultAction = await dispatch(
+          addBusinessInfo({
+            businessId: businessId,
+            welcome_message: values.welcomeMessage,
+          }) as any
+        );
 
-                  if (addBusinessInfo.fulfilled.match(resultAction)) {
-                    toast.success("Welcome message saved successfully!");
-                    setShowWelcomeModal(false);
+        if (addBusinessInfo.fulfilled.match(resultAction)) {
+          toast.success("Welcome message saved successfully!");
+          setShowWelcomeModal(false);
 
-                    // Now mark business as fully registered
-                    setBusinessRegistered(true);
-                    setRegistrationComplete(true);
-                  } else {
-                    throw new Error(resultAction.payload || "Failed to save welcome message");
-                  }
-                } catch (error: any) {
-                  toast.error(error.message || "Something went wrong. Please try again.");
-                } finally {
-                  setSubmitting(false);
-                }
-              }}
-            >
-              {({ handleSubmit }) => (
-                <Form onSubmit={handleSubmit}>
-                  <Modal.Body>
-                    <div className="mb-3">
-                      <label className="form-label">Type your welcome message</label>
-                      <Field
-                        as="textarea"
-                        name="welcomeMessage"
-                        className="form-control"
-                        rows={3}
-                        placeholder="👋 Welcome to Pixalane! How can we help you today?"
-                      />
-                      <ErrorMessage name="welcomeMessage" component="div" className="text-danger" />
-                    </div>
-                  </Modal.Body>
-                  <Modal.Footer>
-                    <BootstrapButton type="submit" variant="primary">
-                      Save & Continue
-                    </BootstrapButton>
-                  </Modal.Footer>
-                </Form>
-              )}
-            </Formik>
-          </Modal>
+          // Now mark business as fully registered
+          setBusinessRegistered(true);
+          setRegistrationComplete(true);
+        } else {
+          throw new Error(resultAction.payload || "Failed to save welcome message");
+        }
+      } catch (error: any) {
+        toast.error(error.message || "Something went wrong. Please try again.");
+      } finally {
+        setSubmitting(false);
+      }
+    }}
+  >
+    {({ handleSubmit }) => (
+      <Form onSubmit={handleSubmit}>
+        <Modal.Body className="modalBody">
+          <p className="text-left mb-3">
+            Type your welcome message that will greet customers when they chat with you.
+          </p>
+
+          <div className="mb-3">
+            <label className="form-label">Welcome Message</label>
+            <Field
+              as="textarea"
+              name="welcomeMessage"
+              className="form-control"
+              rows={3}
+              placeholder="👋 Welcome to Pixalane! How can we help you today?"
+            />
+            <ErrorMessage
+              name="welcomeMessage"
+              component="div"
+              className="text-danger"
+            />
+          </div>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <button type="submit" className="send-otp-button">
+            Save & Continue
+          </button>
+        </Modal.Footer>
+      </Form>
+    )}
+  </Formik>
+</Modal>
         </>
       ) : (
         <>
