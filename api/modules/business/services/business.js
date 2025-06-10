@@ -89,31 +89,58 @@ const remove = async (id) => {
 const connectBusiness = async ({ business_name, whatsapp_number, user_id }) => {
   const { Business } = await getAllModels(process.env.DB_TYPE);
 
-  let business = await Business.findOne({ where: { whatsapp_number } });
-  if (!business) {
-    business = await Business.create({ name: business_name, whatsapp_number, status: 'pending',user_id });
+  if (!business_name || !whatsapp_number || !user_id) {
+    throw new Error("Missing required fields: business_name, whatsapp_number, user_id");
   }
+
+  const business = await Business.findOne({ where: { whatsapp_number } });
+  if (business) throw new Error("This WhatsApp number is already registered.");
+
   const otp = generateOtp();
-  business.otp = otp;
-  business.otp_expires = new Date(Date.now() + 10 * 60 * 1000);
-  await business.save();
+
+  // Save all required info in Redis (serialized JSON)
+  const businessData = JSON.stringify({ business_name, whatsapp_number, user_id, otp });
+  await redisClient.set(`BUSINESS_CONNECT_${whatsapp_number}`, businessData, { EX: 600 });
+
   await sendOtpToWhatsapp(whatsapp_number, otp);
-  return { success: true, businessId: business.id, otp: otp };
+
+  return { success: true, message: 'OTP sent to WhatsApp number.', otp: otp };
 };
 
-const verifyOtp = async ({ businessId, otp }) => {
-  const { Business } = await getAllModels(process.env.DB_TYPE);
+const verifyOtp = async ({ whatsapp_number, otp }) => {
+  const { Business, User } = await getAllModels(process.env.DB_TYPE);
 
-  const business = await Business.findByPk(businessId);
-  if (!business || business.otp !== otp || Date.now() > business.otp_expires) {
-    throw new Error('Invalid or expired OTP.');
+  // 1. Get Redis data
+  const businessDataRaw = await redisClient.get(`BUSINESS_CONNECT_${whatsapp_number}`);
+  if (!businessDataRaw) throw new Error("OTP expired or invalid.");
+
+  const businessData = JSON.parse(businessDataRaw);
+
+  if (otp !== businessData.otp) throw new Error("Invalid OTP.");
+
+  // 2. Check if user_id is present
+  if (!businessData.user_id) {
+    console.error(`[verifyOtp] user_id missing in Redis payload:`, businessData);
+    throw new Error("User ID missing. Please sign up or log in first.");
   }
 
-  business.status = 'verified';
-  business.otp = null;
-  business.otp_expires = null;
-  await business.save();
+  // 3. Ensure user exists (FK check)
+  const user = await User.findByPk(businessData.user_id);
+  if (!user) throw new Error("User not found. Please complete signup first.");
 
+  // 4. Double-check business is not already created
+  let business = await Business.findOne({ where: { whatsapp_number } });
+  if (business) throw new Error("This WhatsApp number is already registered.");
+
+  // 5. Create business now
+  business = await Business.create({
+    name: businessData.business_name,
+    whatsapp_number,
+    user_id: businessData.user_id,
+    status: 'verified',
+  });
+
+  // 6. Onboarding (non-blocking)
   try {
     await onboardingService.handleWabaOnboarding({
       businessId: business.id,
@@ -121,17 +148,11 @@ const verifyOtp = async ({ businessId, otp }) => {
       whatsappNumber: business.whatsapp_number
     });
   } catch (err) {
-    if (err.response) {
-      // Axios error with response from Meta
-      console.error('WABA onboarding failed:');
-      console.error('Status:', err.response.status);
-      console.error('Data:', JSON.stringify(err.response.data, null, 2));
-      console.error('Headers:', JSON.stringify(err.response.headers, null, 2));
-    } else {
-      // Any other error (no response)
-      console.error("WABA onboarding failed:", err.message);
-    }
+    console.error("WABA onboarding failed:", err.message);
   }
+
+  // 7. Cleanup Redis
+  await redisClient.del(`BUSINESS_CONNECT_${whatsapp_number}`);
 
   return { success: true, businessId: business.id };
 };

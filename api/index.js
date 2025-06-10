@@ -20,13 +20,31 @@ const startReminderFollowupJob = require('./modules/jobs/reminderFollowupJob');
 const port = process.env.PORT || 3000;
 const apiVersion = process.env.API_VERSION ? process.env.API_VERSION : "v1";
 
+// --- CORS CONFIGURATION START ---
+// Allow localhost:3000 for React frontend (add prod URLs as needed)
+const allowedOrigins = [
+  'http://localhost:3000',
+  // 'https://your-production-domain.com', // <- add production frontend here
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
+
+// Handle preflight requests for all routes
+app.options('*', cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
+// --- CORS CONFIGURATION END ---
+
 // 1. Stripe webhook routes FIRST! (before any body parser middleware)
 app.use('/api/v1/stripe', require('../api/modules/stripe/routes/stripe'));
 
 // 2. Now apply global middleware
 app.use(express.json());
 app.use(helmet());
-app.use(cors({ origin: '*' }));
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
