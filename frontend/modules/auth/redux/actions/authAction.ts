@@ -73,6 +73,28 @@ export const sendOtp = createAsyncThunk(
     }
   }
 );
+export const resendOtp = createAsyncThunk(
+  "auth/sendOtp",
+  async (payload: { phone: string; }, thunkAPI) => {
+    try {
+      const sanitizedPhone = payload.phone.startsWith("+")
+        ? payload.phone.slice(1)
+        : payload.phone;
+
+      const response = await api.post("/auth/resend-otp", {
+        phone: sanitizedPhone,
+      });
+      console.log("Response from sendOtp:", response);
+      
+
+      return response;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || { message: "An error occurred" }
+      );
+    }
+  }
+);
 
 // export const verifyOtpAndRegister = createAsyncThunk(
 //   "auth/verifyOtpAndRegister",

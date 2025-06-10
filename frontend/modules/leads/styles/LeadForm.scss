@@ -613,8 +613,8 @@
 }
 
 .kanban-column {
-  min-width: 425px;
-  background-color: #f9f9f9;
+  min-width: 329px;
+  // background-color: #f9f9f9;
   border-radius: 8px;
   padding: 10px;
   flex-shrink: 0;
@@ -624,11 +624,188 @@
 .kanban-card {
   background: white;
   margin-bottom: 12px; 
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   cursor: grab;
   transition: background-color 0.2s ease;
+}
+
+.lead-status-column{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #0087EF;
+  padding: 10px 20px;
+  background: #008CF80D;
+  color: #0087EF;
+  border-radius: 40px;
+  margin-bottom: 24px;
+
+  h4{
+    font-family: $font-family;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 100%;
+    letter-spacing: 1%;
+     color: #0087EF;
+
+  }
+  .lead-status-column-status{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    button{
+      border: none;
+      outline: none;
+      background-color: transparent;
+    }
+  }
+}
+
+.lead-list-header{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lead-page-header-line{
+  font-family: $font-family;
+font-weight: 400;
+font-size: 12px;
+line-height: 100%;
+letter-spacing: 1%;
+vertical-align: middle;
+}
+
+.lead-list-card{
+  border: 1px solid #232B3633;
+  padding: 20px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+.lead-card-content{
+  display: flex;
+  flex-direction: column;   
+  gap: 20px;
+  h3{
+font-family: $font-family;
+font-weight: 700;
+font-size: 20px;
+line-height: 100%;
+letter-spacing: 1%;
+color: #0B1F2C;
+
+  }
+  .phone-and-email-sec{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    p,span{
+      font-family: $font-family;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 100%;
+      letter-spacing: 1%;
+      color: #6C7075;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  }
+.tag-and-source-container{
+    display: flex;
+    align-items: center;
+    font-family: $font-family;
+    gap: 10px;
+
+    span{
+      font-family: $font-family;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 100%;
+      letter-spacing: 1%;
+      color: #6C7075;
+    }
+  .tag-constant-label{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    p{
+      font-family: $font-family;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 100%;
+      letter-spacing: 1%;
+      padding: 5px 10px;
+      border-radius: 40px;
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      &.hot{
+        border: 1px solid #FFA70E;
+        background-color: #FFA70E0D;
+        color: #F8A500;
+
+        svg path{
+          fill: #F8A500;
+        }
+      }
+      &.cold {
+        border: 1px solid #0087EF;
+        background: #008CF80D;
+color: #0087EF;
+        svg path{
+          fill: #0087EF;
+        }
+      }
+      &.paid {
+        border: 1px solid #00C593;
+        background: #00C5930D;
+color: #00C593;
+
+        svg path{
+          fill: #00C593;
+        }
+      }
+
+      &.whats-app {
+       border: 1px solid #168C7E;
+        background: #168C7E0D;
+        color: #168C7E;
+      }
+
+    }
+  }
+  }
+  }
+  .lead-card-actions{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    button{
+        font-family: $font-family;
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 100%;
+        letter-spacing: 1%;
+        color: #6C7075;
+        border-radius: 10px;
+        padding: 10px;
+        border: 1px solid #232B3633;
+        background: #FFFFFF;
+        width: fit-content;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+
+        &.message{
+          border: 1px solid #0087EF;
+          color: #0087EF;
+          padding: 10px 34px;
+        }
+    }
+  }
 }
 .kanban-card button {
   width: 60%;
@@ -641,3 +818,4 @@
   background: #ffffff;
   
 }
+

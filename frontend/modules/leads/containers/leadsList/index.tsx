@@ -12,7 +12,7 @@ import {
 import { fetchConstants } from "@/modules/constants/redux/action/constantAction";
 import EditLeadModal from "@/components/leadEditModal";
 import ConfirmationPopup from "@/components/common/ConfirmationPopUp";
-import { AddLeadIcon } from "@/components/common/Icon";
+import { AddLeadIcon, CallIcon, DeleteIcon, EditIcon, EmailIconV1, MessageIconV1, PencilIcon, ThreeDotIcon } from "@/components/common/Icon";
 import ChatModal from "@/components/common/ChatModal";
 
 const LeadsList = () => {
@@ -162,10 +162,19 @@ const LeadsList = () => {
     setDeleteLeadId(null);
   };
 
+
+  const [componentKey, setComponentKey] = useState(0);
+
+  const remountComponent = () => {
+    setComponentKey(prevKey => prevKey + 1); // triggers remount
+  };
+
+
   return (
     <div className="lead-list-container">
       {/* Header */}
       <div className="lead-list-header">
+        <p className="lead-page-header-line">Who have shown interest in a product of service </p>
         <h2>Leads</h2>
       </div>
 
@@ -182,9 +191,9 @@ const LeadsList = () => {
           </form>
         </div>
         <div className="col-md-4 text-end">
-          <button onClick={() => router.push("/leads/createLead")}>
+          {/* <button onClick={() => router.push("/leads/createLead")}>
             Create a Lead
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -193,45 +202,76 @@ const LeadsList = () => {
         <div className="kanban-board">
           {statusColumns.length > 0 ? (
             statusColumns.map((column: any) => (
-              <Droppable droppableId={column.label} key={column.id} direction="vertical">
+              <Droppable droppableId={column.label} key={column.id} direction="vertical" isDropDisabled={false} isCombineEnabled={false} ignoreContainerClipping={false}>
                 {(provided, snapshot) => (
                   <div
                     className={`kanban-column ${snapshot.isDraggingOver ? 'dragged-over' : ''}`}
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                   >
-                    <div className="d-flex justify-content-between align-items-center">
-                      <h4>{column.label}</h4>
-                      <button
-                        className="add-lead-button"
-                        onClick={() => router.push(`/leads/createLead?status=${column.id}`)}
-                      >
-                        <AddLeadIcon />
-                      </button>
+                    <div className="lead-status-column">
+                      <h4 className={column.label}>{column.label}</h4>
+
+                      <div className="lead-status-column-status">
+                        <button
+                          className="add-lead-button"
+                          onClick={() => router.push(`/leads/createLead?status=${column.id}`)}
+                        >
+                          <AddLeadIcon />
+                        </button>
+
+                        <button>
+                          <ThreeDotIcon />
+                        </button>
+                      </div>
                     </div>
                     {groupedLeads[column.label]?.map((lead: any, index: number) => (
                       <Draggable draggableId={lead.id} index={index} key={lead.id}>
                         {(provided, snapshot) => (
                           <div
-                            className={`kanban-card ${snapshot.isDragging ? 'dragged' : ''}`}
+                            className={`kanban-card lead-list-card ${snapshot.isDragging ? 'dragged' : ''}`}
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                           >
-                            <div
-                              onClick={() => {
+                            <div className="lead-card-content"
+
+                            >
+                              <h3>{lead.name}</h3>
+                              {/* <p>{lead.notes || "—"}</p> */}
+                              <div className="phone-and-email-sec">
+                                <p> <CallIcon /> {lead.phone}</p>
+                                <span>|</span>
+                                <p> <EmailIconV1 /> {lead.email}</p>
+                              </div>
+                              <div className="tag-and-source-container">
+                                <div className="tag-constant-label">
+                                  <span>Tag</span>
+                                  <p className={lead.tagConstant?.label.toLowerCase()}>{lead.tagConstant?.label || "—"} <PencilIcon /> </p>
+                                </div>
+                                <span>|</span>
+                                <div className="tag-constant-label">
+                                  <span>Source</span>
+                                  <p className={lead.sourceConstant?.label.toLowerCase()}>{lead.sourceConstant?.label || "—"} </p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="lead-card-actions">
+                              <button
+                                className="message"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedLeadForChat(lead);
+                                  setShowChatModal(true);
+                                }}
+                              >
+                                <MessageIconV1 />
+                                Message
+                              </button>
+                              <button onClick={() => {
                                 setSelectedLead(lead);
                                 setShowEditModal(true);
-                              }}
-                            >
-                              <strong>{lead.name}</strong>
-                              <p>{lead.notes || "—"}</p>
-                              <p>{lead.email}</p>
-                              <p>{lead.phone}</p>
-                              <p>{lead.sourceConstant?.label || "—"}</p>
-                              <p>{lead.tagConstant?.label || "—"}</p>
-                            </div>
-                            <div className="d-flex justify-content-between mt-2">
+                              }}> <EditIcon /> Edit</button>
                               <button
                                 className="btn btn-sm btn-danger"
                                 onClick={(e) => {
@@ -239,19 +279,7 @@ const LeadsList = () => {
                                   handleDeleteClick(lead.id);
                                 }}
                               >
-                                Delete
-                              </button>
-                            </div>
-                            <div>
-                              <button
-                                className="btn btn-sm btn-info text-white"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedLeadForChat(lead);
-                                  setShowChatModal(true);
-                                }}
-                              >
-                                Chat
+                                <DeleteIcon />
                               </button>
                             </div>
                           </div>
@@ -320,3 +348,5 @@ const LeadsList = () => {
 };
 
 export default LeadsList;
+
+

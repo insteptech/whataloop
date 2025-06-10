@@ -69,7 +69,7 @@ const HeaderTopBar: FC<Props> = ({ profileOpen, toggleProfile }) => {
   };
 
   return (
-    <header className="header-top-bar sticky top-0 z-50 bg-white shadow-sm border-rounded">
+    <header className="header-top-bar sticky top-0 z-50">
       <div className="container-fluid">
         <div className="row align-items-center">
           <div className="col-md-6">
@@ -80,6 +80,7 @@ const HeaderTopBar: FC<Props> = ({ profileOpen, toggleProfile }) => {
 
           <div className="col-md-6">
             <div className="header-top-bar-right d-flex align-items-center justify-content-end">
+
               <div className="user-profile dropdown" ref={profileRef}>
                 <button
                   className="d-flex align-items-center bg-transparent border-0"
@@ -95,9 +96,8 @@ const HeaderTopBar: FC<Props> = ({ profileOpen, toggleProfile }) => {
                 </button>
 
                 <ul
-                  className={`dropdown-menu dropdown-menu-end ${
-                    profileOpen ? "open-profile-menu" : ""
-                  } z-50`}
+                  className={`dropdown-menu dropdown-menu-end ${profileOpen ? "open-profile-menu" : ""
+                    } z-50`}
                 >
                   <li>
                     <button

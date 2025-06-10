@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Chart from "react-apexcharts";
 import { FaCircle } from "react-icons/fa";
 import { TbGift, TbMessageCircle, TbSettings } from "react-icons/tb";
@@ -40,10 +40,9 @@ function DashboardPage() {
     (state: { profileReducer: { data: any; loading: boolean } }) =>
       state.profileReducer
   );
-
+  const { leads } = useSelector((state: any) => state.leadReducer);
   const userBusinessExists = useSelector((state: any) => state.businessOnboardingReducer.exists);
   console.log("User Business Exists:", userBusinessExists);
-  // Only use Redux value if registration isn't complete yet
   useEffect(() => {
     if (registrationComplete) return;
     if (userBusinessExists !== undefined) {
@@ -59,7 +58,7 @@ function DashboardPage() {
         await dispatch(getUsersBusinessExist(user.id) as any);
         // Always fetch leads and users
         await Promise.all([
-          dispatch(getLeads({ page: 1, limit: 1, search: "", sort: "", order: "" }) as any),
+          dispatch(getLeads({ page: 1, limit: 100, search: "", sort: "", order: "" }) as any),
           dispatch(getUsers({ page: 1, pageSize: 1, search: "", sort: "createdAt", order: "DESC" }) as any),
         ]);
       } finally {
@@ -74,7 +73,6 @@ function DashboardPage() {
 
   const handleFirstModalSubmit = async (values, { setSubmitting }) => {
     try {
-      // Clean WhatsApp number: remove all non-digit characters
       const cleanedWhatsappNumber = values.whatsappNumber.replace(/\D/g, "");
       const payload = {
         user_id: user?.id,
@@ -86,7 +84,6 @@ function DashboardPage() {
       console.log("Business Registration Response:", response, response.data.data.businessId);
 
       setBusinessId(response.data.data.businessId);
-      console.log("Business ID:", response.data.data.businessId);
 
       if (response.data.status === 200 || response?.statusCode === 200) {
         setWhatsappForOtp(values.whatsappNumber);
@@ -103,6 +100,23 @@ function DashboardPage() {
       setSubmitting(false);
     }
   };
+
+  const isToday = (date: string | Date): boolean => {
+    const inputDate = new Date(date);
+    const today = new Date();
+
+    return (
+      inputDate.getDate() === today.getDate() &&
+      inputDate.getMonth() === today.getMonth() &&
+      inputDate.getFullYear() === today.getFullYear()
+    );
+  };
+
+  const todayLeads = useMemo(() => {
+    if (!Array.isArray(leads)) return [];
+
+    return leads.filter(lead => isToday(lead.createdAt));
+  }, [leads]);
 
   const handleOtpVerification = async () => {
     const enteredOtp = otp.join("");
@@ -352,80 +366,80 @@ function DashboardPage() {
           </Modal>
 
           {/* Modal 4: Welcome Message */}
-       <Modal
-  show={showWelcomeModal}
-  onHide={() => setShowWelcomeModal(false)}
-  centered
->
-  <Modal.Header className="modalHeader" closeButton>
-    <h2>Welcome Message</h2>
-  </Modal.Header>
-  <Formik
-    initialValues={{
-      welcomeMessage: "👋 Welcome to Pixalane! How can we help you today?",
-    }}
-    validationSchema={Yup.object({
-      welcomeMessage: Yup.string().required("Welcome message is required"),
-    })}
-    onSubmit={async (values, { setSubmitting }) => {
-      try {
-        const resultAction = await dispatch(
-          addBusinessInfo({
-            businessId: businessId,
-            welcome_message: values.welcomeMessage,
-          }) as any
-        );
+          <Modal
+            show={showWelcomeModal}
+            onHide={() => setShowWelcomeModal(false)}
+            centered
+          >
+            <Modal.Header className="modalHeader" closeButton>
+              <h2>Welcome Message</h2>
+            </Modal.Header>
+            <Formik
+              initialValues={{
+                welcomeMessage: "👋 Welcome to Pixalane! How can we help you today?",
+              }}
+              validationSchema={Yup.object({
+                welcomeMessage: Yup.string().required("Welcome message is required"),
+              })}
+              onSubmit={async (values, { setSubmitting }) => {
+                try {
+                  const resultAction = await dispatch(
+                    addBusinessInfo({
+                      businessId: businessId,
+                      welcome_message: values.welcomeMessage,
+                    }) as any
+                  );
 
-        if (addBusinessInfo.fulfilled.match(resultAction)) {
-          toast.success("Welcome message saved successfully!");
-          setShowWelcomeModal(false);
+                  if (addBusinessInfo.fulfilled.match(resultAction)) {
+                    toast.success("Welcome message saved successfully!");
+                    setShowWelcomeModal(false);
 
-          // Now mark business as fully registered
-          setBusinessRegistered(true);
-          setRegistrationComplete(true);
-        } else {
-          throw new Error(resultAction.payload || "Failed to save welcome message");
-        }
-      } catch (error: any) {
-        toast.error(error.message || "Something went wrong. Please try again.");
-      } finally {
-        setSubmitting(false);
-      }
-    }}
-  >
-    {({ handleSubmit }) => (
-      <Form onSubmit={handleSubmit}>
-        <Modal.Body className="modalBody">
-          <p className="text-left mb-3">
-            Type your welcome message that will greet customers when they chat with you.
-          </p>
+                    // Now mark business as fully registered
+                    setBusinessRegistered(true);
+                    setRegistrationComplete(true);
+                  } else {
+                    throw new Error(resultAction.payload || "Failed to save welcome message");
+                  }
+                } catch (error: any) {
+                  toast.error(error.message || "Something went wrong. Please try again.");
+                } finally {
+                  setSubmitting(false);
+                }
+              }}
+            >
+              {({ handleSubmit }) => (
+                <Form onSubmit={handleSubmit}>
+                  <Modal.Body className="modalBody">
+                    <p className="text-left mb-3">
+                      Type your welcome message that will greet customers when they chat with you.
+                    </p>
 
-          <div className="mb-3">
-            <label className="form-label">Welcome Message</label>
-            <Field
-              as="textarea"
-              name="welcomeMessage"
-              className="form-control"
-              rows={3}
-              placeholder="👋 Welcome to Pixalane! How can we help you today?"
-            />
-            <ErrorMessage
-              name="welcomeMessage"
-              component="div"
-              className="text-danger"
-            />
-          </div>
-        </Modal.Body>
+                    <div className="mb-3">
+                      <label className="form-label">Welcome Message</label>
+                      <Field
+                        as="textarea"
+                        name="welcomeMessage"
+                        className="form-control"
+                        rows={3}
+                        placeholder="👋 Welcome to Pixalane! How can we help you today?"
+                      />
+                      <ErrorMessage
+                        name="welcomeMessage"
+                        component="div"
+                        className="text-danger"
+                      />
+                    </div>
+                  </Modal.Body>
 
-        <Modal.Footer>
-          <button type="submit" className="send-otp-button">
-            Save & Continue
-          </button>
-        </Modal.Footer>
-      </Form>
-    )}
-  </Formik>
-</Modal>
+                  <Modal.Footer>
+                    <button type="submit" className="send-otp-button">
+                      Save & Continue
+                    </button>
+                  </Modal.Footer>
+                </Form>
+              )}
+            </Formik>
+          </Modal>
         </>
       ) : (
         <>
@@ -436,19 +450,27 @@ function DashboardPage() {
                 <div className="col-md-6 col-xl-3">
                   <div className="card">
                     <div className="card-body">
-                      <h6 className="mb-2 f-w-400 text-muted">Total Leads Generated</h6>
-                      <h4 className="mb-3">0</h4>
+                      <h6 className="mb-2 f-w-400 text-muted">Leads Generated Today</h6>
+                      <h4 className="mb-3">{todayLeads.length}</h4>
                     </div>
                   </div>
                 </div>
                 <div className="col-md-6 col-xl-3">
                   <div className="card">
                     <div className="card-body">
+                      <h6 className="mb-2 f-w-400 text-muted">Total Leads Generated</h6>
+                      <h4 className="mb-3">{leads.length}</h4>
+                    </div>
+                  </div>
+                </div>
+                {/* <div className="col-md-6 col-xl-3">
+                  <div className="card">
+                    <div className="card-body">
                       <h6 className="mb-2 f-w-400 text-muted">Total Users</h6>
                       <h4 className="mb-3">0</h4>
                     </div>
                   </div>
-                </div>
+                </div> */}
                 <div className="col-md-6 col-xl-3">
                   <div className="card">
                     <div className="card-body">

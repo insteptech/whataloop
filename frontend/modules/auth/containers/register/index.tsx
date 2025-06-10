@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import InputField from "@/components/common/InputField";
 import { Col, Row, Modal, Button } from "react-bootstrap";
 import InputFieldWithCountryCode from "@/components/common/InputFieldWithCountryCode";
-import { sendOtp, verifyOtpAndRegisterAndLogin } from "../../redux/actions/authAction";
+import { resendOtp, sendOtp, verifyOtpAndRegisterAndLogin } from "../../redux/actions/authAction";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import Loader from "@/components/common/loader";
@@ -58,6 +58,8 @@ const SignUp = () => {
         phone: values.phone,
       };
       const response = await dispatch(sendOtp(payload) as any);
+      toast.success("OTP has been sent to your WhatsApp!");
+
 
       if (response.error) {
         toast.error(response.error.message || "Failed to send OTP");
@@ -77,6 +79,30 @@ const SignUp = () => {
     }
   };
 
+  const handleResendOtp = async (values) => {
+    try {
+      const payload = {
+        phone: values.phone,
+      };
+      const response = await dispatch(resendOtp(payload) as any);
+
+      if (response.error) {
+        toast.error(response.error.message || "Failed to send OTP");
+        return;
+      }
+
+      if (response.payload.status === 200) {
+        setPhoneNumber(values.phone);
+        setShowOtpModal(true);
+        toast.success("OTP has been sent to your WhatsApp!");
+      } else {
+        toast.error(response.payload.message || "Failed to send OTP");
+      }
+    } catch (error) {
+      console.error("OTP Sending Error:", error);
+      toast.error(error.message || "An error occurred while sending OTP");
+    }
+  };
   const handleVerifyOtp = async () => {
     const enteredOtp = otp.join("");
     if (enteredOtp.length !== 6) {
@@ -205,7 +231,7 @@ const SignUp = () => {
 
             <div className="resendText">
               Didn't receive the code?{" "}
-              <span className="resendLink" onClick={handleSendOtp}>
+              <span className="resendLink" onClick={handleResendOtp}>
                 Send again
               </span>
             </div>

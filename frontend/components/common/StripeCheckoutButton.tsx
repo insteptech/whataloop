@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { fetchStripePaymentUrl } from "@/modules/stripepaymentstatus/redux/actions/stripeAction";
+import Notification from "./Notification";
 
 export default function StripeCheckoutButton({
     planId,
@@ -41,31 +42,36 @@ export default function StripeCheckoutButton({
         // backgroundColor: "#168c7e",
     };
 
-   const handleCheckout = async () => {
-  if (loading) return;
+    const handleCheckout = async () => {
+        if (loading) return;
 
-  setLoading(true);
-  setStripeLoading(true); 
+        if (!businessId) {
+            toast.error("Please register your business first.");
+            return;
+        }
 
-  try {
-    await dispatch(
-      fetchStripePaymentUrl({
-        planId,
-        businessId,
-        userId,
-        amount,
-        successUrl,
-        cancelUrl,
-      }) as any
-    );
-  } catch (error) {
-    console.error("Error during checkout:", error);
-    toast.error("Failed to initialize payment. Please try again.");
-  } finally {
-    setLoading(false);
-    setStripeLoading(false); // ✅ Stop full-page loader if not redirected
-  }
-};
+        setLoading(true);
+        setStripeLoading(true);
+
+        try {
+            await dispatch(
+                fetchStripePaymentUrl({
+                    planId,
+                    businessId,
+                    userId,
+                    amount,
+                    successUrl,
+                    cancelUrl,
+                }) as any
+            );
+        } catch (error) {
+            console.error("Error during checkout:", error);
+            toast.error("Failed to initialize payment. Please try again.");
+        } finally {
+            setLoading(false);
+            setStripeLoading(false);
+        }
+    };
 
 
     return (

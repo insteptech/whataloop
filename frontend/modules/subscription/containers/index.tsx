@@ -6,9 +6,9 @@ import Loader from "@/components/common/loader";
 import { getSubscriptionPlans } from "../redux/actions/subscriptionAction";
 import StripeCheckoutButton from "@/components/common/StripeCheckoutButton";
 import { getUsersBusinessExist } from "@/modules/dashboard/redux/actions/businessAction";
+import { toast } from "react-toastify";
 
 const SubscriptionTiers = () => {
-  const router = useRouter();
   const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(false);
@@ -85,7 +85,6 @@ const SubscriptionTiers = () => {
                 >
                   Upgrade to {plan.name}
                 </StripeCheckoutButton>
-
               </div>
             </div>
           ))}
