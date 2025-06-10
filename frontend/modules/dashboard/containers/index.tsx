@@ -129,7 +129,7 @@ function DashboardPage() {
       toast.error("Please enter a valid 4-digit OTP.");
       return;
     }
-    setIsLoading(true);
+    // setIsLoading(true);
     try {
       const response = await dispatch(verifyOtp({ whatsapp_number: whatsappForOtp, otp: enteredOtp }) as any).unwrap();
       console.log('verufy otp response:', response);
@@ -246,46 +246,61 @@ function DashboardPage() {
             <Modal.Header className="modalHeader" closeButton>
               <h2>Enter OTP</h2>
             </Modal.Header>
-            <Modal.Body className="modalBody">
-              <p className="text-left mb-3">
-                Enter the 4-digit OTP sent to <strong>{whatsappForOtp}</strong>
-              </p>
+            <Formik
+              initialValues={{}}
+              onSubmit={(values) => {
+                handleOtpVerification(); // Call your existing handler
+              }}
+            >
+              {({ handleSubmit, isSubmitting }) => (
+                <Form onSubmit={handleSubmit}>
+                  <Modal.Body className="modalBody">
+                    <p className="text-left mb-3">
+                      Enter the 4-digit OTP sent to <strong>{whatsappForOtp}</strong>
+                    </p>
 
-              <div className="otpInputContainer">
-                {otp.map((digit, index) => (
-                  <input
-                    key={index}
-                    id={`otp-${index}`}
-                    type="text"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (/^\d*$/.test(value)) {
-                        const newOtp = [...otp];
-                        newOtp[index] = value;
-                        setOtp(newOtp);
-                        if (value && index < otp.length - 1) {
-                          document.getElementById(`otp-${index + 1}`)?.focus();
-                        }
-                      }
-                    }}
-                    className="otpInput"
-                  />
-                ))}
-              </div>
+                    <div className="otpInputContainer">
+                      {otp.map((digit, index) => (
+                        <input
+                          key={index}
+                          id={`otp-${index}`}
+                          type="text"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (/^\d*$/.test(value)) {
+                              const newOtp = [...otp];
+                              newOtp[index] = value;
+                              setOtp(newOtp);
+                              if (value && index < otp.length - 1) {
+                                document.getElementById(`otp-${index + 1}`)?.focus();
+                              }
+                            }
+                          }}
+                          className="otpInput"
+                        />
+                      ))}
+                    </div>
 
-              <div className="resendText mt-3">
-                Didn't receive the code?{" "}
-                <span className="resendLink" >
-                  Send again
-                </span>
-              </div>
+                    <div className="resendText mt-3">
+                      Didn't receive the code?{" "}
+                      <span className="resendLink" >
+                        Send again
+                      </span>
+                    </div>
 
-              <button className="send-otp-button mt-3" onClick={handleOtpVerification}>
-                Continue
-              </button>
-            </Modal.Body>
+                    <button
+                      type="submit"
+                      className="send-otp-button mt-3"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? <span className="spin"></span> : "Continue"}
+                    </button>
+                  </Modal.Body>
+                </Form>
+              )}
+            </Formik>
           </Modal>
 
           {/* Modal 3: Business Info */}
@@ -310,7 +325,7 @@ function DashboardPage() {
                   .nullable()
                   .notRequired(),
               })}
-              onSubmit={async (values, { setSubmitting }) => {
+              onSubmit={async (values) => {
                 try {
                   const resultAction = await dispatch(
                     addBusinessInfo({
@@ -329,12 +344,10 @@ function DashboardPage() {
                   }
                 } catch (error: any) {
                   toast.error(error.message || "Something went wrong. Please try again.");
-                } finally {
-                  setSubmitting(false);
                 }
               }}
             >
-              {({ handleSubmit }) => (
+              {({ handleSubmit, isSubmitting }) => (
                 <Form onSubmit={handleSubmit}>
                   <Modal.Body className="modalBody">
                     <h5 className="mb-3">Business Info</h5>
@@ -370,8 +383,10 @@ function DashboardPage() {
                   </Modal.Body>
 
                   <Modal.Footer>
-                    <button type="submit" className="send-otp-button">
-                      Submit
+                    <button type="submit" className="send-otp-button" disabled={isSubmitting}>
+                      {isSubmitting ? (
+                        <span className="spin"></span>
+                      ) : "Submit"}
                     </button>
                   </Modal.Footer>
                 </Form>

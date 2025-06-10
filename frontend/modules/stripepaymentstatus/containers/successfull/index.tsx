@@ -13,15 +13,8 @@ export default function StripeSuccess() {
     <div className="max-w-md mx-auto mt-16 p-6 bg-white rounded shadow">
       <h2 className="text-2xl font-bold text-green-600 mb-4">Payment Successful!</h2>
       <p>Your payment has been received.</p>
-      {sessionId && (
-        <div className="mt-4 text-xs text-gray-500">
-          <span>Stripe Session ID:</span>
-          <br />
-          <span className="break-all">{sessionId}</span>
-        </div>
-      )}
       <DownloadInvoiceButton
-         sessionId={sessionId}>
+        sessionId={sessionId}>
         Download Invoice
       </DownloadInvoiceButton>
       <a
