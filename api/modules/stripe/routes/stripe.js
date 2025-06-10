@@ -15,4 +15,10 @@ router.post(
   express.json(),
   controller.createCheckoutSession
 );
+
+router.get('/invoices', controller.listInvoices);
+router.get('/invoice/:invoice_id/download', controller.downloadInvoicePdf);
+router.get('/download', controller.downloadInvoice);
+
+
 module.exports = router;

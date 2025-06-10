@@ -160,7 +160,53 @@ async function handleSubscriptionDeleted(subscription) {
   }
 }
 
+const listInvoices = async (customer_id) => {
+  if (!customer_id) throw new Error('customer_id is required');
+  const invoices = await stripe.invoices.list({ customer: customer_id, limit: 100 });
+  return invoices.data.map(inv => ({
+    id: inv.id,
+    number: inv.number,
+    amount_due: inv.amount_due,
+    currency: inv.currency,
+    status: inv.status,
+    hosted_invoice_url: inv.hosted_invoice_url,
+    invoice_pdf: inv.invoice_pdf,
+    created: inv.created
+  }));
+};
+
+const getInvoicePdfUrl = async (invoice_id) => {
+  const invoice = await stripe.invoices.retrieve(invoice_id);
+  if (!invoice.invoice_pdf) throw new Error('Invoice PDF not available');
+  return invoice.invoice_pdf;
+};
+
+const getInvoiceBySessionId = async (sessionId) => {
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+  if (!session || !session.subscription) {
+    throw new Error('No subscription found in this session');
+  }
+
+  const subscription = await stripe.subscriptions.retrieve(session.subscription);
+
+  if (!subscription.latest_invoice) {
+    throw new Error('No invoice associated with this subscription');
+  }
+
+  const invoice = await stripe.invoices.retrieve(subscription.latest_invoice);
+
+  if (!invoice.invoice_pdf) {
+    throw new Error('Invoice PDF not available yet');
+  }
+
+  return invoice.invoice_pdf; // Stripe-hosted download link
+};
+
 module.exports = {
   createCheckoutSession,
-  handleStripeWebhook
+  handleStripeWebhook,
+  listInvoices,
+  getInvoicePdfUrl,
+  getInvoiceBySessionId
 };
