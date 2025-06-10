@@ -38,17 +38,18 @@ export const sendOtp = createAsyncThunk(
 export const verifyOtp = createAsyncThunk(
   "auth/verifyOtp",
   async (
-    payload: { businessId: string; otp: string },
+    payload: { whatsapp_number: string; otp: string },
     { rejectWithValue }
   ) => {
     try {
       // Remove all non-digit characters including '+'
 
+      const cleanedNumber = payload.whatsapp_number.replace(/\D/g, ''); // remove non-digits
 
       const response = await api.post(
         "/business/verify-otp",
         {
-          businessId: payload.businessId,
+         whatsapp_number: cleanedNumber,
           otp: payload.otp,
         },
         {
@@ -120,6 +121,8 @@ export const addBusinessInfo = createAsyncThunk(
     },
     { rejectWithValue }
   ) => {
+    console.log('Business id:', payload.businessId);
+    
     try {
       const response = await api.post("/business/update-info", payload, {
         headers: {

@@ -49,5 +49,35 @@ const fetchStripePaymentUrl = createAsyncThunk(
     }
   }
 );
+const downloadStripeInvoice = createAsyncThunk(
+  "stripePayment/downloadStripeInvoice",
+  async (sessionId: string, { rejectWithValue }) => {
+    console.log('sessionId:',sessionId)
+    try {
+      const response = await api.get(`stripe/download?session_id=${sessionId}`, {
+        responseType: "blob", 
+      });
 
-export { fetchStripePaymentUrl };
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `invoice-${sessionId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      return sessionId; 
+    } catch (error: any) {
+      let errorMessage = "Failed to download invoice.";
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export { fetchStripePaymentUrl, downloadStripeInvoice };
+

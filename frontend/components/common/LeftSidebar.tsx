@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { setRole } from "@/modules/auth/redux/slices/authSlice";
 import { getDecodedToken } from "@/utils/auth";
+import { useRouter } from "next/router";
 
 import { HomeIcon, ProfileIcon, Logo, SubscriptionIcon, HamburgerMenuIcon } from "./Icon";
 import UsersIcon from "../../public/group.png";
@@ -12,7 +13,16 @@ import UsersIcon from "../../public/group.png";
 function LeftSidebar({ Width, toggleSidebar }: any) {
   const pathname = usePathname();
   const dispatch = useDispatch();
+  const router = useRouter()
 
+  const { data: user } = useSelector(
+    (state: {
+      profileReducer: { data: any; loading: boolean; error: string };
+    }) => state.profileReducer
+  );
+  const userBusinessExists = useSelector((state: any) => state.businessOnboardingReducer.exists);
+
+  console.log('User account type:', user?.account_type)
   useEffect(() => {
     const { role }: any = getDecodedToken();
     if (role) {
@@ -28,11 +38,15 @@ function LeftSidebar({ Width, toggleSidebar }: any) {
       label: "Home",
       icon: <HomeIcon />,
     },
-    {
-      href: "/leads/leadsList",
-      label: "Leads",
-      icon: <ProfileIcon />,
-    },
+    ...(userBusinessExists
+      ? [
+        {
+          href: "/leads/leadsList",
+          label: "Leads",
+          icon: <ProfileIcon />,
+        },
+      ]
+      : []),
     // {
     //   href: "/subscription/containers",
     //   label: "Subscription",
@@ -69,7 +83,9 @@ function LeftSidebar({ Width, toggleSidebar }: any) {
       <div className="side-bar-header">
 
         <Logo />
-
+        <div className="account-type-tag">
+          {user?.account_type} plan
+        </div>
       </div>
 
       <div className="side-bar-body">
@@ -92,15 +108,18 @@ function LeftSidebar({ Width, toggleSidebar }: any) {
           ))}
         </ul>
       </div>
-      {/* <div className="side-bar-footer">
-        <div className="user-profile">
-          <div className="avatar">U</div>
-          <div className="user-info">
-            <div className="name">User</div>
-            <div className="role">{role}</div>
+      {user?.account_type === "free" && (
+        <div className="side-bar-footer">
+          <div className="side-bar-footer-head">
+            <h4>Ready to unlock more power?</h4>
+            <p>Upgrade your plan and supercharge your workflow</p>
           </div>
+          <button
+            onClick={() => router.push('/subscription/containers')}
+          >Upgrade Your Plan</button>
         </div>
-      </div> */}
+      )}
+
     </div>
   );
 }

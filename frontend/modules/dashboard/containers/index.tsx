@@ -22,6 +22,8 @@ import InputFieldWithCountryCode from "@/components/common/InputFieldWithCountry
 import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { toast } from "react-toastify";
+import { setLoading } from "@/modules/auth/redux/slices/authSlice";
+import { log } from "console";
 
 function DashboardPage() {
   const dispatch = useDispatch();
@@ -35,6 +37,7 @@ function DashboardPage() {
   const [isBusinessRegistered, setBusinessRegistered] = useState(false);
   const [businessId, setBusinessId] = useState("");
   const [registrationComplete, setRegistrationComplete] = useState(false);
+
 
   const { data: user, loading } = useSelector(
     (state: { profileReducer: { data: any; loading: boolean } }) =>
@@ -72,6 +75,7 @@ function DashboardPage() {
   }, [dispatch, user?.id]);
 
   const handleFirstModalSubmit = async (values, { setSubmitting }) => {
+
     try {
       const cleanedWhatsappNumber = values.whatsappNumber.replace(/\D/g, "");
       const payload = {
@@ -81,14 +85,15 @@ function DashboardPage() {
       };
 
       const response = await dispatch(createBusiness(payload) as any).unwrap();
-      console.log("Business Registration Response:", response, response.data.data.businessId);
 
-      setBusinessId(response.data.data.businessId);
+
 
       if (response.data.status === 200 || response?.statusCode === 200) {
+
         setWhatsappForOtp(values.whatsappNumber);
         setShowModal(false);
         setShowOtpModal(true);
+        toast.success("Otp sent successfully")
       } else {
         console.log('response.error:---', response.error);
         return toast.error(response.error?.message || "Failed to send OTP");
@@ -124,9 +129,13 @@ function DashboardPage() {
       toast.error("Please enter a valid 4-digit OTP.");
       return;
     }
-
+    setIsLoading(true);
     try {
-      await dispatch(verifyOtp({ businessId, otp: enteredOtp }) as any).unwrap();
+      const response = await dispatch(verifyOtp({ whatsapp_number: whatsappForOtp, otp: enteredOtp }) as any).unwrap();
+      console.log('verufy otp response:', response);
+
+      setBusinessId(response?.businessId)
+
       toast.success("OTP Verified Successfully!");
 
       // Reset OTP input fields
@@ -138,6 +147,8 @@ function DashboardPage() {
     } catch (error: any) {
       console.error("OTP Verification Failed:", error);
       toast.error(error?.message || "Invalid or expired OTP. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -181,7 +192,7 @@ function DashboardPage() {
               })}
               onSubmit={handleFirstModalSubmit}
             >
-              {({ handleSubmit }) => (
+              {({ handleSubmit, isSubmitting }) => (
                 <Form onSubmit={handleSubmit}>
                   <Modal.Body className="modalBody">
                     <p className="text-left mb-3">
@@ -212,8 +223,11 @@ function DashboardPage() {
 
                     <i>You’ll receive a 4-digit code on this number</i>
 
-                    <button type="submit" className="send-otp-button mt-3">
-                      Send OTP
+                    <button type="submit" className="send-otp-button mt-3" disabled={isSubmitting}>
+                      {isSubmitting ? (
+                        <span className="spin"></span>
+                      ) : " Send OTP"}
+
                     </button>
                   </Modal.Body>
                 </Form>

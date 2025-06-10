@@ -110,20 +110,20 @@ const ChatModal: React.FC<ChatModalProps> = ({ show, onClose, leadId, leadPhone,
       show={show}
       onHide={onClose}
       placement="end"
-      className="side-chat-offcanvas"
+      className="chat-box"
       backdrop="static"
     >
-      <Offcanvas.Header closeButton className="bg-primary text-white">
+      <Offcanvas.Header closeButton className="chat-box-header">
         <Offcanvas.Title>Live Chat With -{leadName}</Offcanvas.Title>
       </Offcanvas.Header>
-      <Offcanvas.Body className="d-flex flex-column p-0">
+      <Offcanvas.Body className="chat-box-body">
         <div
           className="flex-grow-1 overflow-auto p-3 bg-light"
           style={{ maxHeight: "calc(100vh - 120px)" }}
         >
           {loading ? (
             <div className="text-center my-3">
-              <Spinner animation="border" variant="primary" size="sm" /> Loading messages...
+              <Spinner animation="border" variant="primary" size="sm" />
             </div>
           ) : error ? (
             <div className="text-danger">{error}</div>
