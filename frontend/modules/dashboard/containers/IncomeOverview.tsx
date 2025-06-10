@@ -69,7 +69,7 @@ const IncomeOverview = () => {
   const chartSeries = [
     {
       name: "Income",
-      data: [80, 95, 70, 42, 65, 55, 78],
+      data: [0, 0, 0, 0, 0, 0, 0],
     },
   ];
 

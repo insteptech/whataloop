@@ -1,4 +1,5 @@
 const manager = require('../manager/stripe');
+const axios = require('axios');
 
 exports.createCheckoutSession = async (req, res, next) => {
   try {
@@ -50,17 +51,21 @@ exports.downloadInvoicePdf = async (req, res) => {
 exports.downloadInvoice = async (req, res) => {
   try {
     const { session_id } = req.query;
-
     if (!session_id) {
-      return res.status(400).json({ message: 'Missing session_id in query' });
+      return res.status(400).json({ message: "Missing session_id" });
     }
 
-    const invoiceUrl = await manager.handleInvoiceDownload(session_id);
+    const invoiceUrl = await manager.getInvoiceUrl(session_id);
 
-    // Redirect to the Stripe-hosted invoice PDF
-    return res.redirect(invoiceUrl);
+    const response = await axios.get(invoiceUrl, {
+      responseType: 'stream',
+    });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=invoice-${session_id}.pdf`);
+    response.data.pipe(res);
   } catch (error) {
-    console.error('Error downloading invoice:', error);
-    return res.status(500).json({ message: error.message || 'Failed to download invoice' });
+    console.error('Download invoice error:', error);
+    res.status(500).json({ message: 'Failed to download invoice.' });
   }
 };

@@ -9,11 +9,11 @@ const UniqueVisitorChart: React.FC = () => {
     series: [
       {
         name: "Page Views",
-        data: [30, 40, 45, 50, 49, 60, 70],
+        data: [0, 0, 0, 0, 0, 0, 0],
       },
       {
         name: "Sessions",
-        data: [23, 32, 27, 38, 27, 35, 40],
+        data: [0, 0, 0, 0, 0, 0, 0],
       },
     ],
   };
@@ -23,11 +23,11 @@ const UniqueVisitorChart: React.FC = () => {
     series: [
       {
         name: "Page Views",
-        data: [300, 400, 450, 500],
+        data: [0, 0, 0, 0],
       },
       {
         name: "Sessions",
-        data: [230, 320, 270, 380],
+        data: [0, 0, 0, 0],
       },
     ],
   };
