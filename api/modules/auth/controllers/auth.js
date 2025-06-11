@@ -249,7 +249,6 @@ exports.verifyOtp = async (req, res, next) => {
     if (!phone || !otp)
       throw new CustomError("Phone and OTP are required.", 400);
     const result = await authManager.verifyOtp({ phone, otp });
-    console.log("OTP verification result:", result);
     res.status(200).json({ message: "OTP verified.", ...result });
   } catch (error) {
     next(new CustomError(error.message || "OTP verification failed.", error.status || 500));

@@ -13,7 +13,7 @@ const {
 } = require("../utils/helper.js");
 const sendWhatsAppOtp = require("../utils/sendWhatsAppOtp");
 const otpCache = new Map();
-
+const { getBusinessByUserId } = require("../../business/services/business.js")
 
 const findUser = async (where) => {
   if (typeof where !== "object" || Array.isArray(where) || where === null || Object.keys(where).length === 0) {
@@ -272,13 +272,13 @@ const verifyOtp = async (phone, otp) => {
     throw new Error("OTP expired. Please request a new one.");
   }
 
-  const { User, UserRole, SubscriptionPlan, sequelize } = await getAllModels(process.env.DB_TYPE);
+  const { User, UserRole, SubscriptionPlan, sequelize, } = await getAllModels(process.env.DB_TYPE);
   let user = await User.findOne({ where: { phone } });
 
   // LOGIN: user exists, just return JWT
   if (user) {
-    otpCache.delete(phone);
-    const token = generateToken({ id: user.id, phone: user.phone, accountType: user.account_type });
+    otpCache.delete(phone);    
+    const token = generateToken({ id: user.id, phone: user.phone, accountType: user.account_type, businessExist: await checkBusinessExists(user.id)});
     return { user: { id: user.id, phone: user.phone, full_name: user.full_name }, token };
   }
 
@@ -433,6 +433,14 @@ const sendOtpForLogin = async (phone) => {
 
   await sendWhatsAppOtp(phone, otp);
   return { message: "OTP sent for login.", phone };
+};
+
+const checkBusinessExists = async (userId) => {
+  const { Business } = await getAllModels(process.env.DB_TYPE);
+  if (!userId) throw new Error('userId is required');
+
+  const business = await Business.findOne({ where: { user_id: userId } });
+  return business ? true : false;
 };
 
 module.exports = {
