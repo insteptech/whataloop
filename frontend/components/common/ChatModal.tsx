@@ -23,7 +23,13 @@ interface ChatModalProps {
   leadName?: string;
 }
 
-const ChatModal: React.FC<ChatModalProps> = ({ show, onClose, leadId, leadPhone, leadName }) => {
+const ChatModal: React.FC<ChatModalProps> = ({
+  show,
+  onClose,
+  leadId,
+  leadPhone,
+  leadName,
+}) => {
   const dispatch = useDispatch();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
@@ -37,7 +43,7 @@ const ChatModal: React.FC<ChatModalProps> = ({ show, onClose, leadId, leadPhone,
     }) => state.profileReducer
   );
 
-
+  // Fetch chat when modal opens
   useEffect(() => {
     if (show && leadId) {
       const fetchChat = async () => {
@@ -46,11 +52,11 @@ const ChatModal: React.FC<ChatModalProps> = ({ show, onClose, leadId, leadPhone,
           const resultAction = await dispatch(getChat(leadId) as any);
           if (getChat.fulfilled.match(resultAction)) {
             const chatData = resultAction.payload;
-            if (Array.isArray(chatData.data?.messages)) {
-              setMessages(chatData.data.messages);
-            } else {
-              setMessages([]);
-            }
+            setMessages(
+              Array.isArray(chatData.data?.messages)
+                ? chatData.data.messages
+                : []
+            );
             setError(null);
           } else {
             setError("Failed to load chat thread.");
@@ -65,29 +71,31 @@ const ChatModal: React.FC<ChatModalProps> = ({ show, onClose, leadId, leadPhone,
       };
       fetchChat();
     }
-  }, [show, leadId]);
+  }, [show, leadId, dispatch]);
 
+  // Auto‐scroll on new messages
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Send new message
   const handleSend = async () => {
     if (!newMessage.trim() || !leadId || !user) return;
 
-    const messagePayload = {
+    const payload = {
       lead_id: leadId,
       sender_phone_number: user.phone,
       receiver_phone_number: leadPhone,
       message_content: newMessage,
-      message_type: "outgoing" as "outgoing",
+      message_type: "outgoing" as const,
       status: "sent",
     };
 
-    const tempMessage: ChatMessage = {
+    const temp: ChatMessage = {
       lead_id: leadId,
-      sender: messagePayload.sender_phone_number,
-      receiver: messagePayload.receiver_phone_number,
-      content: messagePayload.message_content,
+      sender: payload.sender_phone_number,
+      receiver: payload.receiver_phone_number!,
+      content: payload.message_content,
       type: "outgoing",
       timestamp: new Date().toISOString(),
       status: "sent",
@@ -97,7 +105,7 @@ const ChatModal: React.FC<ChatModalProps> = ({ show, onClose, leadId, leadPhone,
     setNewMessage("");
 
     try {
-      await dispatch(postMessage(messagePayload) as any);
+      await dispatch(postMessage(payload) as any);
     } catch (err) {
       console.error("Message sending failed:", err);
     }
@@ -108,35 +116,43 @@ const ChatModal: React.FC<ChatModalProps> = ({ show, onClose, leadId, leadPhone,
       show={show}
       onHide={onClose}
       placement="end"
-      className="chat-box"
+      style={{ zIndex: 9999999 }}
       backdrop="static"
     >
       <Offcanvas.Header closeButton className="chat-box-header">
-        <Offcanvas.Title>Live Chat With -{leadName}</Offcanvas.Title>
+        <Offcanvas.Title>Live Chat With – {leadName}</Offcanvas.Title>
       </Offcanvas.Header>
-      <Offcanvas.Body className="chat-box-body">
-        <div
-          className="flex-grow-1 overflow-auto p-3 bg-light"
-          style={{ maxHeight: "calc(100vh - 120px)" }}
-        >
+
+      <Offcanvas.Body
+        className="d-flex flex-column p-0"
+        style={{ height: "calc(100vh - 56px)" }}
+      >
+        {/* Messages */}
+        <div className="flex-grow-1 overflow-auto p-3 bg-light">
           {loading ? (
             <div className="text-center my-3">
-              <Spinner animation="border" variant="primary" size="sm" />
+              <Spinner animation="border" size="sm" />
             </div>
           ) : error ? (
-            <div className="text-danger">{error}</div>
+            <div className="text-danger p-2">{error}</div>
           ) : messages.length === 0 ? (
             <div className="text-muted">No messages found.</div>
           ) : (
             messages.map((msg, i) => (
               <div
                 key={i}
-                className={`d-flex mb-2 ${msg.type === "outgoing" ? "justify-content-end" : "justify-content-start"
-                  }`}
+                className={`d-flex mb-2 ${
+                  msg.type === "outgoing"
+                    ? "justify-content-end"
+                    : "justify-content-start"
+                }`}
               >
                 <div
-                  className={`p-2 rounded-pill ${msg.type === "outgoing" ? "bg-primary text-white" : "bg-white border"
-                    }`}
+                  className={`p-2 rounded-pill ${
+                    msg.type === "outgoing"
+                      ? "bg-primary text-white"
+                      : "bg-white border"
+                  }`}
                   style={{ maxWidth: "75%" }}
                 >
                   {msg.content}
@@ -144,10 +160,11 @@ const ChatModal: React.FC<ChatModalProps> = ({ show, onClose, leadId, leadPhone,
               </div>
             ))
           )}
-          <div ref={chatEndRef}></div>
+          <div ref={chatEndRef} />
         </div>
 
-        <div className="d-flex border-top p-2 bg-white">
+        {/* Input bar sticks to bottom */}
+        <div className="mt-auto d-flex border-top p-2 bg-white">
           <Form.Control
             type="text"
             placeholder="Type a message..."

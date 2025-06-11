@@ -4,6 +4,8 @@ import { componentsMap } from "@/componentsMap"; // Import the generated map
 import LeftSidebar from "@/components/common/LeftSidebar";
 import { Col, Container, Row } from "react-bootstrap";
 import HeaderTopBar from "@/components/common/HeaderTopBar";
+import SetupProgressCard from "@/components/common/SetupProgressCard";
+
 const Layout = dynamic(() => import("../layouts/main"));
 const Default = dynamic(() => import("./default"));
 
@@ -26,6 +28,14 @@ export default function Page({ slug }: PageProps) {
       : [];
   let modulePath = slugArray[0] || "/";
   let subModulesPath = slugArray.slice(1).join("/") || "/";
+
+  const steps = [
+  { title: "Create your Buffer account", completed: true },
+  { title: "Connect your first channel", completed: true },
+  { title: "Save an idea", completed: false },
+  { title: "Publish your first post", completed: true },
+  ];
+
 
   function findMatchingRoute(userRoute, modulePath) {
     if (modulePath === "/" && userRoute === "/") {
@@ -102,6 +112,12 @@ export default function Page({ slug }: PageProps) {
               </div>
             </Col>
           </Row>
+          <div
+            className="position-fixed bottom-0 end-0 p-3"
+            style={{ zIndex: 1050, width: 300 }}
+          >
+            <SetupProgressCard steps={steps} />
+          </div>
         </div>
       ) : (
         <Component />
