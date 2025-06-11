@@ -135,7 +135,7 @@ export const verifyOtpAndRegisterAndLogin = createAsyncThunk(
         otp: payload.otp,
       });
 
-      if (payload.mode === "login") {
+      if (response.data?.token) {
         const token = response.data?.token;
         const user = response.data?.user;
         setToken(token);

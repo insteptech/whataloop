@@ -91,7 +91,7 @@ const LoginWithOTP = () => {
       <div className="card-inner-content">
         <div className="module-card-header">
           <h2>Log in</h2>
-          <h3>Enter yout number to log in</h3>
+          <h3>Enter your number to log in</h3>
         </div>
         {!isOTPSent ? (
           <Formik initialValues={{ phone: "" }} validationSchema={loginValidationSchema} onSubmit={handleSendOtp}>
