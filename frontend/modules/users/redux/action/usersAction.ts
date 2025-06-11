@@ -88,7 +88,6 @@ export const updateProfileByAdmin = createAsyncThunk(
         }
       );
 
-      console.log("Update successful:", response.data);
       return response.data;
     } catch (error: any) {
       console.error("Update error:", error);

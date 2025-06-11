@@ -29,11 +29,9 @@ const fetchStripePaymentUrl = createAsyncThunk(
       };
 
       await api.post("/stripe/checkout-session", body).then((res) => {
-        console.log("Stripe Checkout Session Response:", res);
         if (!res?.data?.url) {
           throw new Error("Stripe session URL not returned");
         } else {
-          console.log("Redirecting to Stripe URL:", res.data.url);
           window.location.href = res.data.url;
           return res.data.url; 
         }
@@ -49,33 +47,23 @@ const fetchStripePaymentUrl = createAsyncThunk(
     }
   }
 );
-const downloadStripeInvoice = createAsyncThunk(
-  "stripePayment/downloadStripeInvoice",
-  async (sessionId: string, { rejectWithValue }) => {
-    console.log('sessionId:',sessionId)
+const downloadStripeInvoice = createAsyncThunk<
+  { sessionId: string; blob: Blob },
+  string,
+  { rejectValue: string }
+>(
+  "stripePayment/fetchStripeInvoice",
+  async (sessionId, { rejectWithValue }) => {
     try {
-      const response = await api.get(`stripe/download?session_id=${sessionId}`, {
-        responseType: "blob", 
-      });
-      if (response) {
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", `invoice-${sessionId}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-
-        return sessionId; 
-      }
-    } catch (error: any) {
-      let errorMessage = "Failed to download invoice.";
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-      return rejectWithValue(errorMessage);
+      const response = await api.get(
+        `stripe/download?session_id=${sessionId}`,
+        { responseType: "blob" }
+      );
+      return { sessionId, blob: response.data as Blob };
+    } catch (err: any) {
+      const msg =
+        err.response?.data?.message ?? err.message ?? "Download failed";
+      return rejectWithValue(msg);
     }
   }
 );

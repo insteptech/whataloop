@@ -19,9 +19,6 @@ const SubscriptionTiers = () => {
   const user = useSelector((state: any) => state.profileReducer?.data);
   const plansData = useSelector((state: any) => state.subscriptionReducer?.plans);
 
-  console.log('plasData', plansData)
-  console.log('user', user)
-
   // Fetch initial data
   useEffect(() => {
     const fetchData = async () => {
@@ -43,11 +40,11 @@ const SubscriptionTiers = () => {
     }
   }, [dispatch, user]);
 
-  // 🔁 Filter out the plan that matches user's current subscription
   const filteredPlans = plansData?.filter(
-    (plan) => plan.id !== user?.subscription_plan_id
+    (plan) =>
+      plan?.name.toLowerCase() !== user?.account_type?.toLowerCase() &&
+      plan?.name.toLowerCase() !== "free"
   );
-
   if (loading || stripeLoading) return <Loader />;
   if (error) return <div className="text-danger">{error}</div>;
 
@@ -82,8 +79,8 @@ const SubscriptionTiers = () => {
                     businessId={businessId || "default"}
                     userId={user?.id}
                     amount={plan.price}
-                    successUrl={`http://localhost:3001/stripepaymentstatus/successfull`}
-                    cancelUrl={`http://localhost:3001/stripepaymentstatus/unsuccessfull`}
+                    successUrl={`http://localhost:3001/dashboard/containers?ispaymentSuccess=true`}
+                    cancelUrl={`http://localhost:3001/dashboard/containers?ispaymentRejected=true`}
                     setStripeLoading={setStripeLoading}
                   >
                     Upgrade to {plan.name}

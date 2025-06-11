@@ -104,7 +104,6 @@ const CreateUser = () => {
       password,
       photo,
     };
-    console.log("Register payload:", payload);
     try {
       const response = await dispatch(register(payload) as any).unwrap();
       if (response.statusCode === 200) {

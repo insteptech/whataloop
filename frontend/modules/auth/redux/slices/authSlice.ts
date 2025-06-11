@@ -26,7 +26,6 @@ const authSlice = createSlice({
       state.loading = action.payload;
     },
     setRole(state, action) {
-      console.log(action.payload, "pauysdfds");
       
       state.role = action.payload;
     },

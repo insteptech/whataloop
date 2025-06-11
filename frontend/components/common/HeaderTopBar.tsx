@@ -119,8 +119,43 @@ const HeaderTopBar: FC<Props> = ({ profileOpen, toggleProfile }) => {
                       Subscription
                     </button>
                   </li>
+                  <hr className="dropdown-divider" />
+                  {/* <li>
+                    
+                    <li>
+                      <button
+                        className="dropdown-item d-flex align-items-center"
+                        onClick={() => {
+                          router.push("/billings/containers");
+                          toggleProfile();
+                        }}
+                      >
+                       Help Center
+                      </button>
+                    </li>
+                     <li>
+                      <button
+                        className="dropdown-item d-flex align-items-center"
+                        onClick={() => {
+                          router.push("/billings/containers");
+                          toggleProfile();
+                        }}
+                      >
+                       Help Center
+                      </button>
+                    </li>
+                    
+                  </li> */}
                   <li>
-                    <hr className="dropdown-divider" />
+                    <button
+                      className="dropdown-item d-flex align-items-center"
+                      onClick={() => {
+                        router.push("/billings/containers");
+                        toggleProfile();
+                      }}
+                    >
+                      Invoices
+                    </button>
                   </li>
                   <li>
                     <button

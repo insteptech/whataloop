@@ -30,7 +30,6 @@ export const getSubscriptionPlans = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get("/subscriptionPlan");
-      console.log("Subscription Plans Response:", response.data);
       return response.data; 
     } catch (error: any) {
       return rejectWithValue(error?.response?.data || "Failed to fetch subscription plans");

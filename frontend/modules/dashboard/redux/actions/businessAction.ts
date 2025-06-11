@@ -18,10 +18,8 @@ export const sendOtp = createAsyncThunk(
   "auth/sendOtp",
  async (whatsappNumber: string, { rejectWithValue }) => {
   try {
-    console.log("Sending OTP to:", whatsappNumber);
     
     const cleanedNumber = whatsappNumber.replace(/\D/g, ''); // remove non-digits
-    console.log("Sending OTP to:", cleanedNumber);
     
     const response = await api.post(
       "/business/request-otp",
@@ -98,7 +96,6 @@ export const createBusiness = createAsyncThunk(
       //     "Content-Type": "application/json",
       //   },
       // });
-      console.log("Business Creation Response:", response);
       return {
         data: response
         // onboardUser: onboardResponse.data,
@@ -121,7 +118,6 @@ export const addBusinessInfo = createAsyncThunk(
     },
     { rejectWithValue }
   ) => {
-    console.log('Business id:', payload.businessId);
     
     try {
       const response = await api.post("/business/update-info", payload, {

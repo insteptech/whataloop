@@ -2,7 +2,55 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
 @import "node_modules/bootstrap/scss/functions";
 @import "node_modules/bootstrap/scss/variables";
-
+@import 'intl-tel-input/build/css/intlTelInput.css';
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #e0e3e8;
+  margin: 0;
+}
+ 
+a {
+  color: #007bff;
+  text-decoration: none;
+}
+ 
+button:focus,
+input:focus {
+  outline: none;
+  box-shadow: none;
+}
+ 
+.form-area {
+  background-color: #fff;
+  box-shadow: 0px 5px 10px rgba(90, 116, 148, 0.3);
+  padding: 40px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+ 
+.form-area .form-inner {
+  width: 100%;
+}
+ 
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 15px 19px;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: #475F7B;
+  background-color: #FFF;
+  border: 1px solid #DFE3E7;
+  border-radius: .267rem;
+  transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+ 
+.form-control:focus {
+  border-color: #5A8DEE;
+  box-shadow: 0 3px 8px 0 rgb(0 0 0 / 10%);
+}
 // Variables
 $primary-color: #4361ee;
 $secondary-color: #3f37c9;
@@ -1167,4 +1215,37 @@ $dark: #212529;
   position: sticky;
   top: 0;
   z-index: 1000;
+}
+.payment-modal-body{
+  p {
+font-family: $font-family;
+font-weight: 500;
+font-size: 32px;
+line-height: 100%;
+letter-spacing: 1%;
+text-align: center;
+vertical-align: middle;
+  }
+  h2{
+    font-family: $font-family;
+font-weight: 400;
+font-size: 16px;
+line-height: 100%;
+letter-spacing: 1%;
+text-align: center;
+  }
+  .purchase-detail-box{
+    width: 382px;
+height: 239px;
+border-radius: 10px;
+padding: 20px;
+gap: 25px;
+
+  }
+  .success-icon{
+   display: flex;
+   justify-content: center;
+   align-items: center;
+
+  }
 }

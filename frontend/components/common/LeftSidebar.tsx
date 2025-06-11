@@ -10,19 +10,21 @@ import { useRouter } from "next/router";
 import { HomeIcon, ProfileIcon, Logo, SubscriptionIcon, HamburgerMenuIcon } from "./Icon";
 import UsersIcon from "../../public/group.png";
 
-function LeftSidebar({ Width, toggleSidebar }: any) {
+function LeftSidebar({ Width, toggleSidebar, }: any) {
   const pathname = usePathname();
   const dispatch = useDispatch();
-  const router = useRouter()
+  const router = useRouter();
 
   const { data: user } = useSelector(
     (state: {
       profileReducer: { data: any; loading: boolean; error: string };
     }) => state.profileReducer
   );
-  const userBusinessExists = useSelector((state: any) => state.businessOnboardingReducer.exists);
 
-  console.log('User account type:', user?.account_type)
+  const role = useSelector((state: any) => state.authReducer.role);
+
+  const { businessExist }: any = getDecodedToken()
+
   useEffect(() => {
     const { role }: any = getDecodedToken();
     if (role) {
@@ -30,15 +32,16 @@ function LeftSidebar({ Width, toggleSidebar }: any) {
     }
   }, [dispatch]);
 
-  const role = useSelector((state: any) => state.authReducer.role);
+  // Show loader until we know whether business exists
 
+  // Build navLinks only after data is ready
   const navLinks = [
     {
       href: "/dashboard/containers",
       label: "Home",
       icon: <HomeIcon />,
     },
-    ...(userBusinessExists
+    ...(businessExist
       ? [
         {
           href: "/leads/leadsList",
@@ -47,6 +50,7 @@ function LeftSidebar({ Width, toggleSidebar }: any) {
         },
       ]
       : []),
+
     // {
     //   href: "/subscription/containers",
     //   label: "Subscription",
@@ -81,11 +85,8 @@ function LeftSidebar({ Width, toggleSidebar }: any) {
   return (
     <div className="left-sidebar-container">
       <div className="side-bar-header">
-
         <Logo />
-        <div className="account-type-tag">
-          {user?.account_type} plan
-        </div>
+        <div className="account-type-tag">{user?.account_type} plan</div>
       </div>
 
       <div className="side-bar-body">
@@ -108,18 +109,18 @@ function LeftSidebar({ Width, toggleSidebar }: any) {
           ))}
         </ul>
       </div>
+
       {user?.account_type === "free" && (
         <div className="side-bar-footer">
           <div className="side-bar-footer-head">
             <h4>Ready to unlock more power?</h4>
             <p>Upgrade your plan and supercharge your workflow</p>
           </div>
-          <button
-            onClick={() => router.push('/subscription/containers')}
-          >Upgrade Your Plan</button>
+          <button onClick={() => router.push("/subscription/containers")}>
+            Upgrade Your Plan
+          </button>
         </div>
       )}
-
     </div>
   );
 }

@@ -4,6 +4,7 @@ import api from "@/axios/axiosInterceptor";
 export const fetchProfile = createAsyncThunk<any, string>(
   "auth/fetchProfile",
   async (token, { rejectWithValue }) => {
+    
     try {
       const response = await api.get(`/auth/profile`, {
         headers: {

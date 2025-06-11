@@ -65,7 +65,6 @@ export const getLeads = createAsyncThunk(
   export const getConstantType = createAsyncThunk("getConstantType", async () => {
     try {
       const response = await api.get("/constant/types");
-      console.log("Response:", response.data, response.status);
       return response.data;
     } catch (error) {
       return error.response.data;

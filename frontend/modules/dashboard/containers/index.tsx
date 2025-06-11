@@ -22,8 +22,7 @@ import InputFieldWithCountryCode from "@/components/common/InputFieldWithCountry
 import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { toast } from "react-toastify";
-import { setLoading } from "@/modules/auth/redux/slices/authSlice";
-import { log } from "console";
+import PaymentStatusModal from "@/components/common/PaymentStatusModal";
 
 function DashboardPage() {
   const dispatch = useDispatch();
@@ -37,6 +36,20 @@ function DashboardPage() {
   const [isBusinessRegistered, setBusinessRegistered] = useState(false);
   const [businessId, setBusinessId] = useState("");
   const [registrationComplete, setRegistrationComplete] = useState(false);
+  const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
+
+
+  const search = window.location.search || window.location.hash.split('?')[1] || '';
+
+  const normalizedSearch = '?' + search.replace(/\?/g, '&');
+
+  const params = new URLSearchParams(normalizedSearch);
+
+  const session_id = params.get('session_id');
+  const ispaymentSuccess = params.get('ispaymentSuccess');
+  const ispaymentRejected = params.get('ispaymentRejected')
+
+
 
 
   const { data: user, loading } = useSelector(
@@ -45,7 +58,8 @@ function DashboardPage() {
   );
   const { leads } = useSelector((state: any) => state.leadReducer);
   const userBusinessExists = useSelector((state: any) => state.businessOnboardingReducer.exists);
-  console.log("User Business Exists:", userBusinessExists);
+
+
   useEffect(() => {
     if (registrationComplete) return;
     if (userBusinessExists !== undefined) {
@@ -53,13 +67,11 @@ function DashboardPage() {
     }
   }, [userBusinessExists, registrationComplete]);
 
-  // Check if user already has a business registered
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
         await dispatch(getUsersBusinessExist(user.id) as any);
-        // Always fetch leads and users
         await Promise.all([
           dispatch(getLeads({ page: 1, limit: 100, search: "", sort: "", order: "" }) as any),
           dispatch(getUsers({ page: 1, pageSize: 1, search: "", sort: "createdAt", order: "DESC" }) as any),
@@ -68,14 +80,18 @@ function DashboardPage() {
         setIsLoading(false);
       }
     };
-
     if (user?.id) {
       fetchData();
     }
   }, [dispatch, user?.id]);
 
-  const handleFirstModalSubmit = async (values, { setSubmitting }) => {
+  useEffect(() => {
+    if (ispaymentSuccess || ispaymentRejected) {
+      setShowPaymentStatusModal(true);
+    }
+  }, [ispaymentSuccess, ispaymentRejected]);
 
+  const handleFirstModalSubmit = async (values, { setSubmitting }) => {
     try {
       const cleanedWhatsappNumber = values.whatsappNumber.replace(/\D/g, "");
       const payload = {
@@ -83,23 +99,16 @@ function DashboardPage() {
         whatsapp_number: cleanedWhatsappNumber,
         business_name: values.businessName,
       };
-
       const response = await dispatch(createBusiness(payload) as any).unwrap();
-
-
-
       if (response.data.status === 200 || response?.statusCode === 200) {
-
         setWhatsappForOtp(values.whatsappNumber);
         setShowModal(false);
         setShowOtpModal(true);
-        toast.success("Otp sent successfully")
+        toast.success("OTP sent successfully");
       } else {
-        console.log('response.error:---', response.error);
         return toast.error(response.error?.message || "Failed to send OTP");
       }
     } catch (error) {
-      console.error("Error in handleFirstModalSubmit:", error);
       toast.error(error.message || "Failed to register business. Please try again.");
     } finally {
       setSubmitting(false);
@@ -109,7 +118,6 @@ function DashboardPage() {
   const isToday = (date: string | Date): boolean => {
     const inputDate = new Date(date);
     const today = new Date();
-
     return (
       inputDate.getDate() === today.getDate() &&
       inputDate.getMonth() === today.getMonth() &&
@@ -119,7 +127,6 @@ function DashboardPage() {
 
   const todayLeads = useMemo(() => {
     if (!Array.isArray(leads)) return [];
-
     return leads.filter(lead => isToday(lead.createdAt));
   }, [leads]);
 
@@ -129,26 +136,16 @@ function DashboardPage() {
       toast.error("Please enter a valid 4-digit OTP.");
       return;
     }
-    // setIsLoading(true);
+
     try {
       const response = await dispatch(verifyOtp({ whatsapp_number: whatsappForOtp, otp: enteredOtp }) as any).unwrap();
-      console.log('verufy otp response:', response);
-
-      setBusinessId(response?.businessId)
-
+      setBusinessId(response?.businessId);
       toast.success("OTP Verified Successfully!");
-
-      // Reset OTP input fields
       setOtp(["", "", "", ""]);
-
-      // Move to next step
       setShowOtpModal(false);
       setShowDetailsModal(true);
     } catch (error: any) {
-      console.error("OTP Verification Failed:", error);
       toast.error(error?.message || "Invalid or expired OTP. Please try again.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -158,6 +155,20 @@ function DashboardPage() {
 
   return (
     <>
+      <PaymentStatusModal
+        isOpen={showPaymentStatusModal}
+        sessionId={session_id}
+        status={ispaymentSuccess ? "success" : "rejected"}
+        onClose={() => {
+          setShowPaymentStatusModal(false);
+
+          // const url = new URL(window.location.href);
+          // url.searchParams.delete("isPaymentSuccess");
+          // url.searchParams.delete("isPaymentRejected");
+          // window.history.replaceState(null, "", url.toString());
+        }}
+      />
+
       {!isBusinessRegistered ? (
         <>
           {/* Message + Button Section */}

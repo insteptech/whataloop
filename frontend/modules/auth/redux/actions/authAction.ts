@@ -37,9 +37,7 @@ export const login = createAsyncThunk("login", async (payload: any) => {
         ? payload.phone.slice(1)
         : payload.phone;
 
-        console.log("Sanitized Phone:", phone);
     const response = await api.post("auth/login", {phone: phone});   
-console.log("Response from login:", response);
     // if (response.status == 200) {
     //   setToken(response.data.data.token);
     // }
@@ -62,7 +60,6 @@ export const sendOtp = createAsyncThunk(
         phone: sanitizedPhone,
         full_name: payload.full_name
       });
-      console.log("Response from sendOtp:", response);
       
 
       return response;
@@ -84,7 +81,6 @@ export const resendOtp = createAsyncThunk(
       const response = await api.post("/auth/resend-otp", {
         phone: sanitizedPhone,
       });
-      console.log("Response from sendOtp:", response);
       
 
       return response;

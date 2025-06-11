@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { downloadStripeInvoice } from '@/modules/stripepaymentstatus/redux/actions/stripeAction';
-import { string } from 'yup';
+import { downloadBlob } from '@/utils/blob';
 
 const DownloadInvoiceButton = ({ sessionId, children }) => {
     const [loading, setLoading] = React.useState(false);
@@ -29,34 +29,55 @@ const DownloadInvoiceButton = ({ sessionId, children }) => {
         ...baseStyle,
         opacity: 0.7,
         cursor: "not-allowed",
-        // backgroundColor: "#168c7e",
     };
 
-    const dispatch = useDispatch()
-    const handleDownload = async () => {
+    const dispatch = useDispatch();
+    // const handleDownload = async () => {
+    //     if (!sessionId) {
+    //         alert('Session ID is missing');
+    //         return;
+    //     }
+
+    //     try {
+
+    //         const response = dispatch(downloadStripeInvoice(sessionId) as any)
+    //         if (response) {
+    //             const blob = new Blob([response.data], { type: 'application/pdf' });
+    //             const url = window.URL.createObjectURL(blob);
+
+    //             const link = document.createElement('a');
+    //             link.href = url;
+    //             link.download = `invoice-${sessionId}.pdf`;
+    //             link.click();
+
+    //             window.URL.revokeObjectURL(url);
+    //         }
+    //     } catch (error) {
+    //         console.error('Failed to download invoice:', error);
+    //         alert('Could not download invoice. Please try again.');
+    //     }
+    // };
+    const handleDownload = () => {
         if (!sessionId) {
-            alert('Session ID is missing');
+            alert("Session ID is missing");
             return;
         }
 
-        try {
+        setLoading(true); // Start loading
 
-            const response = dispatch(downloadStripeInvoice(sessionId) as any)
-            if (response) {
-                const blob = new Blob([response.data], { type: 'application/pdf' });
-                const url = window.URL.createObjectURL(blob);
-
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `invoice-${sessionId}.pdf`;
-                link.click();
-
-                window.URL.revokeObjectURL(url);
-            }
-        } catch (error) {
-            console.error('Failed to download invoice:', error);
-            alert('Could not download invoice. Please try again.');
-        }
+        dispatch(downloadStripeInvoice(sessionId) as any)
+            .unwrap()
+            .then(({ blob }) => {
+                // Use the blob from fulfilled thunk response
+                downloadBlob(blob, `invoice-${sessionId}.pdf`);
+            })
+            .catch((err) => {
+                console.error("Download failed:", err);
+                alert("Failed to download invoice. Please try again.");
+            })
+            .finally(() => {
+                setLoading(false); // Stop loading
+            });
     };
 
     return (
@@ -93,12 +114,9 @@ const DownloadInvoiceButton = ({ sessionId, children }) => {
                     />
                 </svg>
             )}
-            {loading ? "Redirecting..." : children}
+            {loading ? "Downloading..." : children}
         </button>
-
     );
 };
 
 export default DownloadInvoiceButton;
-
-

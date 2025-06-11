@@ -108,7 +108,6 @@ const LeadsForm = () => {
 
     try {
       const response = await dispatch(postLeads(payload) as any).unwrap();
-      console.log("Lead created successfully:", response);
       resetForm();
       setNotification({
         title: "Success",

@@ -36,7 +36,6 @@ const ChatModal: React.FC<ChatModalProps> = ({ show, onClose, leadId, leadPhone,
       profileReducer: { data: any; loading: boolean; error: string };
     }) => state.profileReducer
   );
-  console.log("user from lead list ", user);
 
 
   useEffect(() => {
@@ -94,7 +93,6 @@ const ChatModal: React.FC<ChatModalProps> = ({ show, onClose, leadId, leadPhone,
       status: "sent",
       isSentByUser: true,
     };
-    console.log('tempMessage', tempMessage);
     setMessages((prev) => [...prev, tempMessage]);
     setNewMessage("");
 

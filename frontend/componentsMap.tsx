@@ -15,8 +15,8 @@ export const componentsMap = {
     "createLead": dynamic(() => import("@/modules/leads/containers/createLead/index"), { ssr: false, loading: () => <Loader /> }), 
   },
   "dashboard": {
-    "containers": dynamic(() => import("@/modules/dashboard/containers/index"), { ssr: false, loading: () => <Loader /> }), 
     "UniqueVisitorChart": dynamic(() => import("@/modules/dashboard/containers/UniqueVisitorChart"), { ssr: false, loading: () => <Loader /> }), 
+    "containers": dynamic(() => import("@/modules/dashboard/containers/index"), { ssr: false, loading: () => <Loader /> }), 
     "IncomeOverview": dynamic(() => import("@/modules/dashboard/containers/IncomeOverview"), { ssr: false, loading: () => <Loader /> }), 
     "AnalyticsReport": dynamic(() => import("@/modules/dashboard/containers/AnalyticsReport"), { ssr: false, loading: () => <Loader /> }), 
     "dashboard": dynamic(() => import("@/modules/dashboard/containers/dashboard/index"), { ssr: false, loading: () => <Loader /> }), 
@@ -39,9 +39,8 @@ export const componentsMap = {
   "autoreplies": {
     "autoReplies": dynamic(() => import("@/modules/autoreplies/containers/autoReplies/index"), { ssr: false, loading: () => <Loader /> }), 
   },
-  "stripepaymentstatus": {
-    "unsuccessfull": dynamic(() => import("@/modules/stripepaymentstatus/containers/unsuccessfull/index"), { ssr: false, loading: () => <Loader /> }), 
-    "successfull": dynamic(() => import("@/modules/stripepaymentstatus/containers/successfull/index"), { ssr: false, loading: () => <Loader /> }), 
+  "billings": {
+    "containers": dynamic(() => import("@/modules/billings/containers/index"), { ssr: false, loading: () => <Loader /> }), 
   },
   "main": {
     "403": dynamic(() => import("@/containers/403"), { ssr: false, loading: () => <Loader /> }), 

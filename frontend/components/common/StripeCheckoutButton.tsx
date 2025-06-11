@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { fetchStripePaymentUrl } from "@/modules/stripepaymentstatus/redux/actions/stripeAction";
-import Notification from "./Notification";
 
 export default function StripeCheckoutButton({
     planId,
