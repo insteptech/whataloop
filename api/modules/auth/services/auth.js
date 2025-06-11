@@ -278,7 +278,7 @@ const verifyOtp = async (phone, otp) => {
   // LOGIN: user exists, just return JWT
   if (user) {
     otpCache.delete(phone);
-    const token = generateToken({ id: user.id, phone: user.phone });
+    const token = generateToken({user});
     return { user: { id: user.id, phone: user.phone, full_name: user.full_name }, token };
   }
 

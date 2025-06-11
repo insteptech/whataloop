@@ -353,7 +353,7 @@ const getLeadThread = async (leadId, userId) => {
   };
 };
 
- const createIfNotExists = async({
+const createIfNotExists = async ({
   phone,
   full_name,
   source,
@@ -367,7 +367,7 @@ const getLeadThread = async (leadId, userId) => {
   timestamp = Date.now().toString(),
   receiverNumber = null
 }) => {
-  const { Lead, Message } = await getAllModels(process.env.DB_TYPE);
+  const { Lead, Message, Business } = await getAllModels(process.env.DB_TYPE);
 
   // Validate required fields
   if (!phone) throw new Error('Phone is required');
@@ -377,30 +377,16 @@ const getLeadThread = async (leadId, userId) => {
   if (!status) throw new Error('status is required');
   if (!full_name) throw new Error('full_name (lead name) is required');
 
-  // Log all input values and their types
   console.log("Lead.create with:", {
     user_id, tag, status, source, name: full_name, phone, email, notes: last_message || notes
   });
-  console.log("Types:", {
-    user_id: typeof user_id,
-    tag: typeof tag,
-    status: typeof status,
-    source: typeof source,
-    full_name: typeof full_name
-  });
-
-  // Optional: check if referenced IDs exist in their tables (remove/comment if not desired)
-  // await checkExists('users', user_id);
-  // await checkExists('constants', tag);
-  // await checkExists('constants', status);
-  // await checkExists('constants', source);
 
   try {
     // Check for duplicate by phone + user_id
     const existing = await Lead.findOne({ where: { phone, user_id } });
     if (existing) return existing;
 
-    // Create the lead
+    // Create lead
     const lead = await Lead.create({
       user_id,
       tag,
@@ -413,20 +399,24 @@ const getLeadThread = async (leadId, userId) => {
       quality_label: qualityLabel
     });
 
-    // Send thank you message (async, errors won't block lead creation)
-    sendTextMessage(
-      phone,
-      'Thank you for contacting us! We have received your inquiry and will get back to you soon.'
-    ).catch(console.error);
+    // Fetch welcome message from business table
+    let welcomeMessage = 'Thank you for contacting us! We have received your inquiry and will get back to you soon.';
+    const business = await Business.findOne({ where: { user_id } });
+    if (business?.welcome_message) {
+      welcomeMessage = business.welcome_message;
+    }
 
-    // Create message
+    // Send welcome message
+    sendTextMessage(phone, welcomeMessage).catch(console.error);
+
+    // Create initial message
     await Message.create({
       lead_id: lead.id,
       sender_phone_number: phone,
       receiver_phone_number: receiverNumber,
       message_content: last_message,
       message_type: 'incoming',
-      timestamp: timestamp,
+      timestamp,
       status: 'sent',
       quality_label: qualityLabel,
     });
@@ -434,14 +424,14 @@ const getLeadThread = async (leadId, userId) => {
     return lead;
 
   } catch (error) {
-    // Print full Sequelize error and (if present) the original Postgres error
     console.error("Error in createIfNotExists:", error);
     if (error.parent) {
       console.error("Postgres error details:", error.parent);
     }
-    throw error; // Propagate for API error response
+    throw error;
   }
-}
+};
+
 
 module.exports = {
   findUser,
