@@ -101,7 +101,7 @@ const ChatModal: React.FC<ChatModalProps> = ({
       status: "sent",
       isSentByUser: true,
     };
-    setMessages((prev) => [...prev, tempMessage]);
+    setMessages((prev) => [...prev, temp]);
     setNewMessage("");
 
     try {
