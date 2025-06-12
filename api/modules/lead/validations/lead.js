@@ -1,7 +1,7 @@
 exports.otpInput = [{ key: "email", type: "string", required: true }];
 exports.addLeadInput = [
     { key: "phone", type: "string", required: true },
-    { key: "email", type: "string", required: true },
+    { key: "email", type: "string", required: false },
     { key: "fullName", type: "string", required: true },
     { key: "tag", type: "string", required: true },
     { key: "status", type: "string", required: true },
