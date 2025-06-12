@@ -7,6 +7,7 @@ import HeaderTopBar from "@/components/common/HeaderTopBar";
 import SetupProgressCard from "@/components/common/SetupProgressCard";
 import { getDecodedToken, getRefreshToken } from "@/utils/auth";
 import { useDispatch } from "react-redux";
+import { useRouter } from "next/navigation";
 
 const Layout = dynamic(() => import("../layouts/main"));
 const Default = dynamic(() => import("./default"));
@@ -18,6 +19,7 @@ type PageProps = {
 export default function Page({ slug }: PageProps) {
   const [sideBarWidth, setSideBarWidth] = useState(false);
   const [profile, setProfile] = useState(false);
+  const router = useRouter();
 
 
   const dispatch = useDispatch();
@@ -34,10 +36,9 @@ export default function Page({ slug }: PageProps) {
   let subModulesPath = slugArray.slice(1).join("/") || "/";
 
   const steps = [
-    { title: "Create your Buffer account", completed: true },
-    { title: "Connect your first channel", completed: true },
-    { title: "Save an idea", completed: false },
-    { title: "Publish your first post", completed: true },
+    { title: "Profile Setup", completed: true, onClick: () => router.push("/dashboard/containers") },
+    { title: "Connect Business", completed: false, onClick: () => router.push("/dashboard/containers?isConnectBusiness=true") },
+    { title: "Setup Auto Reply", completed: false, onClick: () => router.push("/dashboard/containers?isSetUpReply=true") },
   ];
 
 

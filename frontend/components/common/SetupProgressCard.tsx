@@ -8,6 +8,7 @@ import { CheckCircleFill, Circle } from "react-bootstrap-icons";
 type Step = {
   title: string;
   completed: boolean;
+  onClick: any;
 };
 
 type Props = {
@@ -32,7 +33,7 @@ const SetupProgressCard: React.FC<Props> = ({ steps }) => {
         {/* Steps list */}
         <ListGroup variant="flush">
           {steps.map((step, idx) => (
-            <ListGroup.Item key={idx} className="d-flex align-items-center">
+            <ListGroup.Item key={idx} onClick={step.onClick} className="d-flex align-items-center">
               {step.completed ? (
                 <CheckCircleFill className="text-success me-2" />
               ) : (

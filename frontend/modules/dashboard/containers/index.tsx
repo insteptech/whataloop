@@ -23,7 +23,7 @@ import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { toast } from "react-toastify";
 import PaymentStatusModal from "@/components/common/PaymentStatusModal";
-import { getRefreshToken, getToken, setToken } from "@/utils/auth";
+import { getRefreshToken, getToken, setToken, getDecodedToken } from "@/utils/auth";
 
 function DashboardPage() {
   const dispatch = useDispatch();
@@ -38,7 +38,7 @@ function DashboardPage() {
   const [businessId, setBusinessId] = useState("");
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
-
+  const { businessExist }: any = getDecodedToken()
 
   const search = window.location.search || window.location.hash.split('?')[1] || '';
 
@@ -50,15 +50,20 @@ function DashboardPage() {
   const ispaymentSuccess = params.get('ispaymentSuccess');
   const ispaymentRejected = params.get('ispaymentRejected')
 
-
-
-
+  const isSetUpReply = params.get('isSetUpReply');
+  const isConnectBusiness = params.get('isConnectBusiness');
+  
   const { data: user, loading } = useSelector(
     (state: { profileReducer: { data: any; loading: boolean } }) =>
       state.profileReducer
   );
   const { leads } = useSelector((state: any) => state.leadReducer);
   const userBusinessExists = useSelector((state: any) => state.businessOnboardingReducer.exists);
+
+  useEffect (() => {
+    setShowModal(!!isConnectBusiness);
+    setShowWelcomeModal(!!isSetUpReply);
+  }, [isSetUpReply, isConnectBusiness])
 
 
   useEffect(() => {
@@ -181,7 +186,7 @@ function DashboardPage() {
         }}
       />
 
-      {!isBusinessRegistered ? (
+      {!businessExist ? (
         <>
           {/* Message + Button Section */}
           <div className="centered-container">
