@@ -186,7 +186,7 @@ function DashboardPage() {
   };
 
   const closeBusinessStepModel = () => {
-    setShowModal(false);
+    setRegisterBusinessShowModal(false);
     clearQuery();
   }
 
@@ -194,7 +194,7 @@ function DashboardPage() {
     setShowWelcomeModal(false);
     clearQuery();
   }
- 
+
   return (
     <>
       <PaymentStatusModal
