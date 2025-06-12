@@ -1,8 +1,10 @@
 const { getAllModels } = require('../../../middlewares/loadModels');
+const { sendTextMessage } = require("../../whatsapp/services/whatsapp")
 
 const createMessage = async (data) => {
   const { Message } = await getAllModels(process.env.DB_TYPE);
   if (!Message) throw new Error('Message model not found');
+  await sendTextMessage(data.receiver_phone_number, data.message_content);
   return await Message.create(data);
 };
 
