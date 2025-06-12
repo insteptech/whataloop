@@ -80,7 +80,6 @@ const LeadsForm = () => {
       .min(12, "Phone number too short")
       .max(15, "Phone number is too long"),
     email: Yup.string()
-      .required("Email is required")
       .email("Invalid email format")
       .matches(
         /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
@@ -98,16 +97,22 @@ const LeadsForm = () => {
     const statusLabel = statusOptions.find((opt) => opt.value === values.status)?.label || "";
     const sourceLabel = sourceOptions.find((opt) => opt.value === values.source)?.label || "";
 
-    const payload = {
-      ...values,
+    const { email, ...rest } = values;
+
+    const payload: any = {
+      ...rest,
       tag_label: tagLabel,
       status_label: statusLabel,
       source_label: sourceLabel,
       last_contacted: values.last_contacted || null,
     };
 
+    if (email && email.trim() !== "") {
+      payload.email = email;
+    }
+
     try {
-      const response = await dispatch(postLeads(payload) as any).unwrap();
+      await dispatch(postLeads(payload) as any).unwrap();
       resetForm();
       setNotification({
         title: "Success",
@@ -118,7 +123,7 @@ const LeadsForm = () => {
     } catch (error: any) {
       const errorMessage = error?.message || "Failed to create lead. Please try again.";
       console.error("Submission error:", error);
-      toast.error(errorMessage); // Show error via toast
+      toast.error(errorMessage); 
     }
   };
 

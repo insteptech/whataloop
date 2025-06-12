@@ -165,11 +165,12 @@ const businessOnboardingSlice = createSlice({
     builder.addCase(addBusinessInfo.fulfilled, (state, action) => {
       const step = action?.meta?.arg?.step;
             console.log("Step from slice", step )
-
+      debugger
       if (step === "step3") {
         state.updatingInfoStep3 = false;
         state.infoUpdatedStep3 = true;
       } else if (step === "step4") {
+        
         state.updatingInfoStep4 = false;
         state.infoUpdatedStep4 = true;
       }
