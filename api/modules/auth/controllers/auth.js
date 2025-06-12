@@ -265,3 +265,17 @@ exports.resendOtp = async (req, res, next) => {
     next(new CustomError(error.message || "Failed to resend OTP.", error.status || 500));
   }
 };
+
+
+exports.refreshToken = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+    const token = await authManager.refreshToken(userId);
+    return res.status(200).json({ token });
+  } catch (error) {
+    console.error('Error refreshing token:', error);
+    return res.status(500).json({ message: 'Failed to refresh token' });
+  }
+};

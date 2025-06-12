@@ -443,6 +443,30 @@ const checkBusinessExists = async (userId) => {
   return business ? true : false;
 };
 
+// const generateToken = (user) => {
+//   return jwt.sign(
+//     {
+//       id: user.id,
+//       phone: user.phone,
+//       account_type: user.account_type,
+//       stripe_customer_id: user.stripe_customer_id,
+//       subscription_plan_id: user.subscription_plan_id,
+//       subscription_status: user.subscription_status,
+//     },
+//     JWT_SECRET,
+//     { expiresIn: JWT_EXPIRY }
+//   );
+// };
+
+const refreshUserToken = async (userId) => {
+  const { User } = await getAllModels(process.env.DB_TYPE);
+  const user = await User.findByPk(userId);
+  if (!user) throw new Error('User not found');
+  const token = generateToken({ id: user.id, phone: user.phone, accountType: user.account_type, businessExist: await checkBusinessExists(user.id)});
+  return { user: { id: user.id, phone: user.phone, full_name: user.full_name }, token };
+};
+
+
 module.exports = {
   findUser,
   createUser,
@@ -458,5 +482,6 @@ module.exports = {
   findById,
   sendOtp,
   verifyOtp,
-  resendOtp
+  resendOtp,
+  refreshUserToken
 };

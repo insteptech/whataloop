@@ -108,3 +108,7 @@ exports.userExists = async (phone) => {
   const { User } = await getAllModels(process.env.DB_TYPE);
   return !!(await User.findOne({ where: { phone } }));
 };
+
+exports.refreshToken = async (userId) => {
+  return await authService.refreshUserToken(userId);
+};
