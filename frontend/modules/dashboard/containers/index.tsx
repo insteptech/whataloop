@@ -28,9 +28,9 @@ import { getRefreshToken, getToken, setToken, getDecodedToken } from "@/utils/au
 function DashboardPage() {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
+  const [showRegisterBusinessModal, setRegisterBusinessShowModal] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showBusinesssDetailModal, setShowBusinessDetailModal] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [whatsappForOtp, setWhatsappForOtp] = useState("");
@@ -38,7 +38,10 @@ function DashboardPage() {
   const [businessId, setBusinessId] = useState("");
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
-  const { businessExist }: any = getDecodedToken()
+
+
+  const decodedToken = getDecodedToken() as { businessExist?: boolean } | null;
+  const businessExist = decodedToken?.businessExist;
 
   const search = window.location.search || window.location.hash.split('?')[1] || '';
 
@@ -52,7 +55,7 @@ function DashboardPage() {
 
   const isSetUpReply = params.get('isSetUpReply');
   const isConnectBusiness = params.get('isConnectBusiness');
-  
+
   const { data: user, loading } = useSelector(
     (state: { profileReducer: { data: any; loading: boolean } }) =>
       state.profileReducer
@@ -60,8 +63,8 @@ function DashboardPage() {
   const { leads } = useSelector((state: any) => state.leadReducer);
   const userBusinessExists = useSelector((state: any) => state.businessOnboardingReducer.exists);
 
-  useEffect (() => {
-    setShowModal(!!isConnectBusiness);
+  useEffect(() => {
+    setRegisterBusinessShowModal(!!isConnectBusiness);
     setShowWelcomeModal(!!isSetUpReply);
   }, [isSetUpReply, isConnectBusiness])
 
@@ -108,8 +111,9 @@ function DashboardPage() {
       const response = await dispatch(createBusiness(payload) as any).unwrap();
       if (response.data.status === 200 || response?.statusCode === 200) {
         setWhatsappForOtp(values.whatsappNumber);
-        setShowModal(false);
+        setRegisterBusinessShowModal(false);
         setShowOtpModal(true);
+
         toast.success("OTP sent successfully");
       } else {
         return toast.error(response.error?.message || "Failed to send OTP");
@@ -158,9 +162,11 @@ function DashboardPage() {
       }
       setBusinessId(response?.data?.businessId);
       toast.success("OTP Verified Successfully!");
+      debugger;
       setOtp(["", "", "", ""]);
+
       setShowOtpModal(false);
-      setShowDetailsModal(true);
+      setShowBusinessDetailModal(true);
     } catch (error: any) {
       toast.error(error?.message || "Invalid or expired OTP. Please try again.");
     }
@@ -179,10 +185,11 @@ function DashboardPage() {
         onClose={() => {
           setShowPaymentStatusModal(false);
 
-          // const url = new URL(window.location.href);
-          // url.searchParams.delete("isPaymentSuccess");
-          // url.searchParams.delete("isPaymentRejected");
-          // window.history.replaceState(null, "", url.toString());
+          const url = new URL(window.location.href);
+          url.searchParams.delete("ispaymentSuccess");
+          url.searchParams.delete("ispaymentRejected");
+          url.searchParams.delete("session_id");
+          window.history.replaceState(null, "", url.toString());
         }}
       />
 
@@ -194,14 +201,14 @@ function DashboardPage() {
               <p className="mb-0">
                 <strong>Register your business to get started</strong>
               </p>
-              <button className="send-otp-button" onClick={() => setShowModal(true)}>
+              <button className="send-otp-button" onClick={() => setRegisterBusinessShowModal(true)}>
                 Add Business
               </button>
             </div>
           </div>
 
           {/* Modal 1: Register Business */}
-          <Modal show={showModal} onHide={() => setShowModal(false)} centered className="custom-modal">
+          <Modal show={showRegisterBusinessModal} onHide={() => setRegisterBusinessShowModal(false)} centered className="custom-modal">
             <Modal.Header className="modalHeader" closeButton>
               <h2>Register your Business</h2>
             </Modal.Header>
@@ -333,8 +340,8 @@ function DashboardPage() {
 
           {/* Modal 3: Business Info */}
           <Modal
-            show={showDetailsModal}
-            onHide={() => setShowDetailsModal(false)}
+            show={showBusinesssDetailModal}
+            onHide={() => setShowBusinessDetailModal(false)}
             centered
             className="custom-modal"
           >
@@ -366,7 +373,7 @@ function DashboardPage() {
 
                   if (addBusinessInfo.fulfilled.match(resultAction)) {
                     toast.success("Business info submitted successfully!");
-                    setShowDetailsModal(false);
+                    setShowBusinessDetailModal(false);
                     setShowWelcomeModal(true);
                   } else {
                     throw new Error(resultAction?.payload || "Failed to submit business info");
@@ -443,7 +450,7 @@ function DashboardPage() {
                 try {
                   const resultAction = await dispatch(
                     addBusinessInfo({
-                       step: "step4" as 'step4',
+                      step: "step4" as 'step4',
                       businessId: businessId,
                       welcome_message: values.welcomeMessage,
                     }) as any

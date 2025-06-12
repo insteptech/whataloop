@@ -115,7 +115,7 @@ export const addBusinessInfo = createAsyncThunk(
   "business/addBusinessInfo",
   async (
     payload: {
-      step?: "step3" | "step4"
+      step?: "step3" | "step4";
       businessId: string;
       industry?: string;
       website?: string;
@@ -123,17 +123,17 @@ export const addBusinessInfo = createAsyncThunk(
     },
     { rejectWithValue }
   ) => {
-    debugger
     try {
       const response = await api.post("/business/update-info", payload, {
         headers: {
           "Content-Type": "application/json",
         },
       });
-      console.log("Step no", payload.step)
-      if(payload.step === 'step4'){
+
+      if (payload.step === 'step4') {
         window.location.reload();
       }
+
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error?.response?.data || "Failed to update business info");

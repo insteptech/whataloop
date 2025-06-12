@@ -59,6 +59,9 @@ const downloadStripeInvoice = createAsyncThunk<
         `stripe/download?session_id=${sessionId}`,
         { responseType: "blob" }
       );
+      if(response.status === 200){
+        window.location.reload();
+      }
       return { sessionId, blob: response.data as Blob };
     } catch (err: any) {
       const msg =

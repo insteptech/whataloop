@@ -9,6 +9,7 @@ import {
   addBusinessInfo,
 } from "@/modules/dashboard/redux/actions/businessAction";
 
+// State Interface
 interface BusinessOnboardingState {
   // Check if user has existing business
   exists: boolean | null;
@@ -31,10 +32,15 @@ interface BusinessOnboardingState {
   createBusinessError: string | null;
   businessId: string | null;
 
-  // Business info update
-  infoUpdated: boolean;
-  updatingInfo: boolean;
-  updateInfoError: string | null;
+  // Step 3 - Business info update
+  infoUpdatedStep3: boolean;
+  updatingInfoStep3: boolean;
+  updateInfoErrorStep3: string | null;
+
+  // Step 4 - Business info update
+  infoUpdatedStep4: boolean;
+  updatingInfoStep4: boolean;
+  updateInfoErrorStep4: string | null;
 }
 
 const initialState: BusinessOnboardingState = {
@@ -59,10 +65,15 @@ const initialState: BusinessOnboardingState = {
   createBusinessError: null,
   businessId: null,
 
-  // Info update
-  infoUpdated: false,
-  updatingInfo: false,
-  updateInfoError: null,
+  // Info update - Step 3
+  infoUpdatedStep3: false,
+  updatingInfoStep3: false,
+  updateInfoErrorStep3: null,
+
+  // Info update - Step 4
+  infoUpdatedStep4: false,
+  updatingInfoStep4: false,
+  updateInfoErrorStep4: null,
 };
 
 const businessOnboardingSlice = createSlice({
@@ -80,10 +91,10 @@ const businessOnboardingSlice = createSlice({
       state.existsError = null;
     });
     builder.addCase(getUsersBusinessExist.fulfilled, (state, action) => {
-  state.existsLoading = false;
-  state.exists = action.payload.exists;
-  state.businessId = action.payload?.data?.id || null; 
-});
+      state.existsLoading = false;
+      state.exists = action.payload.exists;
+      state.businessId = action.payload?.data?.id || null;
+    });
     builder.addCase(getUsersBusinessExist.rejected, (state, action) => {
       state.existsLoading = false;
       state.existsError = action.payload as string;
@@ -124,11 +135,12 @@ const businessOnboardingSlice = createSlice({
       state.creatingBusiness = true;
       state.createBusinessError = null;
       state.businessCreated = false;
-      
     });
     builder.addCase(createBusiness.fulfilled, (state, action) => {
+      state.exists = true
       state.creatingBusiness = false;
       state.businessCreated = true;
+      state.businessId = action.payload?.data?.id || null;
     });
     builder.addCase(createBusiness.rejected, (state, action) => {
       state.creatingBusiness = false;
@@ -136,18 +148,43 @@ const businessOnboardingSlice = createSlice({
     });
 
     // addBusinessInfo
-    builder.addCase(addBusinessInfo.pending, (state) => {
-      state.updatingInfo = true;
-      state.updateInfoError = null;
-      state.infoUpdated = false;
+    builder.addCase(addBusinessInfo.pending, (state, action) => {
+      const step = action?.meta?.arg?.step;
+
+      if (step === "step3") {
+        state.updatingInfoStep3 = true;
+        state.updateInfoErrorStep3 = null;
+        state.infoUpdatedStep3 = false;
+      } else if (step === "step4") {
+        state.updatingInfoStep4 = true;
+        state.updateInfoErrorStep4 = null;
+        state.infoUpdatedStep4 = false;
+      }
     });
-    builder.addCase(addBusinessInfo.fulfilled, (state) => {
-      state.updatingInfo = false;
-      state.infoUpdated = true;
+
+    builder.addCase(addBusinessInfo.fulfilled, (state, action) => {
+      const step = action?.meta?.arg?.step;
+            console.log("Step from slice", step )
+
+      if (step === "step3") {
+        state.updatingInfoStep3 = false;
+        state.infoUpdatedStep3 = true;
+      } else if (step === "step4") {
+        state.updatingInfoStep4 = false;
+        state.infoUpdatedStep4 = true;
+      }
     });
+
     builder.addCase(addBusinessInfo.rejected, (state, action) => {
-      state.updatingInfo = false;
-      state.updateInfoError = action.payload as string;
+      const step = action?.meta?.arg?.step;
+
+      if (step === "step3") {
+        state.updatingInfoStep3 = false;
+        state.updateInfoErrorStep3 = action.payload as string;
+      } else if (step === "step4") {
+        state.updatingInfoStep4 = false;
+        state.updateInfoErrorStep4 = action.payload as string;
+      }
     });
   },
 });
