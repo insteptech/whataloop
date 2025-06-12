@@ -23,6 +23,7 @@ import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { toast } from "react-toastify";
 import PaymentStatusModal from "@/components/common/PaymentStatusModal";
+import { getRefreshToken, getToken, setToken } from "@/utils/auth";
 
 function DashboardPage() {
   const dispatch = useDispatch();
@@ -139,7 +140,18 @@ function DashboardPage() {
 
     try {
       const response = await dispatch(verifyOtp({ whatsapp_number: whatsappForOtp, otp: enteredOtp }) as any).unwrap();
-      setBusinessId(response?.businessId);
+      console.log('Repsosne for business verify', response)
+      if (response?.status == 200) {
+        const refreshTokenRepsonse = await dispatch(getRefreshToken() as any)
+        console.log('refreshTokenRepsonse:---', refreshTokenRepsonse.payload);
+
+        if (refreshTokenRepsonse.payload) {
+          setToken(refreshTokenRepsonse.payload)
+          console.log('NEw TOken', getToken())
+        }
+
+      }
+      setBusinessId(response?.data?.businessId);
       toast.success("OTP Verified Successfully!");
       setOtp(["", "", "", ""]);
       setShowOtpModal(false);
@@ -340,6 +352,7 @@ function DashboardPage() {
                 try {
                   const resultAction = await dispatch(
                     addBusinessInfo({
+                      step: "step3" as 'step3',
                       businessId: businessId,
                       industry: values.industry,
                       website: values.businessWebsite || undefined,
@@ -425,6 +438,7 @@ function DashboardPage() {
                 try {
                   const resultAction = await dispatch(
                     addBusinessInfo({
+                       step: "step4" as 'step4',
                       businessId: businessId,
                       welcome_message: values.welcomeMessage,
                     }) as any

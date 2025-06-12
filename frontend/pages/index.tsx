@@ -1,10 +1,12 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { componentsMap } from "@/componentsMap"; // Import the generated map
 import LeftSidebar from "@/components/common/LeftSidebar";
 import { Col, Container, Row } from "react-bootstrap";
 import HeaderTopBar from "@/components/common/HeaderTopBar";
 import SetupProgressCard from "@/components/common/SetupProgressCard";
+import { getDecodedToken, getRefreshToken } from "@/utils/auth";
+import { useDispatch } from "react-redux";
 
 const Layout = dynamic(() => import("../layouts/main"));
 const Default = dynamic(() => import("./default"));
@@ -17,6 +19,8 @@ export default function Page({ slug }: PageProps) {
   const [sideBarWidth, setSideBarWidth] = useState(false);
   const [profile, setProfile] = useState(false);
 
+
+  const dispatch = useDispatch();
   const OpenProfileDropDown = () => {
     setProfile(!profile);
   };
@@ -30,11 +34,15 @@ export default function Page({ slug }: PageProps) {
   let subModulesPath = slugArray.slice(1).join("/") || "/";
 
   const steps = [
-  { title: "Create your Buffer account", completed: true },
-  { title: "Connect your first channel", completed: true },
-  { title: "Save an idea", completed: false },
-  { title: "Publish your first post", completed: true },
+    { title: "Create your Buffer account", completed: true },
+    { title: "Connect your first channel", completed: true },
+    { title: "Save an idea", completed: false },
+    { title: "Publish your first post", completed: true },
   ];
+
+
+  // const { businessExist }: any = getDecodedToken()
+  // console.log("Business Exist", businessExist)
 
 
   function findMatchingRoute(userRoute, modulePath) {
@@ -83,7 +91,9 @@ export default function Page({ slug }: PageProps) {
                 }`}
             >
               <LeftSidebar Width={sideBarWidth}
-                toggleSidebar={() => setSideBarWidth(!sideBarWidth)} />
+                toggleSidebar={() => setSideBarWidth(!sideBarWidth)}
+              
+              />
             </Col>
             <Col
               md={10}

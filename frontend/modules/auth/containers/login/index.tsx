@@ -87,14 +87,18 @@ const LoginWithOTP = () => {
 
   return (
     <div className="card-bg-container">
-      {isLoading && <Loader />}
+
       <div className="card-inner-content">
         <div className="module-card-header">
           <h2>Log in</h2>
           <h3>Enter your number to log in</h3>
         </div>
         {!isOTPSent ? (
-          <Formik initialValues={{ phone: "" }} validationSchema={loginValidationSchema} onSubmit={handleSendOtp}>
+          <Formik
+            initialValues={{ phone: "" }}
+            validationSchema={loginValidationSchema}
+            onSubmit={handleSendOtp}
+          >
             {({ values, handleChange, isSubmitting }) => (
               <Form className="login-form">
                 <InputFieldWithCountryCode
@@ -108,15 +112,20 @@ const LoginWithOTP = () => {
                   className="country-code-select-with-number"
                   required
                 />
-                <p>you will recieve 6 digit code </p>
-                <button type="submit" className="send-otp-button" disabled={isSubmitting}>
-                  {isSubmitting ? "Sending OTP..." : "Send OTP"}
+                <p>You will receive a 6-digit code</p>
+                {/* Only the button shows loading */}
+                <button type="submit" className="send-otp-button mt-3" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <span className="spin"></span>
+                  ) : " Send OTP"}
+
                 </button>
                 <div className="divider">
                   <span>or</span>
                 </div>
                 <div className="signup-link">
-                  Don't have an account? <a href="/auth/register">Create an account</a>
+                  Don't have an account?{" "}
+                  <a href="/auth/register">Create an account</a>
                 </div>
               </Form>
             )}
@@ -160,11 +169,11 @@ const LoginWithOTP = () => {
               </div>
 
               {/* Centered Continue Button */}
-             
-                <button className="send-otp-button" onClick={handleVerifyOtp} disabled={isLoading}>
-                  {isLoading ? "Verifying..." : "Continue"}
-                </button>
-             
+
+              <button className="send-otp-button" onClick={handleVerifyOtp} disabled={isLoading}>
+                {isLoading ? "Verifying..." : "Continue"}
+              </button>
+
             </Modal.Body>
           </Modal>
         )}

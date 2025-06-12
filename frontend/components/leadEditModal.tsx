@@ -80,14 +80,14 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ show, onClose, lead, onSa
     notes: Yup.string(),
   });
 
-const handleSubmit = (values: typeof initialValues) => {
-  const updatedData = {
-    ...values,
-    id: lead.id // Ensure ID is always included
+  const handleSubmit = (values: typeof initialValues) => {
+    const updatedData = {
+      ...values,
+      id: lead.id // Ensure ID is always included
+    };
+    onSave(updatedData); // This should trigger updateLead action
+    handleClose();
   };
-  onSave(updatedData); // This should trigger updateLead action
-  handleClose();
-};
 
   // Reset editable state and call parent's onClose
   const handleClose = () => {

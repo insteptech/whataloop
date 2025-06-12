@@ -1,6 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@/axios/axiosInterceptor";
 import { headers } from "next/headers";
+import { getRefreshToken, getToken, logout, setToken } from "@/utils/auth";
+import { useDispatch } from "react-redux";
 
 export const getUsersBusinessExist = createAsyncThunk(
   "business/getUsersBusinessExist",
@@ -39,6 +41,7 @@ export const verifyOtp = createAsyncThunk(
     payload: { whatsapp_number: string; otp: string },
     { rejectWithValue }
   ) => {
+    // const dispatch = useDispatch()
     try {
       // Remove all non-digit characters including '+'
 
@@ -56,8 +59,9 @@ export const verifyOtp = createAsyncThunk(
           },
         }
       );
-
-      return response.data;
+      
+     
+      return response;
     } catch (error: any) {
       return rejectWithValue(error?.response?.data || "Failed to verify OTP");
     }
@@ -111,21 +115,25 @@ export const addBusinessInfo = createAsyncThunk(
   "business/addBusinessInfo",
   async (
     payload: {
-      businessId?: string;
+      step?: "step3" | "step4"
+      businessId: string;
       industry?: string;
       website?: string;
       welcome_message?: string;
     },
     { rejectWithValue }
   ) => {
-    
+    debugger
     try {
       const response = await api.post("/business/update-info", payload, {
         headers: {
           "Content-Type": "application/json",
         },
       });
-
+      console.log("Step no", payload.step)
+      if(payload.step === 'step4'){
+        window.location.reload();
+      }
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error?.response?.data || "Failed to update business info");

@@ -45,29 +45,29 @@ const CreateUser = () => {
   });
 
   // Handle Send OTP
-  const handleSendOtp = async (values) => {
-    const payload = { email: values.email };
-    try {
-      const response = await dispatch(sendOtp(payload) as any).unwrap();
-      if (response.status === 200) {
-        setEmailVerify(true);
-        toast.success("OTP sent successfully! Please check your email.");
-      } else if (response.statusCode === 400) {
-        toast.error(response.message);
-      } else {
-        toast.error(response.message || "Failed to send OTP.");
-      }
-    } catch (error: any) {
-      const errorMessage = error.message || "Submission error. Please try again.";
-      if (errorMessage.includes("email")) {
-        toast.error(errorMessage);
-      } else if (errorMessage.includes("phone")) {
-        toast.error(errorMessage);
-      } else {
-        toast.error(errorMessage);
-      }
-    }
-  };
+  // const handleSendOtp = async (values) => {
+  //   const payload = { email: values.email };
+  //   try {
+  //     const response = await dispatch(sendOtp(payload) as any).unwrap();
+  //     if (response.status === 200) {
+  //       setEmailVerify(true);
+  //       toast.success("OTP sent successfully! Please check your email.");
+  //     } else if (response.statusCode === 400) {
+  //       toast.error(response.message);
+  //     } else {
+  //       toast.error(response.message || "Failed to send OTP.");
+  //     }
+  //   } catch (error: any) {
+  //     const errorMessage = error.message || "Submission error. Please try again.";
+  //     if (errorMessage.includes("email")) {
+  //       toast.error(errorMessage);
+  //     } else if (errorMessage.includes("phone")) {
+  //       toast.error(errorMessage);
+  //     } else {
+  //       toast.error(errorMessage);
+  //     }
+  //   }
+  // };
 
   // Handle OTP Verify
   const handleOtpVerify = async (values, setTouched) => {
@@ -222,7 +222,7 @@ const CreateUser = () => {
                             await handleSendOtp(values);
                           } else {
                             setTouched({
-                              full_name: true,  
+                              full_name: true,
                               email: true,
                               phone: true,
                               password: true,

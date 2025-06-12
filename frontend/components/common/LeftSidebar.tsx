@@ -10,10 +10,12 @@ import { useRouter } from "next/router";
 import { HomeIcon, ProfileIcon, Logo, SubscriptionIcon, HamburgerMenuIcon } from "./Icon";
 import UsersIcon from "../../public/group.png";
 
-function LeftSidebar({ Width, toggleSidebar, }: any) {
+function LeftSidebar({ Width, toggleSidebar }: any) {
   const pathname = usePathname();
   const dispatch = useDispatch();
   const router = useRouter();
+
+
 
   const { data: user } = useSelector(
     (state: {

@@ -1,9 +1,13 @@
 import { jwtDecode,JwtPayload } from "jwt-decode";
+import { ApiError } from "next/dist/server/api-utils";
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import api from '@/axios/axiosInterceptor'; 
  
 // Define the token key used in localStorage
 const TOKEN_KEY = "auth_token";
 // Set token in localStorage
 export const setToken = (token: string): void => {
+  console.log("token", token)
   localStorage.setItem(TOKEN_KEY, token);
 };
 
@@ -46,7 +50,23 @@ export const getDecodedToken = (): JwtPayload | null => {
     return null;
   }
 };
+export const getRefreshToken = createAsyncThunk("getRefreshToken", async () => {
 
+  const token = getToken();
+  try {
+     const response = await api.post(`/auth/refresh-token`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // setToken(response.payload)
+      return(
+        response.data.token.token
+      )
+  } catch (error) {
+    return error.response.data;
+  }
+});
 // Example usage for protected routes
 export const isAuthenticated = (): boolean => {
   return isTokenValid();

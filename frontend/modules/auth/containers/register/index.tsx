@@ -7,7 +7,6 @@ import InputFieldWithCountryCode from "@/components/common/InputFieldWithCountry
 import { resendOtp, sendOtp, verifyOtpAndRegisterAndLogin } from "../../redux/actions/authAction";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import Loader from "@/components/common/loader";
 
 const SignUp = () => {
   const dispatch = useDispatch();
@@ -58,11 +57,10 @@ const SignUp = () => {
         phone: values.phone,
       };
       const response = await dispatch(sendOtp(payload) as any);
-      toast.success("OTP has been sent to your WhatsApp!");
 
-
+      console.log("repsosne send otp", response)
       if (response.error) {
-        toast.error(response.error.message || "Failed to send OTP");
+        toast.error(response.payload.message || "Failed to send OTP");
         return;
       }
 
@@ -138,7 +136,6 @@ const SignUp = () => {
 
   return (
     <div className="card-bg-container lg-card-bg-container">
-      {isLoading && <Loader />}
       <div className="card-inner-content registration-form-card">
         {/* Only show the form if OTP modal is NOT open */}
         {!showOtpModal ? (
@@ -186,7 +183,9 @@ const SignUp = () => {
                   </Row>
                   <p className="otp-message">You will receive a 6-digit code</p>
                   <button type="submit" className="send-otp-button" disabled={isSubmitting}>
-                    {isSubmitting ? "Sending OTP..." : "Send OTP"}
+                    {isSubmitting ? (
+                      <span className="spin"></span>
+                    ) : "Send OTP"}
                   </button>
                   <div className="divider mt-4">
                     <span>or</span>
