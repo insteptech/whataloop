@@ -5,6 +5,8 @@ import { TbGift, TbMessageCircle, TbSettings } from "react-icons/tb";
 import IncomeOverview from "./IncomeOverview";
 import UniqueVisitorChart from "./UniqueVisitorChart";
 import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/router";
+
 import { getLeads } from "@/modules/leads/redux/action/leadAction";
 import { getUsers } from "@/modules/users/redux/action/usersAction";
 import Loader from "@/components/common/loader";
@@ -39,6 +41,7 @@ function DashboardPage() {
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
   const { businessExist }: any = getDecodedToken()
+  const router = useRouter();
 
   const search = window.location.search || window.location.hash.split('?')[1] || '';
 
@@ -108,7 +111,7 @@ function DashboardPage() {
       const response = await dispatch(createBusiness(payload) as any).unwrap();
       if (response.data.status === 200 || response?.statusCode === 200) {
         setWhatsappForOtp(values.whatsappNumber);
-        setShowModal(false);
+        closeBusinessStepModel();
         setShowOtpModal(true);
         toast.success("OTP sent successfully");
       } else {
@@ -170,6 +173,21 @@ function DashboardPage() {
     return <Loader />;
   }
 
+  const clearQuery = () => {
+    const realPath = router.asPath.split("?")[0];
+    router.replace(realPath, undefined, { shallow: true });
+  };
+
+  const closeBusinessStepModel = () => {
+    setShowModal(false);
+    clearQuery();
+  }
+
+  const closeWelcomeMessageModal = () => {
+    setShowWelcomeModal(false);
+    clearQuery();
+  }
+ 
   return (
     <>
       <PaymentStatusModal
@@ -201,7 +219,7 @@ function DashboardPage() {
           </div>
 
           {/* Modal 1: Register Business */}
-          <Modal show={showModal} onHide={() => setShowModal(false)} centered className="custom-modal">
+          <Modal show={showModal} onHide={() => closeBusinessStepModel()} centered className="custom-modal">
             <Modal.Header className="modalHeader" closeButton>
               <h2>Register your Business</h2>
             </Modal.Header>
@@ -426,7 +444,7 @@ function DashboardPage() {
           {/* Modal 4: Welcome Message */}
           <Modal
             show={showWelcomeModal}
-            onHide={() => setShowWelcomeModal(false)}
+            onHide={() => closeWelcomeMessageModal()}
             centered
           >
             <Modal.Header className="modalHeader" closeButton>
@@ -451,7 +469,7 @@ function DashboardPage() {
 
                   if (addBusinessInfo.fulfilled.match(resultAction)) {
                     toast.success("Welcome message saved successfully!");
-                    setShowWelcomeModal(false);
+                    closeWelcomeMessageModal();
 
                     // Now mark business as fully registered
                     setBusinessRegistered(true);
