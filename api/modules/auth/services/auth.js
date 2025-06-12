@@ -278,7 +278,8 @@ const verifyOtp = async (phone, otp) => {
   // LOGIN: user exists, just return JWT
   if (user) {
     otpCache.delete(phone);    
-    const token = generateToken({ id: user.id, phone: user.phone, accountType: user.account_type, businessExist: await checkBusinessExists(user.id)});
+    await checkBusinessReplyExists(user.id);
+    const token = generateToken({ id: user.id, phone: user.phone, accountType: user.account_type, businessExist: await checkBusinessExists(user.id), isMessageAdded: await checkBusinessReplyExists(user.id)});
     return { user: { id: user.id, phone: user.phone, full_name: user.full_name }, token };
   }
 
@@ -443,6 +444,14 @@ const checkBusinessExists = async (userId) => {
   return business ? true : false;
 };
 
+const checkBusinessReplyExists = async (userId) => {
+  const { Business } = await getAllModels(process.env.DB_TYPE);
+  if (!userId) throw new Error('userId is required');
+
+  const business = await Business.findOne({ where: { user_id: userId } });  
+  return business?.dataValues?.welcome_message ? true : false;
+};
+
 // const generateToken = (user) => {
 //   return jwt.sign(
 //     {
@@ -462,7 +471,7 @@ const refreshUserToken = async (userId) => {
   const { User } = await getAllModels(process.env.DB_TYPE);
   const user = await User.findByPk(userId);
   if (!user) throw new Error('User not found');
-  const token = generateToken({ id: user.id, phone: user.phone, accountType: user.account_type, businessExist: await checkBusinessExists(user.id)});
+  const token = generateToken({ id: user.id, phone: user.phone, accountType: user.account_type, businessExist: await checkBusinessExists(user.id), isMessageAdded: await checkBusinessReplyExists(user.id)});
   return { user: { id: user.id, phone: user.phone, full_name: user.full_name }, token };
 };
 

@@ -23,6 +23,10 @@ import Loader from "@/components/common/loader";
 import UniqueVisitorChart from "./UniqueVisitorChart";
 import IncomeOverview from "./IncomeOverview";
 import { TbGift } from "react-icons/tb";
+import {
+  setOtpVerified,
+  setInfoUpdatedStep4,
+} from "@/modules/dashboard/redux/slices/businessOnboardingSlice";
 
 function DashboardPage() {
   const dispatch = useDispatch();
@@ -148,6 +152,7 @@ function DashboardPage() {
       setOtp(["", "", "", ""]);
       setShowOtpModal(false);
       setShowBusinessDetailModal(true);
+      dispatch(setOtpVerified(true))
     } catch (error: any) {
       toast.error(error?.message || "Invalid or expired OTP. Please try again.");
     }
@@ -187,19 +192,21 @@ function DashboardPage() {
           welcome_message: values.welcomeMessage,
         }) as any
       );
-
-      if (resultAction?.payload?.status === 200) {
-        const refreshTokenResponse = await dispatch(getRefreshToken() as any);
-        if (refreshTokenResponse.payload) {
-          setToken(refreshTokenResponse.payload);
-        }
-      }
-
       if (addBusinessInfo.fulfilled.match(resultAction)) {
         toast.success("Welcome message saved successfully!");
         closeWelcomeMessageModal();
         setBusinessRegistered(true);
         setRegistrationComplete(true);
+        dispatch(setInfoUpdatedStep4(true));
+
+        if (resultAction?.payload?.success) {
+        const refreshTokenResponse = await dispatch(getRefreshToken() as any);
+        if (refreshTokenResponse.payload) {
+          setToken(refreshTokenResponse.payload);
+          window.location.reload();
+        }
+      }
+
       } else {
         throw new Error(resultAction.payload || "Failed to save welcome message");
       }

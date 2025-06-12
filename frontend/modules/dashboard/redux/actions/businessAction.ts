@@ -123,18 +123,12 @@ export const addBusinessInfo = createAsyncThunk(
     },
     { rejectWithValue }
   ) => {
-    console.log('Step', payload.step)
     try {
       const response = await api.post("/business/update-info", payload, {
         headers: {
           "Content-Type": "application/json",
         },
       });
-
-      if (payload.step === 'step4') {
-        window.location.reload();
-      }
-      console.log(response, 'Add Business response ')
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error?.response?.data || "Failed to update business info");

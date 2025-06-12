@@ -58,7 +58,6 @@ const SignUp = () => {
       };
       const response = await dispatch(sendOtp(payload) as any);
 
-      console.log("repsosne send otp", response)
       if (response.error) {
         toast.error(response.payload.message || "Failed to send OTP");
         return;

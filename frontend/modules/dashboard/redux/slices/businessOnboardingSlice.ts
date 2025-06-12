@@ -1,6 +1,6 @@
 // src/modules/business/redux/slices/businessOnboardingSlice.ts
 
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
   getUsersBusinessExist,
   sendOtp,
@@ -25,6 +25,7 @@ interface BusinessOnboardingState {
   otpVerified: boolean;
   verifyingOtp: boolean;
   otpVerificationError: string | null;
+  isOtpVerified: boolean;
 
   // Business creation
   businessCreated: boolean;
@@ -41,6 +42,7 @@ interface BusinessOnboardingState {
   infoUpdatedStep4: boolean;
   updatingInfoStep4: boolean;
   updateInfoErrorStep4: string | null;
+  isMessageAdded: boolean;
 }
 
 const initialState: BusinessOnboardingState = {
@@ -58,6 +60,7 @@ const initialState: BusinessOnboardingState = {
   otpVerified: false,
   verifyingOtp: false,
   otpVerificationError: null,
+  isOtpVerified: false,
 
   // Business creation
   businessCreated: false,
@@ -74,6 +77,7 @@ const initialState: BusinessOnboardingState = {
   infoUpdatedStep4: false,
   updatingInfoStep4: false,
   updateInfoErrorStep4: null,
+  isMessageAdded: false,
 };
 
 const businessOnboardingSlice = createSlice({
@@ -83,6 +87,29 @@ const businessOnboardingSlice = createSlice({
     resetBusinessOnboardingState: (state) => {
       return { ...initialState };
     },
+
+    setOtpVerified: (state, action: PayloadAction<boolean>) => {
+      state.isOtpVerified = action.payload;
+    },
+    setInfoUpdatedStep4: (state, action: PayloadAction<boolean>) => {
+      state.isMessageAdded = action.payload;
+    },
+    setOnboardingFlags: (
+      state,
+      action: PayloadAction<{
+        isOtpVerified?: boolean;
+        isMessageAdded?: boolean;
+      }>
+    ) => {
+      const { isOtpVerified, isMessageAdded } = action.payload;
+      if (typeof isOtpVerified === "boolean") {
+        state.otpVerified = isOtpVerified;
+      }
+      if (typeof isMessageAdded === "boolean") {
+        state.infoUpdatedStep4 = isMessageAdded;
+      }
+    },
+
   },
   extraReducers: (builder) => {
     // getUsersBusinessExist
@@ -164,8 +191,6 @@ const businessOnboardingSlice = createSlice({
 
     builder.addCase(addBusinessInfo.fulfilled, (state, action) => {
       const step = action?.meta?.arg?.step;
-            console.log("Step from slice", step )
-      debugger
       if (step === "step3") {
         state.updatingInfoStep3 = false;
         state.infoUpdatedStep3 = true;
@@ -190,6 +215,12 @@ const businessOnboardingSlice = createSlice({
   },
 });
 
-export const { resetBusinessOnboardingState } = businessOnboardingSlice.actions;
+export const { 
+  resetBusinessOnboardingState,
+  setOtpVerified,
+  setInfoUpdatedStep4,
+  setOnboardingFlags,
+
+ } = businessOnboardingSlice.actions;
 
 export default businessOnboardingSlice.reducer;

@@ -7,7 +7,6 @@ import api from '@/axios/axiosInterceptor';
 const TOKEN_KEY = "auth_token";
 // Set token in localStorage
 export const setToken = (token: string): void => {
-  console.log("token", token)
   localStorage.setItem(TOKEN_KEY, token);
 };
 

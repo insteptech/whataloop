@@ -5,9 +5,10 @@ import LeftSidebar from "@/components/common/LeftSidebar";
 import { Col, Container, Row } from "react-bootstrap";
 import HeaderTopBar from "@/components/common/HeaderTopBar";
 import SetupProgressCard from "@/components/common/SetupProgressCard";
-import { getDecodedToken, getRefreshToken } from "@/utils/auth";
-import { useDispatch } from "react-redux";
+import { getDecodedToken, getRefreshToken, getToken } from "@/utils/auth";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
+import { setInfoUpdatedStep4, setOtpVerified } from "@/modules/dashboard/redux/slices/businessOnboardingSlice";
 
 const Layout = dynamic(() => import("../layouts/main"));
 const Default = dynamic(() => import("./default"));
@@ -21,11 +22,26 @@ export default function Page({ slug }: PageProps) {
   const [profile, setProfile] = useState(false);
   const router = useRouter();
 
+   const { otpVerified, infoUpdatedStep4 } = useSelector(
+    (state: any) => state.businessOnboardingReducer
+  );
+  const decoded = getDecodedToken() || {};
+  const businessExist = (decoded as any).businessExist;
+  const isMessageAdded = (decoded as any).isMessageAdded;
+
 
   const dispatch = useDispatch();
   const OpenProfileDropDown = () => {
     setProfile(!profile);
   };
+
+  useEffect(() => {
+    const decoded = getDecodedToken() || {};
+    const businessExist = (decoded as any).businessExist;
+    const isMessageAdded = (decoded as any).isMessageAdded;    
+    dispatch(setOtpVerified(businessExist));
+    dispatch(setInfoUpdatedStep4(isMessageAdded));
+  },[])
 
   const slugArray = Array.isArray(slug)
     ? slug.filter(Boolean)
@@ -37,8 +53,8 @@ export default function Page({ slug }: PageProps) {
 
   const steps = [
     { title: "Profile Setup", completed: true, onClick: () => router.push("/dashboard/containers") },
-    { title: "Connect Business", completed: false, onClick: () => router.push("/dashboard/containers?isConnectBusiness=true") },
-    { title: "Setup Auto Reply", completed: false, onClick: () => router.push("/dashboard/containers?isSetUpReply=true") },
+    { title: "Connect Business", completed: otpVerified || businessExist, onClick: () => router.push("/dashboard/containers?isConnectBusiness=true") },
+    { title: "Setup Auto Reply", completed: infoUpdatedStep4 || isMessageAdded, onClick: () => router.push("/dashboard/containers?isSetUpReply=true") },
   ];
 
 
@@ -123,12 +139,12 @@ export default function Page({ slug }: PageProps) {
               </div>
             </Col>
           </Row>
-          <div
+          {(!isMessageAdded && !businessExist) && <div
             className="position-fixed bottom-0 end-0 p-3"
             style={{ zIndex: 1050, width: 300 }}
           >
             <SetupProgressCard steps={steps} />
-          </div>
+          </div>}
         </div>
       ) : (
         <Component />
