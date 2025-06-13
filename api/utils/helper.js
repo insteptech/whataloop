@@ -33,7 +33,6 @@ const sendOtp = async (email, otp) => {
       from: process.env.TWILIO_PHONE_NUMBER,
       to: email,
     });
-    console.log(`OTP sent to ${email}`);
   } catch (error) {
     throw { error };
   }
@@ -63,36 +62,53 @@ const getUserIdFromToken = (token) => {
 };
 
 
-const getMessageDetails = (payload) =>{
+const getMessageDetails = (payload) => {
   try {
     const entry = payload?.entry?.[0];
-    const changes = entry?.changes?.[0];
-    const value = changes?.value;
-    const waId = value?.contacts?.[0]?.wa_id;
-    const message = value?.messages?.[0];
+    const change = entry?.changes?.[0];
+    const value = change?.value;
+
     const contact = value?.contacts?.[0];
-    const timestamp = value?.messages?.[0]?.timestamp;
-    const receiverNumber = value?.metadata?.display_phone_number;
+    const message = value?.messages?.[0];
+    const metadata = value?.metadata;
+
+    const waId = contact?.wa_id || null;
+    const from = message?.from || contact?.wa_id || null;
+    const timestamp = message?.timestamp
+      ? new Date(Number(message.timestamp) * 1000)
+      : new Date(); // fallback to now
+
+    const receiverNumber = metadata?.display_phone_number || null;
+
+    // Extract text based on message type
+    let text = null;
+    if (message?.type === 'text') {
+      text = message.text?.body;
+    } else if (message?.type === 'button') {
+      text = message.button?.text;
+    } else if (message?.type === 'interactive') {
+      text = message.interactive?.button_reply?.title || message.interactive?.list_reply?.title;
+    }
 
     return {
-      from: message?.from || null,
-      text: message?.text?.body || null,
+      from,
+      text: text || null,
       name: contact?.profile?.name || null,
-      waId: waId || null,
-      timestamp: timestamp ? new Date(timestamp * 1000) : null,
-      receiverNumber: receiverNumber || null
+      waId,
+      timestamp,
+      receiverNumber
     };
   } catch (err) {
-    console.error("Error extracting details:", err.message);
+    console.error("❌ Error extracting WhatsApp message details:", err.message);
     return {
       from: null,
       text: null,
       name: null,
       waId: null,
-      timestamp: null,
+      timestamp: new Date(),
       receiverNumber: null
     };
   }
-}
+};
 
 module.exports = { sendResponse, verifyToken, sendOtp, generateToken, sanitizePhoneNumber, getUserIdFromToken, getMessageDetails };

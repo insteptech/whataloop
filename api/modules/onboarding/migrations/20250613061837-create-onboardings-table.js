@@ -2,7 +2,6 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // Create onboardings table
     await queryInterface.createTable('onboardings', {
       id: {
         type: Sequelize.UUID,
@@ -20,15 +19,49 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
-      data: {
-        type: Sequelize.JSONB,
-        allowNull: true,
+      user_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'users',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
       },
-      whatsapp_number: { // <-- Added here!
+      whatsapp_number: {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true,
-        defaultValue: '', // Remove default if you don't need it!
+      },
+      business_name: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      profile_status: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      linked: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
+      },
+      waba_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      waba_phone_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      raw_payload: {
+        type: Sequelize.JSONB,
+        allowNull: true,
+      },
+      data: {
+        type: Sequelize.JSONB,
+        allowNull: true,
       },
       created_at: {
         allowNull: false,

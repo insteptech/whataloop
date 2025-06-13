@@ -49,39 +49,91 @@ const createWhatsappEntry = async (payload) => {
   await WhatsApp.create({ raw_payload: JSON.stringify(payload) });
 };
 
+// const saveRawPayload = async (payload) => {
+//   const messageDetails = getMessageDetails(payload);
+//   const qualityLabel = await leadQualityService.analyzeMessage(messageDetails?.text, "");
+//   console.log('🔍 Message Quality Label:', qualityLabel);
+  
+//   const { WhatsApp, User } = await getAllModels(process.env.DB_TYPE);
+//   // const user = await User.findOne({
+//   //   where: { phone: messageDetails.waId } // or { phone: '+91' + waId.slice(2) } if your DB uses '+'
+//   // });
+  
+//   if (qualityLabel != 'unclear') {
+//   await leadService.createIfNotExists({
+//       phone: messageDetails.from,
+//       full_name: messageDetails.name,
+//       source: WHATSAPP_SOURCE_ID,        
+//       user_id: DEFAULT_USER_ID,                
+//       tag: DEFAULT_TAG_ID,               
+//       status: DEFAULT_STATUS_ID,
+//       last_message: messageDetails.text,
+//       qualityLabel: qualityLabel,
+//       timestamp: messageDetails.timestamp,
+//       receiverNumber: messageDetails.receiverNumber,
+//     });
+//   }
+
+//   if(!WhatsApp) {
+//     throw new Error('WhatsApp model not found');
+//   }
+  
+//   await WhatsApp.create({
+//     raw_payload: payload,
+//   });
+// };
+
 const saveRawPayload = async (payload) => {
+  const hasMessage = payload?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+  if (!hasMessage) {
+    console.log("ℹ️ No message in payload (status event). Skipping.");
+    return;
+  }
+
   const messageDetails = getMessageDetails(payload);
   const qualityLabel = await leadQualityService.analyzeMessage(messageDetails?.text, "");
-  console.log('🔍 Message Quality Label:', qualityLabel);
 
+  const phoneNumberId = payload?.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id;
+  const { Onboarding, WhatsApp, Message, User } = await getAllModels(process.env.DB_TYPE);
 
-  const { WhatsApp, User } = await getAllModels(process.env.DB_TYPE);
-  // const user = await User.findOne({
-  //   where: { phone: messageDetails.waId } // or { phone: '+91' + waId.slice(2) } if your DB uses '+'
-  // });
-  
-  if (qualityLabel != 'unclear') {
-  await leadService.createIfNotExists({
-      phone: messageDetails.from,
-      full_name: messageDetails.name,
-      source: WHATSAPP_SOURCE_ID,        
-      user_id: DEFAULT_USER_ID,                
-      tag: DEFAULT_TAG_ID,               
-      status: DEFAULT_STATUS_ID,
-      last_message: messageDetails.text,
-      qualityLabel: qualityLabel,
-      timestamp: messageDetails.timestamp,
-      receiverNumber: messageDetails.receiverNumber,
+  const onboarding = await Onboarding.findOne({ where: { waba_phone_id: phoneNumberId } });
+  if (!onboarding) throw new Error(`No onboarding for phone_number_id: ${phoneNumberId}`);
+
+  const businessId = onboarding.business_id;
+
+  if(qualityLabel == 'unclear') return;
+
+  const lead = await leadService.createIfNotExists({
+    phone: messageDetails.from,
+    full_name: messageDetails.name,
+    source: WHATSAPP_SOURCE_ID,
+    user_id: onboarding.user_id ,
+    business_id: businessId,
+    tag: DEFAULT_TAG_ID,
+    status: DEFAULT_STATUS_ID,
+    last_message: messageDetails.text,
+    qualityLabel,
+    timestamp: messageDetails.timestamp,
+    receiverNumber: messageDetails.receiverNumber,
+  });
+
+  await Message.create({
+    lead_id: lead.id,
+    sender_phone_number: messageDetails.from,
+    receiver_phone_number: messageDetails.receiverNumber,
+    message_content: messageDetails.text,
+    message_type: 'incoming',
+    timestamp: messageDetails.timestamp,
+    status: 'sent',
+    quality_label: qualityLabel,
+  });
+
+  if (WhatsApp) {
+    await WhatsApp.create({
+      business_id: businessId,
+      raw_payload: payload,
     });
   }
-
-  if(!WhatsApp) {
-    throw new Error('WhatsApp model not found');
-  }
-  
-  await WhatsApp.create({
-    raw_payload: payload,
-  });
 };
 
 const sendTextMessage = async (toPhone, messageText) => {
@@ -107,12 +159,8 @@ const sendTextMessage = async (toPhone, messageText) => {
     'Content-Type': 'application/json',
   };
 
-  try {
-    // console.log('Sending message to WhatsApp API...');
-    console.log('📩 Sending message:---------------', url, payload, { headers });
-    
+  try {    
     const { data } = await axios.post(url, payload, { headers });
-    // console.log('Message sent successfully:', data);
     return data;
   } catch (error) {
     console.error('Error sending message to WhatsApp API:', error);

@@ -1,4 +1,3 @@
-// modules/onboarding/models/onboarding.js
 'use strict';
 const { Model } = require('sequelize');
 
@@ -8,6 +7,11 @@ module.exports = (sequelize, DataTypes) => {
       Onboarding.belongsTo(models.Business, {
         foreignKey: 'business_id',
         as: 'business',
+      });
+
+      Onboarding.belongsTo(models.User, {
+        foreignKey: 'user_id',
+        as: 'user',
       });
     }
   }
@@ -28,10 +32,45 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     },
-    whatsapp_number: {   // << ADD THIS
+    user_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    },
+    whatsapp_number: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
+    },
+    business_name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    profile_status: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    linked: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: false,
+    },
+    waba_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    waba_phone_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    raw_payload: {
+      type: DataTypes.JSONB,
+      allowNull: true,
     },
     data: {
       type: DataTypes.JSONB,

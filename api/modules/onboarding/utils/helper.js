@@ -26,7 +26,6 @@ const sendTestWhatsAppMessage = async ({ whatsappNumber }) => {
 
   try {
     const response = await axios.post(url, data, { headers });
-    console.log('response.data:-----', response.data);
     return response.data;
   } catch (err) {
     // Log full error details if present

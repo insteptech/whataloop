@@ -25,9 +25,7 @@ exports.stripeWebhook = async (req, res) => {
 };
 
 exports.listInvoices = async (req, res) => {
-  try {
-    console.log('req;---', req.query);
-    
+  try {    
     const { customer_id } = req.query;
     const invoices = await manager.listInvoices({ customer_id });
     res.json({ success: true, invoices });
